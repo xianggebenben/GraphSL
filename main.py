@@ -1,25 +1,16 @@
-import logging
 import numpy as np
 import copy
 import torch.nn as nn
-import matplotlib.pyplot as plt
 
-from main.training import FeatureCons, get_idx_new_seeds,get_predictions_new_seeds
-from main.utils import load_dataset
-from main.alm_net import alm_net
+from learning.IVGD.training import FeatureCons, get_idx_new_seeds,get_predictions_new_seeds
+from data.utils import load_dataset
+from learning.IVGD.alm_net import alm_net
 import torch
-from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score,roc_auc_score,mean_squared_error
-
-logging.basicConfig(
-    format='%(asctime)s:%(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.INFO)
-plt.style.use('seaborn')
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score,roc_auc_score
 import torch.optim as optim
 
 # key parameters
 dataset = 'karate'  # 'karate','dolphins','jazz','netscience','cora_ml', 'power_grid'
-model_name = 'deepis'  # 'deepis', ''
 graph = load_dataset(dataset)
 print(graph)
 influ_mat_list = copy.copy(graph.influ_mat_list)
@@ -28,9 +19,8 @@ graph.influ_mat_list = graph.influ_mat_list[:num_training]
 print(graph.influ_mat_list.shape), print(influ_mat_list.shape)
 # training parameters
 ndim =5 #for simulated datasets
-fea_constructor = FeatureCons(model_name, ndim=ndim)
+fea_constructor = FeatureCons(ndim=ndim)
 fea_constructor.prob_matrix = graph.prob_matrix
-device = 'cuda'  # 'cpu', 'cuda'
 model = torch.load("i-deepis_"+dataset+".pt")
 influ_pred=get_predictions_new_seeds(model,fea_constructor,graph.influ_mat_list[0,:,0],np.arange(len(graph.influ_mat_list[0,:,0])))
 criterion = nn.CrossEntropyLoss()
@@ -98,7 +88,6 @@ for i, influ_mat in enumerate(influ_mat_list):
         train_fs += f1_score(seed_vec, seed_correction>=threshold)
         train_auc += roc_auc_score(seed_vec, seed_correction)
     else:
-        #print(accuracy_score(seed_vec, seed_correction>=threshold))
         test_acc += accuracy_score(seed_vec, seed_correction>=threshold)
         test_pr += precision_score(seed_vec, seed_correction>=threshold,zero_division=1)
         test_re += recall_score(seed_vec, seed_correction>=threshold)

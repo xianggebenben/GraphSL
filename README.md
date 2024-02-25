@@ -1,23 +1,23 @@
 
-# IVGD: Invertible Validity-aware Graph Diffusion
+# GSL: Graph Source Localization Library
 
 This is an implementation of Invertible Validity-aware Graph Diffusion for the source localization problem, as described in our paper:
-
-Junxiang Wang, Junji Jiang, and Liang Zhao. An Invertible Graph Diffusion Neural Network for Source Localization. (WWW 2022)
 
 Feel free to Email Junxiang Wang (junxiang.wang@alumni.emory.edu) if you have any questions.
 
 ## Requirement
 
-scipy==1.5.0
+scipy==
 
-torch==1.6.0
+torch==
 
-ipdb==0.13.4
+ipdb==
 
-numpy==1.18.5
+numpy==
 
-scikit_learn==0.23.2
+scikit_learn==
+
+copy==
 
 ## Implementation
 
@@ -29,14 +29,3 @@ python main.py # train the source localization model, which is the inverse of th
 
 Please cite our paper if you use the code in your own work.
 
-@inproceedings{IVGD_www22,
-
-title={An Invertible Graph Diffusion Neural Network for Source Localization},
-
-author={Junxiang Wang, Junji Jiang, and Liang Zhao},
-
-booktitle={Proceedings of the 31th International World Wide Web Conference (WWW 2022)},
-
-year={2022}
-
-}
