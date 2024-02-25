@@ -21,9 +21,6 @@ copy==
 
 ## Implementation
 
-python pretrain.py # train the graph diffusion model.
-
-python main.py # train the source localization model, which is the inverse of the graph diffusion model. 
 
 ## Citation
 
