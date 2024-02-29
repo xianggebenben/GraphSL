@@ -6,7 +6,6 @@ from torch.utils.data import TensorDataset, DataLoader
 import scipy.sparse as sp
 import sys
 sys.path.append('../../')
-from data.sparsegraph import SparseGraph
 from .preprocessing import gen_seeds, gen_splits_
 from .earlystopping import EarlyStopping, stopping_args
 

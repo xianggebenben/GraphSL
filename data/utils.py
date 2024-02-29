@@ -1,10 +1,15 @@
 import math
-import numpy as np
 import scipy.sparse as sp
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import copy
+import numpy as np
+import networkx as nx
+import pickle
+import random
+import ndlib.models.ModelConfig as mc
+import ndlib.models.epidemics as ep
+import torch
 
 class SparseDropout(nn.Module):
     def __init__(self, p):
@@ -67,6 +72,28 @@ class MixedLinear(nn.Module):
         return 'in_features={}, out_features={}, bias={}'.format(
                 self.in_features, self.out_features, self.bias is not None)
 
+class InverseProblemDataset(torch.utils.data.Dataset):
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.graph = load_dataset(dataset)
+
+        self.data = self.cache(self.graph)
+
+    def cache(self, graph):
+        graph.influ_mat_list = graph.influ_mat_list
+        influ_mat_list = copy.copy(graph.influ_mat_list)
+
+        seed_vec = influ_mat_list[:, :, 0]
+        influ_vec = influ_mat_list[:, :, -1]
+        vec_pairs = np.stack((seed_vec, influ_vec), -1)
+        return vec_pairs
+
+    def __getitem__(self, item):
+        vec_pair = self.data[item]
+        return vec_pair
+
+    def __len__(self):
+        return len(self.data)
 
 def sparse_matrix_to_torch(X):
     coo = X.tocoo()
@@ -114,8 +141,7 @@ def load_dataset(dataset, data_dir='data'):
     sys.path.append('data') # for pickle.load
 
     data_dir = Path(data_dir)
-    suffix = '_25c.SG'
-    graph_name = dataset + suffix
+    graph_name = dataset
     path_to_file = data_dir / graph_name
     with open(path_to_file, 'rb') as f:
         graph = pickle.load(f)
@@ -167,43 +193,77 @@ def adj_process(adj):
     return adj
 
 
-def load_dataset(dataset, data_dir='data'):
-    from pathlib import Path
-    import pickle
-    import sys
 
-    sys.path.append('data')  # for pickle.load
+def generate_seed_vector(top_nodes, seed_num, G):
+    seed_nodes = random.sample(top_nodes, seed_num)
+    seed_vector = [1 if node in seed_nodes else 0 for node in G.nodes()]
+    return seed_vector
 
-    data_dir = Path(data_dir)
-    suffix = '_25c.SG'
-    graph_name = dataset + suffix
-    path_to_file = data_dir / graph_name
-    with open(path_to_file, 'rb') as f:
+
+def data_generation(sim_num=10, diff_type='IC', time_step=100,repeat_step=500,seed_ratio=0.1, infect_prob=0.1, recover_prob=0.005, threshold=0.5,
+                    data_name='karate'):
+    if data_name not in ['karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid']:
+        raise ValueError('dataset should be within (karate, dolphins, jazz, netscience, cora_ml, power_grid).')
+    with open('data/' + data_name, 'rb') as f:
         graph = pickle.load(f)
-    return graph
+    adj_mat = graph['adj_mat']
+    G = nx.from_scipy_sparse_array(adj_mat)
+    node_num = len(G.nodes())
+    seed_num = int(seed_ratio * node_num)
+    simulation = []
 
+    degree_list = list(G.degree())
+    degree_list.sort(key=lambda x: x[1], reverse=True)
+    top_nodes = [x[0] for x in degree_list[:int(len(degree_list) * 0.3)]]
 
-class InverseProblemDataset(torch.utils.data.Dataset):
-    def __init__(self, dataset):
-        self.dataset = dataset
-        self.graph = load_dataset(dataset)
+    for i in range(sim_num):
+        seed_vector = generate_seed_vector(top_nodes, seed_num, G)
+        inf_vec_all = torch.zeros(node_num)
+        config = mc.Configuration()
+        for k in range(repeat_step):
+            if diff_type == 'LT':
+                model = ep.ThresholdModel(G)
+                for n in G.nodes():
+                    config.add_node_configuration("threshold", n, threshold)
+            elif diff_type == 'IC':
+                model = ep.IndependentCascadesModel(G)
+                for e in G.edges():
+                    config.add_edge_configuration("threshold", e, threshold)
+            elif diff_type == 'SIS':
+                model = ep.SISModel(G)
+                config.add_model_parameter('beta', infect_prob)
+                config.add_model_parameter('lambda', recover_prob)
+            elif diff_type == 'SIR':
+                model = ep.SIRModel(G)
+                config.add_model_parameter('beta', infect_prob)
+                config.add_model_parameter('lambda', recover_prob)
+            elif diff_type == 'SI':
+                model = ep.SIModel(G)
+                config.add_model_parameter('beta', infect_prob)
+            else:
+                raise ValueError('Only IC, LT, SI, SIR and SIS are supported.')
 
-        self.data = self.cache(self.graph)
+            config.add_model_initial_configuration("Infected", seed_vector)
 
-    def cache(self, graph):
-        graph.influ_mat_list = graph.influ_mat_list
-        influ_mat_list = copy.copy(graph.influ_mat_list)
+            model.set_initial_status(config)
 
-        seed_vec = influ_mat_list[:, :, 0]
-        influ_vec = influ_mat_list[:, :, -1]
-        vec_pairs = np.stack((seed_vec, influ_vec), -1)
-        return vec_pairs
+            iterations = model.iteration_bunch(time_step)
 
-    def __getitem__(self, item):
-        vec_pair = self.data[item]
-        return vec_pair
+            node_status = iterations[0]['status']
 
-    def __len__(self):
-        return len(self.data)
+            for j in range(1, len(iterations)):
+                node_status.update(iterations[j]['status'])
 
-    
+            inf_vec = np.array(list(node_status.values()))
+            inf_vec[inf_vec == 2] = 1
+
+            inf_vec_all += inf_vec
+
+        inf_vec_all=inf_vec_all/repeat_step
+
+        simulation.append([seed_vector, inf_vec_all])
+
+    simulation = torch.Tensor(simulation).permute(0, 2, 1)
+
+    dataset ={'adj_mat': adj_mat, 'diff_mat': simulation}
+    return dataset
