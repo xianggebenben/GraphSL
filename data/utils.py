@@ -81,7 +81,7 @@ class InverseProblemDataset(torch.utils.data.Dataset):
 
     def cache(self, graph):
         graph.influ_mat_list = graph.influ_mat_list
-        influ_mat_list = copy.copy(graph.influ_mat_list)
+        influ_mat_list = copy.deepcopy(graph.influ_mat_list)
 
         seed_vec = influ_mat_list[:, :, 0]
         influ_vec = influ_mat_list[:, :, -1]
