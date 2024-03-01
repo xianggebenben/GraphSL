@@ -200,7 +200,7 @@ def generate_seed_vector(top_nodes, seed_num, G):
     return seed_vector
 
 
-def data_generation(sim_num=10, diff_type='IC', time_step=100,repeat_step=500,seed_ratio=0.1, infect_prob=0.1, recover_prob=0.005, threshold=0.5,
+def data_generation(sim_num=10, diff_type='IC', time_step=100,repeat_step=10,seed_ratio=0.1, infect_prob=0.1, recover_prob=0.005, threshold=0.5,
                     data_name='karate'):
     if data_name not in ['karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid']:
         raise ValueError('dataset should be within (karate, dolphins, jazz, netscience, cora_ml, power_grid).')

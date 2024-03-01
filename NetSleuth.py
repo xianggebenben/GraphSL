@@ -24,8 +24,7 @@ for i, influ_mat in enumerate(diff_mat):
     print("simulation {:d}".format(i))
     seed_vec = influ_mat[:, 0]
     influ_vec = influ_mat[:, -1]
-    k = len(seed_vec[seed_vec == 1])
-    x = netsleuth(k,influ_vec)
+    x = netsleuth(10,influ_vec)
     if i < train_num:
         train_auc += roc_auc_score(seed_vec, x)
 
