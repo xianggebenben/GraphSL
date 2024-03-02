@@ -6,6 +6,7 @@ import copy
 import torch
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
+import torch.nn.functional as F
 class LPSI(nn.Module):
     def __init__(self, alpha, laplacian, num_node):
         super().__init__()
@@ -69,7 +70,7 @@ class GCNConv(MessagePassing):
 
 class GCNSI(torch.nn.Module):
     def __init__(self):
-        super(Net, self).__init__()
+        super(GCNSI, self).__init__()
         self.conv1 = GCNConv(4, 128)
         self.conv2 = GCNConv(128, 128)
         self.fc =torch.nn.Linear(128,2)

@@ -1,8 +1,7 @@
 import networkx as nx
-import numpy as np
 import copy
 
-from data.utils import load_dataset, InverseProblemDataset
+from data.utils import load_dataset
 from sklearn.metrics import roc_auc_score
 from data.utils import data_generation
 from handcraft import NetSleuth
