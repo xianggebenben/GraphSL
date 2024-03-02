@@ -74,7 +74,22 @@ class GCNSI(torch.nn.Module):
         self.conv2 = GCNConv(128, 128)
         self.fc =torch.nn.Linear(128,2)
 
-    def forward(self, x,edge_index):
+    def forward(self, alpha,laplacian,num_node,threshold,diff_vec,edge_index):
+        lpsi =LPSI(alpha, laplacian, num_node)
+        V3 = copy.deepcopy(diff_vec)
+        V4 = copy.deepcopy(diff_vec)
+        V3[diff_vec < threshold] =  threshold
+        V4[diff_vec >= threshold] =  threshold
+        d1 = copy.deepcopy(diff_vec)
+        d1 = d1[:, np.newaxis]
+        d2 = lpsi(diff_vec)
+        d2 = d2[:, np.newaxis]
+        d3 = lpsi(V3)
+        d3 = d3[:, np.newaxis]
+        d4 = lpsi(V4)
+        d4 = d4[:, np.newaxis]
+        x = np.concatenate((d1, d2, d3, d4), axis=1)
+        x = torch.tensor(x,dtype=torch.float)
         x = self.conv1(x, edge_index)
         x = F.relu(x)
         x = F.dropout(x, training=self.training)
