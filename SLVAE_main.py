@@ -4,7 +4,7 @@ import torch.nn as nn
 
 from learning.IVGD.training import FeatureCons, get_idx_new_seeds,get_predictions_new_seeds
 from data.utils import load_dataset
-from learning.IVGD.alm_net import alm_net
+from learning.IVGD.validity_net import alm_net
 import torch
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score,roc_auc_score
 import torch.optim as optim

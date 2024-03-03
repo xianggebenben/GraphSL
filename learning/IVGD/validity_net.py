@@ -3,9 +3,9 @@ import torch.nn.functional as F
 from learning.IVGD.correction import correction
 
 
-class alm_net(torch.nn.Module):
+class validity_net(torch.nn.Module):
     def __init__(self, alpha, tau, rho):
-        super(alm_net, self).__init__()
+        super(validity_net, self).__init__()
         self.number_layer = 5
         self.alpha1 = alpha
         self.alpha2 = alpha

@@ -126,7 +126,7 @@ def PIteration(prob_matrix, predictions, seed_idx, substitute=True, piter=10):
     return final_preds
 
 
-def train_model(data_name: str, model, fea_constructor, graph: SparseGraph, learning_rate: float, λ, γ, ckpt_dir, idx_split_args: dict={'ntraining':200,
+def train_model(data_name: str, model, fea_constructor, prob_matrix,diff_mat, learning_rate: float, λ, γ, ckpt_dir, idx_split_args: dict={'ntraining':200,
  'nstopping':400,  'nval':10}, stopping_args: dict=stopping_args, test: bool=False, device: str='cuda', torch_seed: int=None, print_interval: int=10, batch_size=None) -> Tuple[(nn.Module, dict)]:
     if torch_seed is None:
         torch_seed = gen_seeds()
@@ -142,7 +142,7 @@ def train_model(data_name: str, model, fea_constructor, graph: SparseGraph, lear
     temp_attr_mat_dict = {}
     for epoch in range(early_stopping.max_epochs):
         idx_np = {}
-        idx_np['train'], idx_np['stopping'], idx_np['valtest'] = gen_splits_(np.arange(graph.prob_matrix.shape[0]), train_size=(idx_split_args['ntraining']),
+        idx_np['train'], idx_np['stopping'], idx_np['valtest'] = gen_splits_(np.arange(prob_matrix.shape[0]), train_size=(idx_split_args['ntraining']),
           stopping_size=(idx_split_args['nstopping']),
           val_size=(idx_split_args['nval']))
         idx_all = {key:torch.LongTensor(val) for key, val in idx_np.items()}
@@ -150,7 +150,7 @@ def train_model(data_name: str, model, fea_constructor, graph: SparseGraph, lear
             epoch_stats[phase]['loss'] = []
             epoch_stats[phase]['error'] = []
 
-        for i, influ_mat in enumerate(graph.influ_mat_list):
+        for i, influ_mat in enumerate(diff_mat):
             try:
                 attr_mat = temp_attr_mat_dict[i]
             except KeyError:

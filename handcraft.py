@@ -8,14 +8,13 @@ from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 import torch.nn.functional as F
 class LPSI(nn.Module):
-    def __init__(self, alpha, laplacian, num_node):
+    def __init__(self, laplacian, num_node):
         super().__init__()
-        self.alpha = alpha
         self.laplacian = laplacian
         self.num_node = num_node
 
-    def forward(self, diff_vec):
-        x = (1 - self.alpha) * np.matmul(np.linalg.inv(np.eye(N=self.num_node) - self.alpha * self.laplacian), diff_vec)
+    def forward(self, alpha,diff_vec):
+        x = (1 - alpha) * np.matmul(np.linalg.inv(np.eye(N=self.num_node) - alpha * self.laplacian), diff_vec)
         return x
 
 class NetSleuth(nn.Module):
@@ -76,18 +75,18 @@ class GCNSI(torch.nn.Module):
         self.fc =torch.nn.Linear(128,2)
 
     def forward(self, alpha,laplacian,num_node,threshold,diff_vec,edge_index):
-        lpsi =LPSI(alpha, laplacian, num_node)
+        lpsi =LPSI(laplacian, num_node)
         V3 = copy.deepcopy(diff_vec)
         V4 = copy.deepcopy(diff_vec)
         V3[diff_vec < threshold] =  threshold
         V4[diff_vec >= threshold] =  threshold
         d1 = copy.deepcopy(diff_vec)
         d1 = d1[:, np.newaxis]
-        d2 = lpsi(diff_vec)
+        d2 = lpsi(alpha,diff_vec)
         d2 = d2[:, np.newaxis]
-        d3 = lpsi(V3)
+        d3 = lpsi(alpha,V3)
         d3 = d3[:, np.newaxis]
-        d4 = lpsi(V4)
+        d4 = lpsi(alpha,V4)
         d4 = d4[:, np.newaxis]
         x = np.concatenate((d1, d2, d3, d4), axis=1)
         x = torch.tensor(x,dtype=torch.float)
@@ -96,4 +95,60 @@ class GCNSI(torch.nn.Module):
         x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
         x = self.fc(x)
+        return x
+
+class OJC(nn.Module):
+    def __init__(self, G):
+        super().__init__()
+        self.G = G
+
+    def get_K_list(self, Y, I, target):
+        K = list()
+        for n1 in self.G.nodes():
+            count = 0
+            for n2 in self.G[n1]:
+                if target[n2] == 1:
+                    count += 1
+                if count == Y:
+                    K.append(n1)
+                    break
+        K = list(set(K + I))
+        return K
+
+    def Candidate(self, Y, I, target):
+        K = self.get_K_list(Y, I, target)
+        G_prime = self.G.subgraph(K)
+        # unforzen
+        G_prime = nx.Graph(G_prime)
+        if nx.is_connected(G_prime):
+            G_bar = G_prime
+        else:
+            component = nx.connected_components(G_prime)
+            R = [list(c)[0] for c in component]
+            for n in R[1:]:
+                if nx.has_path(self.G, n, R[0]):
+                    path = nx.shortest_path(self.G, R[0], n)
+                    nx.add_path(G_prime, path)
+            G_bar = G_prime
+        nx.is_connected(G_bar)
+        return K, G_bar
+
+    def forward(self, Y, I, target, num_source):
+        K, G_bar = self.Candidate(Y, I, target)
+        ecc = list()
+        for n in K:
+            long_path = 0
+            for i in I:
+                if nx.has_path(G_bar, n, i):
+                    path = nx.shortest_path_length(G_bar, n, i)
+                else:
+                    path = 0
+                if path > long_path:
+                    long_path = path
+            ecc.append(long_path)
+        ecc_arr = np.array(ecc)
+        index = np.argsort(ecc_arr).tolist()
+        index = index[:num_source]
+        x = np.zeros(target.shape)
+        x[index] = 1
         return x
