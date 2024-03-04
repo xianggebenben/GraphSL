@@ -10,7 +10,7 @@ from .preprocessing import gen_seeds, gen_splits_
 from .earlystopping import EarlyStopping, stopping_args
 
 class FeatureCons:
-    """Initial feature constructor for different models."""
+    """Initial feature constructor for different model."""
     __module__ = __name__
     __qualname__ = 'FeatureCons'
 
@@ -161,7 +161,7 @@ def train_model(data_name: str, model, fea_constructor, prob_matrix,diff_mat, le
             model = update_embedding(model, attr_mat)
             model = model.to(device)
             influ_vec = influ_mat[:, -1]
-            labels_all = influ_vec
+            labels_all = influ_vec.numpy()
             dataloaders = get_dataloaders(idx_all, labels_all, batch_size=batch_size)
             for phase in epoch_stats.keys():
                 if phase == 'train':
@@ -215,7 +215,6 @@ def train_model(data_name: str, model, fea_constructor, prob_matrix,diff_mat, le
     result['valtest'] = {'mean error': valtest_error}
     result['runtime'] = runtime
     result['runtime_perepoch'] = runtime_perepoch
-    model.gnn_model.features = None
     ckpt_name = '{}_{}_{}'.format(data_name, start_time_str, early_stopping.best_epoch)
     torch.save(model.state_dict(), ckpt_dir / ckpt_name)
     return (
@@ -321,5 +320,4 @@ def get_idx_new_seeds(model, prediction):
     device = next(model.parameters()).device
     prediction = torch.tensor(prediction).to(device)
     result = model.backward(prediction)
-    result = result.detach().cpu().numpy()
     return result

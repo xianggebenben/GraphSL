@@ -11,7 +11,7 @@ from .preprocessing import gen_seeds, normalize_attributes, gen_splits_
 from .earlystopping import EarlyStopping, stopping_args
 
 class FeatureCons:
-    """Initial feature constructor for different models"""
+    """Initial feature constructor for different model"""
     __module__ = __name__
     __qualname__ = 'FeatureCons'
 

@@ -21,7 +21,7 @@ test_num = all_num-train_num
 train_diff_mat, test_diff_mat = torch.utils.data.random_split(diff_mat, [train_num, test_num])
 opt_auc = 0
 opt_Y = 0
-for Y in (1,5,10,20,50):
+for Y in (1,2,3,4,5,10,20,50):
     train_auc = 0
     for influ_mat in train_diff_mat:
         seed_vec = influ_mat[:, 0]

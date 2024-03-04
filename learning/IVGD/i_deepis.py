@@ -10,7 +10,7 @@ class Identity(nn.Module):
     def __init__(self):
         super(Identity, self).__init__()
 
-    def forward(self, preds, seed_idx, idx):
+    def forward(self, preds, idx):
         return preds[idx]
 
 
@@ -96,8 +96,6 @@ class i_DeepIS(nn.Module):
         L1 = torch.sum(torch.abs(predictions - labels)) / len(labels)  # node-level error
         L2 = torch.abs(torch.sum(predictions) - torch.sum(labels)) / (
                 torch.sum(labels) + 1e-5)  # influence spread error
-        #         L2 = torch.abs(torch.sum(predictions) - torch.sum(labels))/(len(labels))
         Reg = sum(torch.sum(param ** 2) for param in self.reg_params)
         Loss = L1 + λ * L2 + γ * Reg
-        # Loss = L1 + λ*L2
         return Loss
