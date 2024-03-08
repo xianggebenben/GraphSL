@@ -41,7 +41,7 @@ niter = 2
 propagate_model = DiffusionPropagate(prob_matrix, niter=niter)
 fea_constructor = FeatureCons(ndim=ndim)
 fea_constructor.prob_matrix = prob_matrix
-device = 'cpu'  # 'cpu', 'cuda'
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 args_dict = {
     'learning_rate': 1e-4,
     'λ': 0,
@@ -67,7 +67,7 @@ ivgd = ivgd(alpha=alpha, tau=tau, rho=rho)
 optimizer = optim.SGD(ivgd.parameters(), lr=1e-2)
 ivgd.train()
 num_epoch = 50
-for i, influ_mat in enumerate(train_diff_mat):
+for influ_mat in train_diff_mat:
     seed_vec = influ_mat[:, 0]
     seed_idx = np.argwhere(seed_vec == 1)  # used by PIteration
     influ_vec = influ_mat[:, -1]
