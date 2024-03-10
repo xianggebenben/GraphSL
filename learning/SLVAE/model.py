@@ -83,15 +83,9 @@ class VAE(nn.Module):
         return self.decoder(x)
 
     def forward(self, x):
-        mean, logvar = self.encode(x)
-        z = self.reparameterization(mean, logvar)
-        x_hat = self.decode(z)
-        return x_hat, mean, logvar
-
-    def forward(self, x):
         device = x.device
         mean, log_var = self.encode(x)
-        z = self.reparameterization(mean, torch.exp(0.5 * log_var),device)
+        z = self.reparameterization(mean, log_var,device)
         x_hat = self.decode(z)
         return x_hat, mean, log_var
 
