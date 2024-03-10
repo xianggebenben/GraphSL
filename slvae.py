@@ -2,11 +2,10 @@ import torch
 from torch.optim import Adam
 from data.utils import data_generation,load_dataset
 import copy
-from learning.SLVAE.model import VAE,GNN,DiffusionPropagate
+from gnn.SLVAE.model import VAE,GNN,DiffusionPropagate
 import numpy as np
-from learning.SLVAE.main import slvae
+from gnn.SLVAE.main import slvae
 from sklearn.metrics import roc_auc_score
-import torch.nn.functional as F
 import warnings
 warnings.filterwarnings("ignore")
 infect_prob =0.1

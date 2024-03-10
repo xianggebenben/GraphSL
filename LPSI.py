@@ -5,7 +5,7 @@ import numpy as np
 import copy
 from sklearn.metrics import roc_auc_score
 from data.utils import data_generation
-from handcraft import LPSI
+from Prescribed import LPSI
 import torch
 data_name = 'karate'  # 'karate','dolphins','jazz','netscience','cora_ml', 'power_grid',,'meme7000','digg16000'
 if data_name in ['meme7000', 'digg16000']:

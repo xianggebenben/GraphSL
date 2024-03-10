@@ -1,14 +1,17 @@
 ---
-title: 'GSL: A Open-Source Python Library for Graph Source Localization Algorithms and Benchmark Datasets'
+title: 'GraphSL: A Open-Source Library for Graph Source Localization Algorithms and Benchmark Datasets'
 tags:
   - Python
   - graph diffusion
   - Graph Source Localization
   - Prescribed Methods
   - GNN Methods
+  - Benchmark
 authors:
   - name: Junxiang Wang
     orcid: 0000-0002-6635-4296
+    affiliation: "1" # (Multiple affiliations must be quoted)
+  - name: Liang Zhao
     affiliation: "1" # (Multiple affiliations must be quoted)
 affiliations:
  - name:  Emory University, United States
@@ -29,14 +32,36 @@ bibliography: paper.bib
 
 ![An example of graph source localization.\label{fig:example}](SL_example.png)
 
-Graphs are prevalent data structures where nodes are connected by their relations, which covers a wide range of applications across various domains such as biological networks, social networks and traffic networks. In graph mining, a fundamental task is graph diffusion, which aims to predict future graph cascade patterns given source nodes. Conversely, its inverse problem, graph source localization, though rarely explored, stands as an extremely important topic: it focuses on detection of source nodes given their future graph cascade patterns. As illustrated in \autoref{fig:example}, graph diffusion seeks to predict the cascade pattern $\{b,c,d,e\}$ from a source node $b$, whereas graph source localization aims to identify source nodes $b$ from the cascade pattern $\{b,c,d,e\}$. Graph source localization spans a broad spectrum of promising research and real-world applications. For instance, online social media platforms like Twitter and Facebook have been instrumental in disseminating rumors and misinformation with significant repercussions [@evanega2020coronavirus]. Additionally, the rapid propagation of computer viruses across the Internet, infecting millions of computers, underscores the critical need for tracking their sources [@kephart1993measuring]. Moreover, in smart grids, where isolated failures can trigger rolling blackouts leading to substantial financial losses [@amin2007preventing], graph source localization plays a pivotal role. Hence, the graph source localization problem demands attention and extensive investigations from machine learning researchers.
+Graph diffusion is a fundamental task in graph learning, which aims to predict future graph cascade patterns given source nodes. Conversely, its inverse problem, 
+graph source localization, though rarely explored, stands as an extremely important topic: it focuses on detection of source nodes given their future graph cascade 
+patterns. As illustrated in \autoref{fig:example}, graph diffusion seeks to predict the cascade pattern $\{b,c,d,e\}$ from a source node $b$, whereas graph source 
+localization aims to identify source nodes $b$ from the cascade pattern $\{b,c,d,e\}$. Graph source localization spans a broad spectrum
+of promising research and real-world applications. For instance, online social media platforms like Twitter and Facebook have been instrumental in disseminating rumors
+and misinformation with significant repercussions [@evanega2020coronavirus]. Additionally, the rapid propagation of computer viruses across the Internet, infecting 
+millions of computers, underscores the critical need for tracking their sources [@kephart1993measuring]. Moreover, in smart grids, where isolated failures can trigger 
+rolling blackouts leading to substantial financial losses [@amin2007preventing], graph source localization plays a pivotal role. Hence, the graph source localization 
+problem demands attention and extensive investigations from machine learning researchers.
 
+Some open-source tools have been developed to support the research of graph source localization problem due to its importance. Two recent examples are cosasi [@McCabe2022joss] 
+and RPaSDT [@frkaszczak2022rpasdt]. 
+However, they missed real-world benchmark datasets and up-to-date state-of-the-art approaches. To fill this gap, we propose a new package GraphSL: 
+the first one to include  both real-world benchmark datasets and a number of recent source localization methods to our knowledge,
+which enables researchers and practitioners to easily evaluate novel techniques against appropriate baselines. These methods do not require prior knowledge 
+(e.g. single source or multiple sources), and can handle graph source localization based on various graph diffusion models such as 
+Independent Cascade (IC) and Linear Threshold (LT). 
 
-# Package Descriptions
+# Problem Definition
+Consider a graph $G=(V,E)$, where $V=\{v_1,\cdots,v_n\}$ and $E$ are the node set and the edge set respectively, $\vert V\vert=n$ is the number of nodes. 
+$Y_t\in \{0,1\}^{n}$ is a diffusion vector at time $t$. $Y_{t,i}=1$ means that node $i$ is diffused, while $Y_{t,i}=0$ means that node $i$ is not diffused.   
+$S$ is a set of source nodes. $x\in \{0,1\}^n$ is a vector of source nodes, $x_i=1$ if $v_i\in S$ and $x_i=0$ otherwise. 
+The diffusion process begins at timestamp 0 and terminates at timestamp $T$. The graph diffusion model is denoted as $\theta$, and its inverse problem, 
+graph source localization, is to infer $x$ from $Y_{T}$. Then the graph source localization problem can be mathematically formulated as follows:
+\begin{align}
+    \theta^{-1}: Y_T \rightarrow x . \label{eq:source localization}
+\end{align}
 
-## Algorithms
+## Methods and Benchmark Datasets
 
-## Benchmark Datasets
 
 # Availability and Documentation
 
@@ -44,6 +69,6 @@ Graphs are prevalent data structures where nodes are connected by their relation
 
 # Acknowledgements
 
-The support from Junji Jiang is acknowledged during the development of the GSL library.
+We knowledge the support from Junji Jiang during the development of the GraphSL library.
 
 # References

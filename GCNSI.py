@@ -5,7 +5,7 @@ import torch
 from scipy.sparse import coo_matrix
 import numpy as np
 from data.utils import data_generation
-from handcraft import GCNSI
+from Prescribed import GCNSI
 import copy
 data_name = 'karate'  # 'karate','dolphins','jazz','netscience','cora_ml', 'power_grid','meme7000','digg16000'
 if data_name in ['meme7000', 'digg16000']:

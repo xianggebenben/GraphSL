@@ -2,13 +2,13 @@ import logging
 import numpy as np
 from pathlib import Path
 import copy
-from learning.IVGD.i_deepis import i_DeepIS, DiffusionPropagate
-from learning.IVGD.model.MLP import MLPTransform
-from learning.IVGD.training import train_model
+from gnn.IVGD.i_deepis import i_DeepIS, DiffusionPropagate
+from gnn.IVGD.model.MLP import MLPTransform
+from gnn.IVGD.training import train_model
 import torch.nn as nn
-from learning.IVGD.training import FeatureCons, get_idx_new_seeds
+from gnn.IVGD.training import FeatureCons, get_idx_new_seeds
 from data.utils import load_dataset
-from learning.IVGD.main import ivgd
+from gnn.IVGD.main import ivgd
 import torch
 from sklearn.metrics import roc_auc_score
 import torch.optim as optim

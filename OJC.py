@@ -4,7 +4,7 @@ from sklearn.metrics import roc_auc_score
 from data.utils import data_generation
 import copy
 import torch
-from handcraft import OJC
+from Prescribed import OJC
 data_name = 'karate'  # 'karate','dolphins','jazz','netscience','cora_ml', 'power_grid','meme7000','digg16000'
 if data_name in ['meme7000', 'digg16000']:
     dataset = load_dataset(data_name)
