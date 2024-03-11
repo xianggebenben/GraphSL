@@ -64,15 +64,12 @@ graph source localization, is to infer $x$ from $Y_{T}$:
 
 ![The hierarchical structure of our GraphSL library version 0.1.\label{fig:overview}](overview.png)
 
-The structure of our GraphSL library is shown in \autoref{fig:overview}. Existing graph source localization methods fall in two categories: Prescribed methods and. 
-Graph Neural Networks(GNN)-based methods. Prescribed methods based on hand-crafted rules and heuristics. For example, LPSI propogated infection in the networks and labeled 
-local peaks as source nodes [@wang2017multiple]; NetSleuth employed the Minimum Description Length principle to identify the best set of source nodes 
-and virus propagation ripple. [@prakash2012spotting]; OJC finds a set of nodes (i.e. Jordan cover) that “cover” all observed infected nodes with 
-the minimum radius [@zhu2017catch]. GCNSI used the LPSI to augment input, and then applied the Graph Convolutional Networks(GCN) 
-for source identification [@dong2019multiple]. GNN-based methods "learn" rules from graph data in an end-to-end fashion by capturing graph topology and
-neighboring information. As an example, IVGD proposes a graph residual scenario to make existing graph diffusion models invertible, and a new set of validity-aware layers
-have been devised to project inferred sources to feasible regions [@IVGD_www22]; SLVAE uses forward diffusion estimation and deep generative models to approximate source distribution, 
-leveraging prior knowledge for generalization under arbitrary diffusion patterns [@ling2022source].
+The structure of our GraphSL library is depicted in \autoref{fig:overview}. Existing graph source localization methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
+
+Prescribed methods rely on hand-crafted rules and heuristics. For instance, LPSI propagated infection in networks and labels local peaks as source nodes [@wang2017multiple]. NetSleuth employed the Minimum Description Length principle to identify the optimal set of source nodes and virus propagation ripple [@prakash2012spotting]. OJC identified a set of nodes (Jordan cover) that cover all observed infected nodes with the minimum radius [@zhu2017catch]. GCNSI utilized LPSI to enhance input and then applies Graph Convolutional Networks (GCN) for source identification [@dong2019multiple].
+
+GNN-based methods learn rules from graph data in an end-to-end manner by capturing graph topology and neighboring information. For example, IVGD introduced a graph residual scenario to make existing graph diffusion models invertible, and it devises a new set of validity-aware layers to project inferred sources to feasible regions [@IVGD_www22]. SLVAE used forward diffusion estimation and deep generative models to approximate source distribution, leveraging prior knowledge for generalization under arbitrary diffusion patterns [@ling2022source].
+
 
 
 # Availability and Documentation
