@@ -53,7 +53,7 @@ Independent Cascade (IC) and Linear Threshold (LT).
 # Problem Definition
 Consider a graph $G=(V,E)$, where $V=\{v_1,\cdots,v_n\}$ and $E$ are the node set and the edge set respectively, $\vert V\vert=n$ is the number of nodes. 
 $Y_t\in \{0,1\}^{n}$ is a diffusion vector at time $t$. $Y_{t,i}=1$ means that node $i$ is diffused, while $Y_{t,i}=0$ means that node $i$ is not diffused.   
-$S$ is a set of source nodes. $x\in \{0,1\}^n$ is a vector of source nodes, $x_i=1$ if $v_i\in S$ and $x_i=0$ otherwise. 
+$S$ is a set of source nodes. $x\in \{0,1\}^n$ is a source vector, $x_i=1$ if $v_i\in S$ and $x_i=0$ otherwise. 
 The diffusion process begins at timestamp 0 and terminates at timestamp $T$. The graph diffusion model is denoted as $\theta$, and its inverse problem, 
 graph source localization, is to infer $x$ from $Y_{T}$:
 \begin{align}
