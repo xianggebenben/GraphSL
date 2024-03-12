@@ -7,8 +7,8 @@ import numpy as np
 from data.utils import data_generation
 from Prescribed import GCNSI
 import copy
-data_name = 'karate'  # 'karate','dolphins','jazz','netscience','cora_ml', 'power_grid','meme7000','digg16000'
-if data_name in ['meme7000', 'digg16000']:
+data_name = 'karate'  # 'karate','dolphins','jazz','netscience','cora_ml', 'power_grid','meme8000','digg16000'
+if data_name in ['meme8000', 'digg16000']:
     dataset = load_dataset(data_name)
 else:
     dataset = data_generation(data_name=data_name)

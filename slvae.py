@@ -9,8 +9,8 @@ from sklearn.metrics import roc_auc_score
 import warnings
 warnings.filterwarnings("ignore")
 infect_prob =0.1
-data_name = 'karate'  # 'karate','dolphins','jazz','netscience','cora_ml', 'power_grid','meme7000','digg16000'
-if data_name in ['meme7000', 'digg16000']:
+data_name = 'karate'  # 'karate','dolphins','jazz','netscience','cora_ml', 'power_grid','meme8000','digg16000'
+if data_name in ['meme8000', 'digg16000']:
     dataset = load_dataset(data_name)
 else:
     dataset = data_generation(data_name=data_name,infect_prob=infect_prob)

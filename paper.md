@@ -64,13 +64,40 @@ graph source localization, is to infer $x$ from $Y_{T}$:
 
 ![The hierarchical structure of our GraphSL library version 0.1.\label{fig:overview}](overview.png)
 
-The structure of our GraphSL library is depicted in \autoref{fig:overview}. Existing graph source localization methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
+The structure of our GraphSL library is depicted in \autoref{fig:overview]. Existing graph source localization methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
 
 Prescribed methods rely on hand-crafted rules and heuristics. For instance, LPSI propagated infection in networks and labels local peaks as source nodes [@wang2017multiple]. NetSleuth employed the Minimum Description Length principle to identify the optimal set of source nodes and virus propagation ripple [@prakash2012spotting]. OJC identified a set of nodes (Jordan cover) that cover all observed infected nodes with the minimum radius [@zhu2017catch]. GCNSI utilized LPSI to enhance input and then applies Graph Convolutional Networks (GCN) for source identification [@dong2019multiple].
 
 GNN-based methods learn rules from graph data in an end-to-end manner by capturing graph topology and neighboring information. For example, IVGD introduced a graph residual scenario to make existing graph diffusion models invertible, and it devises a new set of validity-aware layers to project inferred sources to feasible regions [@IVGD_www22]. SLVAE used forward diffusion estimation and deep generative models to approximate source distribution, leveraging prior knowledge for generalization under arbitrary diffusion patterns [@ling2022source].
 
+|       Dataset      |  #Node |  #Edge | Average Degree | Has Source/Diffusion Pairs |
+|:------------------:|:------:|:------:|:--------------:|:--------------------------:|
+|       Karate       |   34   |   78   |      4.588     |             No             |
+|      Dolphins      |   62   |   159  |      5.129     |             No             |
+|         Jazz       |   198  |  2,742 |     27.697     |             No             |
+| Network   Science  |  1,589 |  2,742 |      3.451     |             No             |
+|       Cora-ML      |  2,810 |  7,981 |      5.68      |             No             |
+|    Power   Grid    |  4,941 |  6,594 |      2.669     |             No             |
+|     Memetracker    |  7,884 | 47,911 |     12.154     |             Yes            |
+|        Digg        | 15,912 | 78,649 |      9.885     |             Yes            |
 
+ All datasets are outlined below:
+
+ 1. Karate [@lusseau2003bottlenose]. Karate contains the social ties among the members of a university karate club.
+
+ 2. Dolphins [@lusseau2003bottlenose]. Dolphins is a social network of bottlenose dolphins, where edges represent frequent associations between dolphins.
+
+ 3. Jazz [@gleiser2003community]. Jazz is a collaboration network between Jazz musicians. Each edge represents that two musicians have played together in a band.
+
+ 4. Network Science [@newman2006finding]. Network Science is a coauthorship network of scientists working on network theory and experiment. Each edge represents two scientists who have co-authored a paper.
+
+ 5. Cora-ML [@mccallum2000automating]. Cora-ML is a portal network of computer science research papers crawled by machine learning techniques.
+
+ 6. Power Grid [@watts1998collective]. Power Grid is a topology network of the Western States Power Grid of the United States.
+
+ 7. Memetracker [@leskovec2009meme]. The Memetracker keeps track of frequently used phrases on news social media.
+
+ 8. Digg [@hogg2012social]. Digg is a reply network of the social news.
 
 # Availability and Documentation
 
