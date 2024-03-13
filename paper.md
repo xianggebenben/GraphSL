@@ -81,7 +81,7 @@ GNN-based methods learn rules from graph data in an end-to-end manner by capturi
 |     Memetracker    |  7,884 | 47,911 |     12.154     |             Yes            |
 |        Digg        | 15,912 | 78,649 |      9.885     |             Yes            |
 
-Table: (\#tab:statistics) The statistics of eight datasets.
+Table: \label{tab:statistics} The statistics of eight datasets.
 
  Aside from methods, we also provide eight benchmark datasets to faciltateAll datasets are outlined below:
 
