@@ -83,7 +83,7 @@ GNN-based methods learn rules from graph data in an end-to-end manner by capturi
 
 Table: \label{tab:statistics} The statistics of eight datasets.
 
- Aside from methods, we also provide eight benchmark datasets to faciltate the  graph SL research, whose statistics are shown in \autoref{tab:statistics}.
+ Aside from methods, we also provide eight benchmark datasets to facilitate the  graph SL research, whose statistics are shown in \autoref{tab:statistics}.
  Memetracker and Digg provide Source-Diffusion pairs $(x,Y_{T})$, while other do not. All datasets are introduced as follows:
 
  1. Karate [@lusseau2003bottlenose]. Karate contains the social ties among the members of a university karate club.
