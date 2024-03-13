@@ -70,7 +70,7 @@ Prescribed methods rely on hand-crafted rules and heuristics. For instance, LPSI
 
 GNN-based methods learn rules from graph data in an end-to-end manner by capturing graph topology and neighboring information. For example, IVGD introduced a graph residual scenario to make existing graph diffusion models invertible, and it devises a new set of validity-aware layers to project inferred sources to feasible regions [@IVGD_www22]. SLVAE used forward diffusion estimation and deep generative models to approximate source distribution, leveraging prior knowledge for generalization under arbitrary diffusion patterns [@ling2022source].
 
-|       Dataset      |  #Node |  #Edge | Average Degree | Has Source/Diffusion Pairs |
+|       Dataset      |  #Node |  #Edge | Average Degree | Has Source-Diffusion Pairs |
 |:------------------:|:------:|:------:|:--------------:|:--------------------------:|
 |       Karate       |   34   |   78   |      4.588     |             No             |
 |      Dolphins      |   62   |   159  |      5.129     |             No             |
@@ -78,12 +78,13 @@ GNN-based methods learn rules from graph data in an end-to-end manner by capturi
 | Network   Science  |  1,589 |  2,742 |      3.451     |             No             |
 |       Cora-ML      |  2,810 |  7,981 |      5.68      |             No             |
 |    Power   Grid    |  4,941 |  6,594 |      2.669     |             No             |
-|     Memetracker    |  7,884 | 47,911 |     12.154     |             Yes            |
-|        Digg        | 15,912 | 78,649 |      9.885     |             Yes            |
+|     Memetracker    |  7,884 | 47,911 |     12.154     |            Yes             |
+|        Digg        | 15,912 | 78,649 |      9.885     |            Yes             |
 
 Table: \label{tab:statistics} The statistics of eight datasets.
 
- Aside from methods, we also provide eight benchmark datasets to faciltateAll datasets are outlined below:
+ Aside from methods, we also provide eight benchmark datasets to faciltate the  graph SL research, whose statistics are shown in \autoref{tab:statistics}.
+ Memetracker and Digg provide Source-Diffusion pairs $(x,Y_{T})$, while other do not. All datasets are introduced as follows:
 
  1. Karate [@lusseau2003bottlenose]. Karate contains the social ties among the members of a university karate club.
 
