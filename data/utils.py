@@ -192,20 +192,17 @@ def adj_process(adj):
     adj = sparse_mx_to_torch_sparse_tensor(adj)
     return adj
 
-
+def load_dataset(path:str):
+    with open(path, 'rb') as f:
+        graph = pickle.load(f)
+    return graph
 
 def generate_seed_vector(top_nodes, seed_num, G):
     seed_nodes = random.sample(top_nodes, seed_num)
     seed_vector = [1 if node in seed_nodes else 0 for node in G.nodes()]
     return seed_vector
 
-
-def data_generation(sim_num=10, diff_type='IC', time_step=100,repeat_step=10,seed_ratio=0.1, infect_prob=0.1, recover_prob=0.005, threshold=0.5,
-                    data_name='karate'):
-    if data_name not in ['karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid']:
-        raise ValueError('dataset should be within (karate, dolphins, jazz, netscience, cora_ml, power_grid).')
-    with open('data/' + data_name, 'rb') as f:
-        graph = pickle.load(f)
+def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=100,repeat_step=10,seed_ratio=0.1, infect_prob=0.1, recover_prob=0.005, threshold=0.5):
     adj_mat = graph['adj_mat']
     G = nx.from_scipy_sparse_array(adj_mat)
     node_num = len(G.nodes())
