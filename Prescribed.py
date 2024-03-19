@@ -27,20 +27,16 @@ class LPSI(nn.Module):
         x = (1 - alpha) * np.matmul(np.linalg.inv(np.eye(N=num_node) - alpha * laplacian), diff_vec)
         return x
 
-    def run(self,dataset,train_ratio=0.6,alpha_list=[0.01, 0.1, 1],thres_list=[0.1,0.3,0.5,0.7,0.9],seed=0):
-        laplacian = csgraph.laplacian(dataset["adj_mat"], normed = False)
+    def train(self,adj,train_dataset,alpha_list=[0.01, 0.1, 1],thres_list=[0.1,0.3,0.5,0.7,0.9]):
+        laplacian = csgraph.laplacian(adj, normed = False)
         laplacian = np.array(coo_matrix.todense(laplacian))
-        num_node = dataset["adj_mat"].shape[0]
-        diff_mat = copy.deepcopy(dataset['diff_mat'])
-        all_num = len(diff_mat)
-        train_num = int(all_num * train_ratio)
-        test_num = all_num - train_num
-        train_diff_mat, test_diff_mat = torch.utils.data.random_split(diff_mat, [train_num, test_num],generator = torch.Generator().manual_seed(seed))
+        num_node = adj.shape[0]
+        train_num = len(train_dataset)
         opt_auc = 0
         opt_alpha = 0
         for alpha in alpha_list:
             train_auc = 0
-            for influ_mat in train_diff_mat:
+            for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
                 x = self.forward(laplacian,num_node,alpha, influ_vec)
@@ -54,7 +50,7 @@ class LPSI(nn.Module):
         opt_thres = 0
         for thres in thres_list:
             train_f1 = 0
-            for influ_mat in train_diff_mat:
+            for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
                 x = self.forward(laplacian,num_node,opt_alpha, influ_vec)
@@ -63,20 +59,26 @@ class LPSI(nn.Module):
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
+        return opt_alpha, opt_thres
 
+    def test(self, adj, test_dataset, alpha, thres):
+        laplacian = csgraph.laplacian(adj, normed = False)
+        laplacian = np.array(coo_matrix.todense(laplacian))
+        num_node = adj.shape[0]
+        test_num = len(test_dataset)
         test_acc = 0
         test_pr = 0
         test_re = 0
         test_f1 = 0
         test_auc = 0
-        for influ_mat in test_diff_mat:
+        for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
-            x = self.forward(laplacian,num_node,opt_alpha, influ_vec)
-            test_acc += accuracy_score(seed_vec, x>=opt_thres)
-            test_pr += precision_score(seed_vec, x>=opt_thres)
-            test_re += recall_score(seed_vec, x>=opt_thres)
-            test_f1 += f1_score(seed_vec, x >= opt_thres)
+            x = self.forward(laplacian,num_node,alpha, influ_vec)
+            test_acc += accuracy_score(seed_vec, x>=thres)
+            test_pr += precision_score(seed_vec, x>=thres)
+            test_re += recall_score(seed_vec, x>=thres)
+            test_f1 += f1_score(seed_vec, x >= thres)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num
@@ -131,19 +133,14 @@ class NetSleuth(nn.Module):
         seed_vec[seed] = 1
         return seed_vec
 
-    def run(self,dataset,train_ratio=0.6,k_list=[5, 10, 50, 100],thres_list=[0.1,0.3,0.5,0.7,0.9],seed=0):
-        adj = dataset['adj_mat'].todense()
-        diff_mat = copy.deepcopy(dataset['diff_mat'])
-        all_num = len(diff_mat)
-        train_num = int(all_num * train_ratio)
-        test_num = all_num - train_num
-        train_diff_mat, test_diff_mat = torch.utils.data.random_split(diff_mat, [train_num, test_num],generator = torch.Generator().manual_seed(seed))
+    def train(self,adj,train_dataset,k_list=[5, 10, 50, 100],thres_list=[0.1,0.3,0.5,0.7,0.9]):
         G = nx.from_numpy_array(adj)
         opt_auc = 0
         opt_k = 0
+        train_num=len(train_dataset)
         for k in k_list:
             train_auc = 0
-            for influ_mat in train_diff_mat:
+            for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
                 x = self.forward(G,k, influ_vec)
@@ -156,7 +153,7 @@ class NetSleuth(nn.Module):
         opt_thres = 0
         for thres in thres_list:
             train_f1 = 0
-            for influ_mat in train_diff_mat:
+            for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
                 x = self.forward(G,opt_k, influ_vec)
@@ -165,19 +162,24 @@ class NetSleuth(nn.Module):
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
+        return opt_k,opt_thres
+
+    def test(self, adj, test_dataset, k, thres):
+        G = nx.from_numpy_array(adj)
+        test_num=len(test_dataset)
         test_acc = 0
         test_pr = 0
         test_re = 0
         test_f1 = 0
         test_auc = 0
-        for influ_mat in test_diff_mat:
+        for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
-            x = self.forward(G, opt_k, influ_vec)
-            test_acc += accuracy_score(seed_vec, x >= opt_thres)
-            test_pr += precision_score(seed_vec, x >= opt_thres)
-            test_re += recall_score(seed_vec, x >= opt_thres)
-            test_f1 += f1_score(seed_vec, x >= opt_thres)
+            x = self.forward(G, k, influ_vec)
+            test_acc += accuracy_score(seed_vec, x >= thres)
+            test_pr += precision_score(seed_vec, x >= thres)
+            test_re += recall_score(seed_vec, x >= thres)
+            test_f1 += f1_score(seed_vec, x >= thres)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num
@@ -394,20 +396,15 @@ class OJC(nn.Module):
         x[index] = 1
         return x
 
-    def run(self,dataset,train_ratio=0.6,Y_list=[1, 2, 3, 4, 5, 10, 20, 50],thres_list=[0.1,0.3,0.5,0.7,0.9],seed=0):
+    def train(self,adj,train_dataset,Y_list=[1, 2, 3, 4, 5, 10, 20, 50],thres_list=[0.1,0.3,0.5,0.7,0.9],seed=0):
 
-        adj = dataset['adj_mat']
         G = nx.from_scipy_sparse_array(adj)
-        diff_mat = copy.deepcopy(dataset['diff_mat'])
-        all_num = len(diff_mat)
-        train_num = int(all_num * train_ratio)
-        test_num = all_num - train_num
-        train_diff_mat, test_diff_mat = torch.utils.data.random_split(diff_mat, [train_num, test_num],generator = torch.Generator().manual_seed(seed))
+        train_num = len(train_dataset)
         opt_auc = 0
         opt_Y = 0
         for Y in Y_list:
             train_auc = 0
-            for influ_mat in train_diff_mat:
+            for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
                 num_source = len(influ_vec[influ_vec == 1])
@@ -422,7 +419,7 @@ class OJC(nn.Module):
         opt_thres = 0
         for thres in thres_list:
             train_f1 = 0
-            for influ_mat in train_diff_mat:
+            for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
                 num_source = len(influ_vec[influ_vec == 1])
@@ -433,21 +430,26 @@ class OJC(nn.Module):
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
+        return opt_Y,opt_thres
+
+    def test(self, adj, test_dataset, Y, thres):
+        G = nx.from_scipy_sparse_array(adj)
+        test_num = len(test_dataset)
         test_acc = 0
         test_pr = 0
         test_re = 0
         test_f1 = 0
         test_auc = 0
-        for influ_mat in test_diff_mat:
+        for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
             num_source = len(influ_vec[influ_vec == 1])
             I = (influ_vec == 1).nonzero()[0].tolist()
-            x = self.forward(G, opt_Y, I, influ_vec, num_source)
-            test_acc += accuracy_score(seed_vec, x >= opt_thres)
-            test_pr += precision_score(seed_vec, x >= opt_thres)
-            test_re += recall_score(seed_vec, x >= opt_thres)
-            test_f1 += f1_score(seed_vec, x >= opt_thres)
+            x = self.forward(G, Y, I, influ_vec, num_source)
+            test_acc += accuracy_score(seed_vec, x >= thres)
+            test_pr += precision_score(seed_vec, x >= thres)
+            test_re += recall_score(seed_vec, x >= thres)
+            test_f1 += f1_score(seed_vec, x >= thres)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num
