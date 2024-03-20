@@ -232,28 +232,28 @@ class GCNConv(MessagePassing):
         # Step 4: Propagate the embeddings to the next layer
         return self.propagate(edge_index, size=(x.size(0), x.size(0)), x=x, norm=norm)
 
-    def message(self, x_j, norm):
-        """
-        Defines the message passing operation.
+    # def message(self, x_j, norm):
+    #     """
+    #     Defines the message passing operation.
+    #
+    #     Args:
+    #     - x_j (torch.Tensor): Node features of neighboring nodes.
+    #     - norm (torch.Tensor): Normalization factor.
+    #
+    #     Returns:
+    #     - Normalized node features.
+    #     """
+    #     # Normalize node features.
+    #     return norm.view(-1, 1) * x_j
 
-        Args:
-        - x_j (torch.Tensor): Node features of neighboring nodes.
-        - norm (torch.Tensor): Normalization factor.
 
-        Returns:
-        - Normalized node features.
-        """
-        # Normalize node features.
-        return norm.view(-1, 1) * x_j
-
-
-class GCNSI(torch.nn.Module):
+class GCNSI_model(torch.nn.Module):
     """
     Defines a Graph Convolutional Networks based Source Identification (GCNSI).
     """
 
     def __init__(self):
-        super(GCNSI, self).__init__()
+        super(GCNSI_model, self).__init__()
         self.conv1 = GCNConv(4, 128)  # Initializing the first GCN layer
         self.conv2 = GCNConv(128, 128)  # Initializing the second GCN layer
         self.fc = torch.nn.Linear(128, 2)  # Initializing a linear transformation layer
@@ -273,18 +273,18 @@ class GCNSI(torch.nn.Module):
         Returns:
         - A tensor representing identified source nodes.
         """
-        lpsi = LPSI(laplacian, num_node)  # Initializing LPSI module
+        lpsi = LPSI()  # Initializing LPSI module
         V3 = copy.deepcopy(diff_vec)
         V4 = copy.deepcopy(diff_vec)
         V3[diff_vec < threshold] = threshold
         V4[diff_vec >= threshold] = threshold
         d1 = copy.deepcopy(diff_vec)
         d1 = d1[:, np.newaxis]
-        d2 = lpsi(alpha, diff_vec)
+        d2 = lpsi(laplacian, num_node,alpha, diff_vec)
         d2 = d2[:, np.newaxis]
-        d3 = lpsi(alpha, V3)
+        d3 = lpsi(laplacian, num_node,alpha, V3)
         d3 = d3[:, np.newaxis]
-        d4 = lpsi(alpha, V4)
+        d4 = lpsi(laplacian, num_node,alpha, V4)
         d4 = d4[:, np.newaxis]
         x = np.concatenate((d1, d2, d3, d4), axis=1)
         x = torch.tensor(x, dtype=torch.float)
@@ -294,6 +294,61 @@ class GCNSI(torch.nn.Module):
         x = self.conv2(x, edge_index)
         x = self.fc(x)
         return x
+
+class GCNSI(torch.nn.Module):
+    """
+    Defines a Graph Convolutional Networks based Source Identification (GCNSI).
+    """
+
+    def __init__(self):
+        super(GCNSI, self).__init__()
+
+    def train(self,adj,train_dataset,alpha_list=[0.01, 0.1, 1],thres_list=[0.1,0.3,0.5,0.7,0.9],num_epoch=500):
+        S = csgraph.laplacian(adj, normed=False)
+        S = np.array(coo_matrix.todense(S))
+        num_node = adj.shape[0]
+        train_num = len(train_dataset)
+        coo = adj.tocoo()
+        row = torch.from_numpy(coo.row.astype(np.int64)).to(torch.long)
+        col = torch.from_numpy(coo.col.astype(np.int64)).to(torch.long)
+        edge_index = torch.stack([row, col], dim=0)
+        gcnsi_model = GCNSI_model()
+        optimizer = torch.optim.SGD(gcnsi_model.parameters(), lr=1e-3, weight_decay=1e-4)
+        criterion = torch.nn.CrossEntropyLoss(weight=torch.tensor([1.0, 4.0]))
+        for epoch in range(num_epoch):
+            print("epoch:" + str(epoch))
+            optimizer.zero_grad()
+            total_loss = 0
+            for influ_mat in train_dataset:
+                seed_vec = influ_mat[:, 0]
+                diff_vec = influ_mat[:, -1]
+                seed_vec = torch.tensor(seed_vec).squeeze(-1).long()
+                pred = gcnsi_model(alpha, S, num_node, thres, diff_vec, edge_index)
+                loss = criterion(pred, seed_vec)
+                total_loss += loss
+                loss.backward()
+                optimizer.step()
+            print("loss:{:0.6f}".format(total_loss / train_num))
+
+    def test(self,adj,test_dataset,gcnsi_model,alpha,thres):
+        S = csgraph.laplacian(adj, normed=False)
+        S = np.array(coo_matrix.todense(S))
+        num_node = adj.shape[0]
+        test_num = len(test_dataset)
+        coo = adj.tocoo()
+        row = torch.from_numpy(coo.row.astype(np.int64)).to(torch.long)
+        col = torch.from_numpy(coo.col.astype(np.int64)).to(torch.long)
+        edge_index = torch.stack([row, col], dim=0)
+        test_auc = 0
+        for influ_mat in test_dataset:
+            seed_vec = influ_mat[:, 0]
+            diff_vec = influ_mat[:, -1]
+            pred = gcnsi_model(alpha, S, num_node, thres, diff_vec, edge_index)
+            pred = torch.softmax(pred, dim=1)
+            pred = pred[:, 1].squeeze(-1).detach().numpy()
+            test_auc += roc_auc_score(seed_vec, pred)
+        test_auc = test_auc / test_num
+        print('test auc:', test_auc)
 
 
 class OJC(nn.Module):
@@ -396,7 +451,7 @@ class OJC(nn.Module):
         x[index] = 1
         return x
 
-    def train(self,adj,train_dataset,Y_list=[1, 2, 3, 4, 5, 10, 20, 50],thres_list=[0.1,0.3,0.5,0.7,0.9],seed=0):
+    def train(self,adj,train_dataset,Y_list=[1, 2, 3, 4, 5, 10, 20, 50],thres_list=[0.1,0.3,0.5,0.7,0.9]):
 
         G = nx.from_scipy_sparse_array(adj)
         train_num = len(train_dataset)
