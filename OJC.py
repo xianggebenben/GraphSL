@@ -8,6 +8,7 @@ else:
     dataset = graph
 ojc = OJC()
 adj,train_dataset,test_dataset =split_dataset(dataset)
-Y,thres =ojc.train(adj,train_dataset)
+Y,thres,auc,f1 =ojc.train(adj,train_dataset)
+print(auc,f1)
 metric=ojc.test(adj,test_dataset,Y,thres)
 print(metric.acc,metric.pr,metric.re,metric.fs,metric.auc)

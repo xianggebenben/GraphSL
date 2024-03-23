@@ -9,6 +9,7 @@ else:
     dataset = graph
 netSleuth = NetSleuth()
 adj,train_dataset,test_dataset =split_dataset(dataset)
-k,thres=netSleuth.train(adj,train_dataset)
+k,thres,auc,f1=netSleuth.train(adj,train_dataset)
+print(auc,f1)
 metric = netSleuth.test(adj,test_dataset,k,thres)
 print(metric.acc,metric.pr,metric.re,metric.fs,metric.auc)

@@ -8,6 +8,7 @@ else:
     dataset = graph
 lpsi = LPSI()
 adj,train_dataset,test_dataset =split_dataset(dataset)
-alpha,thres =lpsi.train(adj,train_dataset)
+alpha,thres,auc,f1 =lpsi.train(adj,train_dataset)
+print(auc,f1)
 metric=lpsi.test(adj,test_dataset,alpha,thres)
 print(metric.acc,metric.pr,metric.re,metric.fs,metric.auc)

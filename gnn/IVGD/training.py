@@ -1,4 +1,3 @@
-import logging
 from typing import  Tuple
 import time, numpy as np, logging, torch
 import torch.nn as nn
@@ -10,49 +9,94 @@ from .preprocessing import gen_seeds, gen_splits_
 from .earlystopping import EarlyStopping, stopping_args
 
 class FeatureCons:
-    """Initial feature constructor for different model."""
-    __module__ = __name__
-    __qualname__ = 'FeatureCons'
+    """
+    Initial feature constructor for different models.
+    """
 
     def __init__(self, ndim=None):
+        """
+        Initialize FeatureCons object.
+
+        Args:
+        - ndim (int): Number of dimensions.
+        """
         self.prob_matrix = None
-        self.ndim = ndim
         self.ndim = ndim
 
     def __deepis_fea(self, seed_vec):
+        """
+        Deeply compute features based on the given seed vector.
+
+        Args:
+        - seed_vec (numpy.ndarray): Seed vector.
+
+        Returns:
+        - numpy.ndarray: Feature matrix.
+        """
         seed_vec = seed_vec.reshape((-1, 1))
         import scipy.sparse as sp
         if sp.isspmatrix(self.prob_matrix):
             self.prob_matrix = self.prob_matrix.toarray()
         assert seed_vec.shape[0] == self.prob_matrix.shape[0], 'Seed vector is illegal'
         attr_mat = [seed_vec]
-        for i in range(self.ndim-1):
+        for i in range(self.ndim - 1):
             attr_mat.append(self.prob_matrix.T @ attr_mat[(-1)])
 
         attr_mat = np.concatenate(attr_mat, axis=(-1))
         return attr_mat
 
     def __call__(self, seed_vec):
-        return self._FeatureCons__deepis_fea(seed_vec)
+        """
+        Call method to compute features based on the given seed vector.
+
+        Args:
+        - seed_vec (numpy.ndarray): Seed vector.
+
+        Returns:
+        - numpy.ndarray: Feature matrix.
+        """
+        return self.__deepis_fea(seed_vec)
 
 
 def get_dataloaders(idx, labels_np, batch_size=None):
+    """
+    Get data loaders for training, validation, and testing.
+
+    Args:
+    - idx (dict): Dictionary containing indices for different phases.
+    - labels_np (numpy.ndarray): Labels as numpy array.
+    - batch_size (int): Batch size.
+
+    Returns:
+    - dict: Dictionary containing data loaders for different phases.
+    """
     labels = torch.FloatTensor(labels_np)
     if batch_size is None:
         batch_size = max((val.numel() for val in idx.values()))
-    datasets = {phase:TensorDataset(torch.LongTensor(ind), labels[ind]) for phase, ind in idx.items()}
-    dataloaders = {phase:DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True) for phase, dataset in datasets.items()}
+    datasets = {phase: TensorDataset(torch.LongTensor(ind), labels[ind]) for phase, ind in idx.items()}
+    dataloaders = {phase: DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True) for phase, dataset in
+                   datasets.items()}
     return dataloaders
 
 
 def construct_attr_mat(prob_matrix, seed_vec, order=5):
+    """
+    Construct attribute matrix based on the given probability matrix and seed vector.
+
+    Args:
+    - prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.
+    - seed_vec (numpy.ndarray): Seed vector.
+    - order (int): Order of attribute matrix construction.
+
+    Returns:
+    - numpy.ndarray: Attribute matrix.
+    """
     lanczos_flag = False
     if lanczos_flag:
         return lanczos_algo(prob_matrix, seed_vec, order)
     seed_vec = seed_vec.reshape((-1, 1))
     assert seed_vec.shape[0] == prob_matrix.shape[0]
-    attr_mat = [
-     seed_vec]
+    attr_mat = [seed_vec]
     if sp.isspmatrix(prob_matrix):
         prob_matrix = prob_matrix.toarray()
     for i in range(1, order + 1):
@@ -63,6 +107,18 @@ def construct_attr_mat(prob_matrix, seed_vec, order=5):
 
 
 def lanczos_algo(prob_matrix, seed_vec, order=5, epsilon=0.001):
+    """
+    Lanczos algorithm for computing attribute matrix.
+
+    Args:
+    - prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.
+    - seed_vec (numpy.ndarray): Seed vector.
+    - order (int): Order of attribute matrix construction.
+    - epsilon (float): Threshold for stopping the iteration.
+
+    Returns:
+    - numpy.ndarray: Attribute matrix.
+    """
     S = prob_matrix.T
     seed_vec = seed_vec.flatten()
     beta = np.zeros((order + 1,))
@@ -83,17 +139,26 @@ def lanczos_algo(prob_matrix, seed_vec, order=5, epsilon=0.001):
 
 
 def update_embedding(model, feature_mat):
-    """Use new feature matrix to update embedding layer.
+    """
+    Update the embedding layer of the model with the new feature matrix.
+
+    Args:
+    - model (torch.nn.Module): Model.
+    - feature_mat (numpy.ndarray): Feature matrix.
+
+    Returns:
+    - torch.nn.Module: Updated model.
     """
     assert getattr(model, 'gnn_model', None) is not None, 'Object model should have a submodule `gnn_model` '
     device = next(model.parameters()).device
     if model.gnn_model.features is None:
         new_embedding_layer = nn.Embedding(feature_mat.shape[0], feature_mat.shape[1])
-        new_embedding_layer.weight = nn.Parameter((torch.FloatTensor(feature_mat)), requires_grad=False)
+        new_embedding_layer.weight = nn.Parameter(torch.FloatTensor(feature_mat), requires_grad=False)
         model.gnn_model.features = new_embedding_layer
     else:
-        assert feature_mat.shape[1] == model.gnn_model.features.weight.shape[1], 'New dim of new embedding weights is not consistent with the old dim'
-        model.gnn_model.features.weight = nn.Parameter((torch.FloatTensor(feature_mat)), requires_grad=False)
+        assert feature_mat.shape[1] == model.gnn_model.features.weight.shape[1], \
+            'New dimension of new embedding weights is not consistent with the old dimension'
+        model.gnn_model.features.weight = nn.Parameter(torch.FloatTensor(feature_mat), requires_grad=False)
         model.gnn_model.features.num_embeddings = feature_mat.shape[0]
         model.gnn_model.features.embedding_dim = feature_mat.shape[1]
     model = model.to(device)
@@ -101,7 +166,18 @@ def update_embedding(model, feature_mat):
 
 
 def PIteration(prob_matrix, predictions, seed_idx, substitute=True, piter=10):
-    """Final prediction iteration to fit the ideal equation system.
+    """
+    Perform final prediction iteration to fit the ideal equation system.
+
+    Args:
+    - prob_matrix (numpy.ndarray): Probability matrix.
+    - predictions (numpy.ndarray): Predictions.
+    - seed_idx (numpy.ndarray): Seed indices.
+    - substitute (bool): Whether to substitute seed indices.
+    - piter (int): Number of iterations.
+
+    Returns:
+    - numpy.ndarray: Final predictions.
     """
 
     def one_iter(prob_matrix, predictions):
@@ -126,30 +202,61 @@ def PIteration(prob_matrix, predictions, seed_idx, substitute=True, piter=10):
     return final_preds
 
 
-def train_model(data_name: str, model, fea_constructor, prob_matrix,diff_mat, learning_rate: float, λ, γ, ckpt_dir, idx_split_args: dict={'ntraining':200,
- 'nstopping':400,  'nval':10}, stopping_args: dict=stopping_args, test: bool=False, device: str='cuda', torch_seed: int=None, print_interval: int=10, batch_size=None) -> Tuple[(nn.Module, dict)]:
+def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: float, λ, γ, ckpt_dir,
+                idx_split_args: dict = {'ntraining': 200, 'nstopping': 400, 'nval': 10},
+                stopping_args: dict = stopping_args, test: bool = False, device: str = 'cuda', torch_seed: int = None,
+                print_interval: int = 10, batch_size=None) -> Tuple[(nn.Module, dict)]:
+    """
+    Train the model using the specified parameters.
+
+    Args:
+    - model (nn.Module): Model to be trained.
+    - fea_constructor: Feature constructor object.
+    - prob_matrix (numpy.ndarray): Probability matrix.
+    - diff_mat (numpy.ndarray): Difference matrix.
+    - learning_rate (float): Learning rate for optimizer.
+    - λ: Lambda value.
+    - γ: Gamma value.
+    - ckpt_dir: Checkpoint directory.
+    - idx_split_args (dict): Index split arguments.
+    - stopping_args (dict): Stopping arguments.
+    - test (bool): Whether to perform testing.
+    - device (str): Device for training.
+    - torch_seed (int): Seed for torch.
+    - print_interval (int): Print interval.
+    - batch_size: Batch size.
+
+    Returns:
+    - Tuple: Model and training result.
+    """
     if torch_seed is None:
         torch_seed = gen_seeds()
     torch.manual_seed(seed=torch_seed)
     logging.log(22, f"PyTorch seed: {torch_seed}")
     γ = torch.tensor(γ, device=device)
-    optimizer = torch.optim.Adam((model.parameters()), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     early_stopping = EarlyStopping(model, **stopping_args)
-    epoch_stats = {'train':{},  'stopping':{}}
+    epoch_stats = {'train': {}, 'stopping': {}}
     start_time = time.time()
     start_time_str = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
     last_time = start_time
     temp_attr_mat_dict = {}
+
+    # Loop through epochs
     for epoch in range(early_stopping.max_epochs):
         idx_np = {}
-        idx_np['train'], idx_np['stopping'], idx_np['valtest'] = gen_splits_(np.arange(prob_matrix.shape[0]), train_size=(idx_split_args['ntraining']),
-          stopping_size=(idx_split_args['nstopping']),
-          val_size=(idx_split_args['nval']))
-        idx_all = {key:torch.LongTensor(val) for key, val in idx_np.items()}
+        idx_np['train'], idx_np['stopping'], idx_np['valtest'] = gen_splits_(np.arange(prob_matrix.shape[0]),
+                                                                             train_size=idx_split_args['ntraining'],
+                                                                             stopping_size=idx_split_args['nstopping'],
+                                                                             val_size=idx_split_args['nval'])
+        idx_all = {key: torch.LongTensor(val) for key, val in idx_np.items()}
+
+        # Initialize epoch statistics
         for phase in epoch_stats.keys():
             epoch_stats[phase]['loss'] = []
             epoch_stats[phase]['error'] = []
 
+        # Loop through different matrices
         for i, influ_mat in enumerate(diff_mat):
             try:
                 attr_mat = temp_attr_mat_dict[i]
@@ -163,11 +270,15 @@ def train_model(data_name: str, model, fea_constructor, prob_matrix,diff_mat, le
             influ_vec = influ_mat[:, -1]
             labels_all = influ_vec.numpy()
             dataloaders = get_dataloaders(idx_all, labels_all, batch_size=batch_size)
+
+            # Iterate through training and validation/test phases
             for phase in epoch_stats.keys():
                 if phase == 'train':
                     model.train()
                 else:
                     model.eval()
+
+                # Iterate through batches
                 for idx, labels in dataloaders[phase]:
                     idx = idx.to(device)
                     labels = labels.to(device)
@@ -182,23 +293,33 @@ def train_model(data_name: str, model, fea_constructor, prob_matrix,diff_mat, le
                         epoch_stats[phase]['loss'].append(loss.item())
                         epoch_stats[phase]['error'].append(error)
 
+        # Calculate epoch statistics
         for phase in epoch_stats.keys():
             epoch_stats[phase]['loss'] = np.mean(epoch_stats[phase]['loss'])
             epoch_stats[phase]['error'] = np.mean(epoch_stats[phase]['error'])
 
+        # Log information
         if epoch % print_interval == 0:
             duration = time.time() - last_time
             last_time = time.time()
-            logging.info(f"Epoch {epoch}: Train loss = {epoch_stats['train']['loss']:.4f}, Train error = {epoch_stats['train']['error']:.4f}, early stopping loss = {epoch_stats['stopping']['loss']:.4f}, early stopping error = {epoch_stats['stopping']['error']:.4f}, ({duration:.3f} sec)")
+            logging.info(
+                f"Epoch {epoch}: Train loss = {epoch_stats['train']['loss']:.4f}, Train error = {epoch_stats['train']['error']:.4f}, early stopping loss = {epoch_stats['stopping']['loss']:.4f}, early stopping error = {epoch_stats['stopping']['error']:.4f}, ({duration:.3f} sec)")
+
+        # Check early stopping
         if len(early_stopping.stop_vars) > 0:
             stop_vars = [epoch_stats['stopping'][key] for key in early_stopping.stop_vars]
             if early_stopping.check(stop_vars, epoch):
                 break
 
+    # Calculate runtime statistics
     runtime = time.time() - start_time
     runtime_perepoch = runtime / (epoch + 1)
     logging.log(22, f"Last epoch: {epoch}, best epoch: {early_stopping.best_epoch} ({runtime:.3f} sec)")
+
+    # Load best model state
     model.load_state_dict(early_stopping.best_state)
+
+    # Calculate errors
     train_preds = get_predictions(model, idx_all['train'])
     train_error = np.abs(train_preds - labels_all[idx_all['train']]).mean()
     stopping_preds = get_predictions(model, idx_all['stopping'])
@@ -208,6 +329,8 @@ def train_model(data_name: str, model, fea_constructor, prob_matrix,diff_mat, le
     valtest_error = np.abs(valtest_preds - labels_all[idx_all['valtest']]).mean()
     valtest_name = 'Test' if test else 'Validation'
     logging.log(22, f"{valtest_name} mean error: {valtest_error}")
+
+    # Prepare results
     result = {}
     result['predictions'] = get_predictions(model, torch.arange(len(labels_all)))
     result['train'] = {'mean error': train_error}
@@ -215,13 +338,26 @@ def train_model(data_name: str, model, fea_constructor, prob_matrix,diff_mat, le
     result['valtest'] = {'mean error': valtest_error}
     result['runtime'] = runtime
     result['runtime_perepoch'] = runtime_perepoch
-    ckpt_name = '{}_{}_{}'.format(data_name, start_time_str, early_stopping.best_epoch)
+
+    # Save checkpoint
+    ckpt_name = '{}_{}'.format(start_time_str, early_stopping.best_epoch)
     torch.save(model.state_dict(), ckpt_dir / ckpt_name)
-    return (
-     model, result)
+
+    return model, result
 
 
 def get_predictions(model, idx, batch_size=None):
+    """
+    Get predictions from the model.
+
+    Args:
+    - model (nn.Module): Model.
+    - idx (Tensor): Indices.
+    - batch_size (int): Batch size.
+
+    Returns:
+    - numpy.ndarray: Predictions.
+    """
     if batch_size is None:
         batch_size = idx.numel()
     dataset = TensorDataset(idx)
@@ -236,59 +372,69 @@ def get_predictions(model, idx, batch_size=None):
 
 
 class GetPrediction:
-    __module__ = __name__
-    __qualname__ = 'GetPrediction'
+    """
+    Callable class for getting predictions.
+    """
 
     def __init__(self, model, fea_constructor):
+        """
+        Initialize GetPrediction object.
+
+        Args:
+        - model (nn.Module): Model for prediction.
+        - fea_constructor: Feature constructor object.
+        """
         self.model = model
         self.fea_constructor = fea_constructor
 
     def __call__(self, seed_vec, prob_matrix, piter=2):
+        """
+        Call method to get predictions.
+
+        Args:
+        - seed_vec (array-like): Seed vector.
+        - prob_matrix (numpy.ndarray): Probability matrix.
+        - piter (int): Iteration number.
+
+        Returns:
+        - numpy.ndarray: Predictions.
+        """
         assert len(seed_vec) == prob_matrix.shape[0], 'Illegal seed vector or prob_matrix'
         if sp.isspmatrix(prob_matrix):
             prob_matrix = prob_matrix.toarray()
-        
+
         self.fea_constructor.prob_matrix = prob_matrix
-        
+
         idx = np.arange(prob_matrix.shape[0])
         attr_mat = self.fea_constructor(seed_vec)
         self.model = update_embedding(self.model, attr_mat)
         preds = self.model(idx).detach().cpu().numpy()
-        
-        seed_idx = np.argwhere( seed_vec == 1 )
+
+        seed_idx = np.argwhere(seed_vec == 1)
         preds = PIteration(prob_matrix, preds, seed_idx=seed_idx, piter=iter)
         return preds
 
 
 def get_predictions_new_seeds(model, fea_constructor, seed_vec, idx):
-    """Given a new seed set on the same graph, predict each node's probability
-    Actually you can also put into a new graph's prob_matrix, then the model could predict results on new graphs.
-    Parameters
-    ----------
-    model
-        model for prediction
-    prob_matrix
-        the graph influence probability matrix
-    seed_vec
-        a vector indicates seeds
-    idx
-        nodes' influence probability that need to be predicted
-    fea_iter_order
-        probability matrix iteration order to construct nodes' feature matrix
-    fea_propagate
-        not used actually
-    
-    Return
-    ------
-        a vector indicates influence predictions of idx nodes
+    """
+    Get predictions for new seeds.
+
+    Given a new seed set on the same graph, predict each node's probability.
+
+    Args:
+    - model: Model for prediction.
+    - fea_constructor: Feature constructor.
+    - seed_vec: Seed vector.
+    - idx: Indices.
+
+    Returns:
+    - numpy.ndarray: Predictions.
     """
     device = next(model.parameters()).device
     idx = torch.LongTensor(idx).to(device)
-    # model = model.to('cpu')
 
     attr_mat = fea_constructor(seed_vec)
     model = update_embedding(model, attr_mat)
-    # model = model.to(device)
 
     preds = model(idx)
     preds = preds.detach().cpu().numpy()
@@ -296,26 +442,17 @@ def get_predictions_new_seeds(model, fea_constructor, seed_vec, idx):
 
 
 def get_idx_new_seeds(model, prediction):
-    """ given each node's probability,predict the seed set on the same graph
-    Actually you can also put into a new graph's prob_matrix, then the model could predict results on new graphs.
-    Parameters
-    ----------
-    model
-        model for prediction
-    prob_matrix
-        the graph influence probability matrix
-    seed_vec
-        a vector indicates seeds
-    idx
-        nodes' influence probability that need to be predicted
-    fea_iter_order
-        probability matrix iteration order to construct nodes' feature matrix
-    fea_propagate
-        not used actually
+    """
+    Get indices for new seeds.
 
-    Return
-    ------
-        a vector indicates influence predictions of idx nodes
+    Given each node's probability, predict the seed set on the same graph.
+
+    Args:
+    - model: Model for prediction.
+    - prediction: Predictions.
+
+    Returns:
+    - Tensor: Result.
     """
     device = next(model.parameters()).device
     prediction = torch.tensor(prediction).to(device)
