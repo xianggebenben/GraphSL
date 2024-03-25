@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GNN.IVGD.preprocessing &mdash; GraphSL 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            GraphSL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GraphSL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">GNN.IVGD.preprocessing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for GNN.IVGD.preprocessing</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span> <span class="k">as</span> <span class="nn">spla</span>
+
+
+<div class="viewcode-block" id="gen_seeds">
+<a class="viewcode-back" href="../../../GNN.IVGD.html#GNN.IVGD.preprocessing.gen_seeds">[docs]</a>
+<span class="k">def</span> <span class="nf">gen_seeds</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate an array of random seeds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    - size (int, optional): Size of the array to generate. If None, a single random seed is returned.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - np.ndarray: Array of random seeds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">max_uint32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">max_uint32</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="exclude_idx">
+<a class="viewcode-back" href="../../../GNN.IVGD.html#GNN.IVGD.preprocessing.exclude_idx">[docs]</a>
+<span class="k">def</span> <span class="nf">exclude_idx</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">idx_exclude_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exclude indices from a given array based on a list of arrays containing indices to exclude.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    - idx (np.ndarray): Array of indices.</span>
+<span class="sd">    - idx_exclude_list (List[np.ndarray]): List of arrays containing indices to exclude.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - np.ndarray: Array of indices after exclusion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">idx_exclude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">idx_exclude_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idx_exclude</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="gen_splits_">
+<a class="viewcode-back" href="../../../GNN.IVGD.html#GNN.IVGD.preprocessing.gen_splits_">[docs]</a>
+<span class="k">def</span> <span class="nf">gen_splits_</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">train_size</span><span class="p">,</span> <span class="n">stopping_size</span><span class="p">,</span> <span class="n">val_size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate train, stopping, and validation indices splits from a given array.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    - array: Array of indices.</span>
+<span class="sd">    - train_size: Size of the training split.</span>
+<span class="sd">    - stopping_size: Size of the stopping split.</span>
+<span class="sd">    - val_size: Size of the validation split.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - Tuple: Tuple containing train, stopping, and validation indices splits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">train_size</span> <span class="o">+</span> <span class="n">stopping_size</span> <span class="o">+</span> <span class="n">val_size</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">),</span> <span class="s1">&#39;length error&#39;</span>
+    <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+    <span class="n">train_idx</span><span class="p">,</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="n">train_size</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">stopping_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">)</span>
+    <span class="n">stopping_idx</span><span class="p">,</span> <span class="n">val_idx</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="n">stopping_size</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">val_size</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_idx</span><span class="p">,</span> <span class="n">stopping_idx</span><span class="p">,</span> <span class="n">val_idx</span></div>
+
+
+
+<div class="viewcode-block" id="normalize_attributes">
+<a class="viewcode-back" href="../../../GNN.IVGD.html#GNN.IVGD.preprocessing.normalize_attributes">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize_attributes</span><span class="p">(</span><span class="n">attr_matrix</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize attributes in a matrix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    - attr_matrix: Matrix containing attributes to normalize.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - np.ndarray: Normalized attribute matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-12</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_matrix</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">):</span>
+        <span class="n">attr_norms</span> <span class="o">=</span> <span class="n">spla</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">attr_matrix</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">attr_invnorms</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">attr_norms</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+        <span class="n">attr_mat_norm</span> <span class="o">=</span> <span class="n">attr_matrix</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">attr_invnorms</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">attr_norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">attr_matrix</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">attr_invnorms</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">attr_norms</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+        <span class="n">attr_mat_norm</span> <span class="o">=</span> <span class="n">attr_matrix</span> <span class="o">*</span> <span class="n">attr_invnorms</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">attr_mat_norm</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Junxiang Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

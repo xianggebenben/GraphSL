@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prescribed module &mdash; GraphSL 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="GNN.SLVAE package" href="GNN.SLVAE.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            GraphSL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">GraphSL</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Evaluation.html">Evaluation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GNN.html">GNN package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Prescribed module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Prescribed.LPSI"><code class="docutils literal notranslate"><span class="pre">LPSI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.LPSI.forward"><code class="docutils literal notranslate"><span class="pre">LPSI.forward()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.LPSI.test"><code class="docutils literal notranslate"><span class="pre">LPSI.test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.LPSI.train"><code class="docutils literal notranslate"><span class="pre">LPSI.train()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.LPSI.training"><code class="docutils literal notranslate"><span class="pre">LPSI.training</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Prescribed.NetSleuth"><code class="docutils literal notranslate"><span class="pre">NetSleuth</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.NetSleuth.forward"><code class="docutils literal notranslate"><span class="pre">NetSleuth.forward()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.NetSleuth.test"><code class="docutils literal notranslate"><span class="pre">NetSleuth.test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.NetSleuth.train"><code class="docutils literal notranslate"><span class="pre">NetSleuth.train()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.NetSleuth.training"><code class="docutils literal notranslate"><span class="pre">NetSleuth.training</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Prescribed.OJC"><code class="docutils literal notranslate"><span class="pre">OJC</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.OJC.Candidate"><code class="docutils literal notranslate"><span class="pre">OJC.Candidate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.OJC.forward"><code class="docutils literal notranslate"><span class="pre">OJC.forward()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.OJC.get_K_list"><code class="docutils literal notranslate"><span class="pre">OJC.get_K_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.OJC.test"><code class="docutils literal notranslate"><span class="pre">OJC.test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.OJC.train"><code class="docutils literal notranslate"><span class="pre">OJC.train()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Prescribed.OJC.training"><code class="docutils literal notranslate"><span class="pre">OJC.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GraphSL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">GraphSL</a></li>
+      <li class="breadcrumb-item active">Prescribed module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Prescribed.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-Prescribed">
+<span id="prescribed-module"></span><h1>Prescribed module<a class="headerlink" href="#module-Prescribed" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Prescribed.LPSI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Prescribed.</span></span><span class="sig-name descname"><span class="pre">LPSI</span></span><a class="reference internal" href="_modules/Prescribed.html#LPSI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.LPSI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Defines a module for Label Propagation based Source Identification (LPSI).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.LPSI.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">laplacian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#LPSI.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.LPSI.forward" title="Link to this definition"></a></dt>
+<dd><p>Forward pass of the LPSI module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>laplacian (numpy.ndarray): The Laplacian matrix of the graph.</p></li>
+<li><p>num_node (int): Number of nodes in the graph.</p></li>
+<li><p>alpha (float): Label propagation parameter.</p></li>
+<li><p>diff_vec (numpy.ndarray): The diffusion vector.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>x (numpy.ndarray): The output of the label propagation.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.LPSI.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#LPSI.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.LPSI.test" title="Link to this definition"></a></dt>
+<dd><p>Tests the LPSI module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>test_dataset (list): List of testing datasets.</p></li>
+<li><p>alpha (float): Alpha value.</p></li>
+<li><p>thres (float): Threshold value.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.LPSI.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.01,</span> <span class="pre">0.1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#LPSI.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.LPSI.train" title="Link to this definition"></a></dt>
+<dd><p>Trains the LPSI module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (list): List of training datasets.</p></li>
+<li><p>alpha_list (list): List of alpha values to try.</p></li>
+<li><p>thres_list (list): List of threshold values to try.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>opt_alpha (float): Optimal alpha value.</p></li>
+<li><p>opt_thres (float): Optimal threshold value.</p></li>
+<li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
+<li><p>opt_f1 (float): Optimal F1 score value.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Prescribed.LPSI.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#Prescribed.LPSI.training" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Prescribed.NetSleuth">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Prescribed.</span></span><span class="sig-name descname"><span class="pre">NetSleuth</span></span><a class="reference internal" href="_modules/Prescribed.html#NetSleuth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.NetSleuth" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Defines a module for NetSleuth.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.NetSleuth.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#NetSleuth.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.NetSleuth.forward" title="Link to this definition"></a></dt>
+<dd><p>Performs the forward pass of the NetSleuth module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>G (networkx.Graph): The input graph.</p></li>
+<li><p>k (int): Number of source nodes to identify.</p></li>
+<li><p>diff_vec (numpy.ndarray): The diffusion vector.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>seed_vec (torch.Tensor): A tensor representing identified source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.NetSleuth.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#NetSleuth.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.NetSleuth.test" title="Link to this definition"></a></dt>
+<dd><p>Tests the NetSleuth module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (numpy.ndarray): The adjacency matrix of the graph.</p></li>
+<li><p>test_dataset (list): List of testing datasets.</p></li>
+<li><p>k (int): Number of source nodes.</p></li>
+<li><p>thres (float): Threshold value.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.NetSleuth.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[5,</span> <span class="pre">10,</span> <span class="pre">50,</span> <span class="pre">100]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#NetSleuth.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.NetSleuth.train" title="Link to this definition"></a></dt>
+<dd><p>Trains the NetSleuth module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (numpy.ndarray): The adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (list): List of training datasets.</p></li>
+<li><p>k_list (list): List of k values to try.</p></li>
+<li><p>thres_list (list): List of threshold values to try.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>opt_k (int): Optimal k value.</p></li>
+<li><p>opt_thres (float): Optimal threshold value.</p></li>
+<li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
+<li><p>opt_f1 (float): Optimal F1 score value.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Prescribed.NetSleuth.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#Prescribed.NetSleuth.training" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Prescribed.OJC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Prescribed.</span></span><span class="sig-name descname"><span class="pre">OJC</span></span><a class="reference internal" href="_modules/Prescribed.html#OJC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Defines a module for identifying potential source nodes using Optimal-Jordan-Cover (OJC) algorithm.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.OJC.Candidate">
+<span class="sig-name descname"><span class="pre">Candidate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.Candidate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.Candidate" title="Link to this definition"></a></dt>
+<dd><p>Identifies potential source nodes based on the given criteria.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>G (networkx.Graph): The input graph.</p></li>
+<li><p>Y (int): Number of desired source nodes.</p></li>
+<li><p>I (list): List of diffused nodes.</p></li>
+<li><p>target (numpy.ndarray): Target vector.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>K (list): List of potential source nodes.</p></li>
+<li><p>G_bar (networkx.Graph): Subgraph containing potential source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.OJC.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.forward" title="Link to this definition"></a></dt>
+<dd><p>Performs the forward pass of the OJC module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>G (networkx.Graph): The input graph.</p></li>
+<li><p>Y (int): Number of desired source nodes.</p></li>
+<li><p>I (list): List of diffused nodes.</p></li>
+<li><p>target (numpy.ndarray): Target vector.</p></li>
+<li><p>num_source (int): Number of  source nodes.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>x (numpy.ndarray): Binary vector representing identified potential source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.OJC.get_K_list">
+<span class="sig-name descname"><span class="pre">get_K_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.get_K_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.get_K_list" title="Link to this definition"></a></dt>
+<dd><p>Helper function to get the list of potential source nodes.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>G (networkx.Graph): The input graph.</p></li>
+<li><p>Y (int): Number of desired source nodes.</p></li>
+<li><p>I (list): diffused nodes.</p></li>
+<li><p>target (numpy.ndarray): Target vector.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>K (list): List of potential source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.OJC.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.test" title="Link to this definition"></a></dt>
+<dd><p>Tests the OJC module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>test_dataset (list): List of testing datasets.</p></li>
+<li><p>Y (int): Number of desired source nodes.</p></li>
+<li><p>thres (float): Threshold value.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Prescribed.OJC.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4,</span> <span class="pre">5,</span> <span class="pre">10,</span> <span class="pre">20,</span> <span class="pre">50]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.train" title="Link to this definition"></a></dt>
+<dd><p>Trains the OJC module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (list): List of training datasets.</p></li>
+<li><p>Y_list (list): List of Y values to try.</p></li>
+<li><p>thres_list (list): List of threshold values to try.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>opt_Y (int): Optimal Y value.</p></li>
+<li><p>opt_thres (float): Optimal threshold value.</p></li>
+<li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
+<li><p>opt_f1 (float): Optimal F1 score value.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Prescribed.OJC.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#Prescribed.OJC.training" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="GNN.SLVAE.html" class="btn btn-neutral float-left" title="GNN.SLVAE package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Junxiang Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

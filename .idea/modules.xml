@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/DeepGSL.iml" filepath="$PROJECT_DIR$/.idea/DeepGSL.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/GraphSL.iml" filepath="$PROJECT_DIR$/.idea/GraphSL.iml" />
     </modules>
   </component>
 </project>

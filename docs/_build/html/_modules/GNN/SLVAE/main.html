@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GNN.SLVAE.main &mdash; GraphSL 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            GraphSL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GraphSL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">GNN.SLVAE.main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for GNN.SLVAE.main</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">GNN.SLVAE.model</span> <span class="kn">import</span> <span class="n">VAE</span><span class="p">,</span><span class="n">GNN</span><span class="p">,</span><span class="n">DiffusionPropagate</span>
+<span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">Adam</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span><span class="p">,</span><span class="n">f1_score</span><span class="p">,</span><span class="n">accuracy_score</span><span class="p">,</span><span class="n">precision_score</span><span class="p">,</span><span class="n">recall_score</span>
+<span class="kn">from</span> <span class="nn">Evaluation</span> <span class="kn">import</span> <span class="n">Metric</span>
+<div class="viewcode-block" id="SLVAE_model">
+<a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE_model">[docs]</a>
+<span class="k">class</span> <span class="nc">SLVAE_model</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Source Localization Variational Autoencoder (SLVAE) model combining VAE, GNN, and propagation modules.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">    - vae (nn.Module): Variational Autoencoder module.</span>
+<span class="sd">    - GNN (nn.Module): Graph Neural Network module.</span>
+<span class="sd">    - propagate (nn.Module): Propagation module.</span>
+<span class="sd">    - reg_params (list): List of parameters requiring gradients.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vae</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">gnn</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">propagate</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the SLVAE_model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        - vae (nn.Module): Variational Autoencoder module.</span>
+<span class="sd">        - GNN (nn.Module): Graph Neural Network module.</span>
+<span class="sd">        - propagate (nn.Module): Propagation module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SLVAE_model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vae</span> <span class="o">=</span> <span class="n">vae</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gnn</span> <span class="o">=</span> <span class="n">gnn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="n">propagate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reg_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gnn</span><span class="o">.</span><span class="n">parameters</span><span class="p">()))</span>
+
+<div class="viewcode-block" id="SLVAE_model.forward">
+<a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE_model.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed_vec</span><span class="p">,</span> <span class="n">train_mode</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward pass method of the model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        - seed_vec (Tensor): Seed vector tensor.</span>
+<span class="sd">        - train_mode (bool): Flag indicating whether in training mode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - Tuple[Tensor, Tensor, Tensor, Tensor]: Tuple containing seed_hat, mean, log_var, and predictions tensors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seed_hat</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vae</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">train_mode</span><span class="p">:</span>
+            <span class="n">seed_hat</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gnn</span><span class="p">(</span><span class="n">seed_hat</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">seed_vec</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gnn</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">seed_hat</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_var</span><span class="p">,</span> <span class="n">predictions</span></div>
+
+
+<div class="viewcode-block" id="SLVAE_model.train_loss">
+<a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE_model.train_loss">[docs]</a>
+    <span class="k">def</span> <span class="nf">train_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x_hat</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_var</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_hat</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute training loss.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        - x (Tensor): Input tensor.</span>
+<span class="sd">        - x_hat (Tensor): Reconstructed input tensor.</span>
+<span class="sd">        - mean (Tensor): Mean tensor.</span>
+<span class="sd">        - log_var (Tensor): Log variance tensor.</span>
+<span class="sd">        - y (Tensor): Target tensor.</span>
+<span class="sd">        - y_hat (Tensor): Predicted tensor.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - Tensor: Total loss tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">forward_loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">mse_loss</span><span class="p">(</span><span class="n">y_hat</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">reproduction_loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">binary_cross_entropy</span><span class="p">(</span><span class="n">x_hat</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span>
+        <span class="n">KLD</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">log_var</span> <span class="o">-</span> <span class="n">mean</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">log_var</span><span class="o">.</span><span class="n">exp</span><span class="p">())</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="n">forward_loss</span> <span class="o">+</span> <span class="n">reproduction_loss</span> <span class="o">+</span> <span class="n">KLD</span>
+        <span class="k">return</span> <span class="n">total_loss</span></div>
+
+
+<div class="viewcode-block" id="SLVAE_model.infer_loss">
+<a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE_model.infer_loss">[docs]</a>
+    <span class="k">def</span> <span class="nf">infer_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_hat</span><span class="p">,</span> <span class="n">x_hat</span><span class="p">,</span> <span class="n">train_pred</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute inference loss.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        - y_true (Tensor): True label tensor.</span>
+<span class="sd">        - y_hat (Tensor): Predicted label tensor.</span>
+<span class="sd">        - x_hat (Tensor): Reconstructed input tensor.</span>
+<span class="sd">        - train_pred (Tensor): Predicted tensor during training.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - Tensor: Total loss tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">y_true</span><span class="o">.</span><span class="n">device</span>
+        <span class="n">BN</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">forward_loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">mse_loss</span><span class="p">(</span><span class="n">y_hat</span><span class="p">,</span> <span class="n">y_true</span><span class="p">)</span>
+        <span class="n">log_pmf</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">train_pred</span><span class="p">:</span>
+            <span class="n">log_lh</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x_hat</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">x_i</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x_i</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+                <span class="n">log_lh</span> <span class="o">+=</span> <span class="n">temp</span>
+            <span class="n">log_pmf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_lh</span><span class="p">)</span>
+
+        <span class="n">log_pmf</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">log_pmf</span><span class="p">)</span>
+        <span class="n">log_pmf</span> <span class="o">=</span> <span class="n">BN</span><span class="p">(</span><span class="n">log_pmf</span><span class="o">.</span><span class="n">float</span><span class="p">())</span>
+
+        <span class="n">pmf_max</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">log_pmf</span><span class="p">)</span>
+
+        <span class="n">pdf_sum</span> <span class="o">=</span> <span class="n">pmf_max</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">logsumexp</span><span class="p">(</span><span class="n">log_pmf</span> <span class="o">-</span> <span class="n">pmf_max</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="n">forward_loss</span> <span class="o">-</span> <span class="n">pdf_sum</span>
+
+        <span class="k">return</span> <span class="n">total_loss</span></div>
+</div>
+
+
+<div class="viewcode-block" id="SLVAE">
+<a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE">[docs]</a>
+<span class="k">class</span> <span class="nc">SLVAE</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Source Localization Variational Autoencoder (SLVAE) model.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">    - None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the SLVAE model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SLVAE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SLVAE.train">
+<a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE.train">[docs]</a>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">thres_list</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="n">num_epoch</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the SLVAE model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        - adj (torch.Tensor): Adjacency matrix tensor.</span>
+<span class="sd">        - train_dataset (List[torch.Tensor]): List of tensors containing training data.</span>
+<span class="sd">        - infect_prob (float): Infection probability.</span>
+<span class="sd">        - thres_list (List[float]): List of threshold values.</span>
+<span class="sd">        - num_epoch (int): Number of training epochs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - Tuple: Tuple containing SLVAE model, seed , optimal threshold, train AUC, and optimal F1 score.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">adj_coo</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">adj_coo</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">adj_coo</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">adj_coo</span><span class="o">.</span><span class="n">col</span><span class="p">))</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
+        <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+        <span class="n">vae</span> <span class="o">=</span> <span class="n">VAE</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">gnn</span> <span class="o">=</span> <span class="n">GNN</span><span class="p">(</span><span class="n">adj_matrix</span><span class="o">=</span><span class="n">adj_matrix</span><span class="p">)</span>
+        <span class="n">propagate</span> <span class="o">=</span> <span class="n">DiffusionPropagate</span><span class="p">(</span><span class="n">adj_matrix</span><span class="p">,</span> <span class="n">niter</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">slvae_model</span> <span class="o">=</span> <span class="n">SLVAE_model</span><span class="p">(</span><span class="n">vae</span><span class="p">,</span> <span class="n">gnn</span><span class="p">,</span> <span class="n">propagate</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">slvae_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+
+        <span class="c1"># Train SLVAE</span>
+        <span class="n">slvae_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epoch</span><span class="p">):</span>
+            <span class="n">overall_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="n">seed_vec_hat</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_var</span><span class="p">,</span> <span class="n">influ_vec_hat</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="o">.</span><span class="n">train_loss</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_vec_hat</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_var</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">,</span> <span class="n">influ_vec_hat</span><span class="p">)</span>
+
+                <span class="n">overall_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="c1"># Evaluation</span>
+        <span class="n">slvae_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">slvae_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">seed_vae_train</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">train_num</span><span class="p">,</span> <span class="n">num_node</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+            <span class="n">seed_vae_train</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="o">.</span><span class="n">vae</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">seed_infer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">seed_vae_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">seed_vae_train</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_num</span><span class="p">):</span>
+            <span class="n">seed_vec_hat</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">influ_vec_hat</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="p">(</span><span class="n">seed_vae_mean</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">seed_infer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed_vec_hat</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seed_infer</span><span class="p">:</span>
+            <span class="n">seed</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">seed_infer</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epoch</span><span class="p">):</span>
+            <span class="n">overall_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="n">seed_vec_hat</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">influ_vec_hat</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="p">(</span><span class="n">seed_infer</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="o">.</span><span class="n">infer_loss</span><span class="p">(</span><span class="n">influ_vec</span><span class="p">,</span> <span class="n">influ_vec_hat</span><span class="p">,</span> <span class="n">seed_vec_hat</span><span class="p">,</span> <span class="n">seed_vae_train</span><span class="p">)</span>
+
+                <span class="n">overall_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">seed_pred</span> <span class="o">=</span> <span class="n">seed_infer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">train_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span><span class="p">)</span>
+        <span class="n">train_auc</span> <span class="o">=</span> <span class="n">train_auc</span> <span class="o">/</span> <span class="n">train_num</span>
+
+        <span class="n">opt_f1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">opt_thres</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">thres</span> <span class="ow">in</span> <span class="n">thres_list</span><span class="p">:</span>
+            <span class="n">train_f1</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">seed_pred</span> <span class="o">=</span> <span class="n">seed_infer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">train_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+            <span class="n">train_f1</span> <span class="o">=</span> <span class="n">train_f1</span> <span class="o">/</span> <span class="n">train_num</span>
+            <span class="k">if</span> <span class="n">train_f1</span> <span class="o">&gt;</span> <span class="n">opt_f1</span><span class="p">:</span>
+                <span class="n">opt_f1</span> <span class="o">=</span> <span class="n">train_f1</span>
+                <span class="n">opt_thres</span> <span class="o">=</span> <span class="n">thres</span>
+
+        <span class="k">return</span> <span class="n">slvae_model</span><span class="p">,</span> <span class="n">seed_vae_train</span><span class="p">,</span> <span class="n">opt_thres</span><span class="p">,</span> <span class="n">train_auc</span><span class="p">,</span> <span class="n">opt_f1</span></div>
+
+
+<div class="viewcode-block" id="SLVAE.infer">
+<a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE.infer">[docs]</a>
+    <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">slvae_model</span><span class="p">,</span> <span class="n">seed_vae_train</span><span class="p">,</span> <span class="n">thres</span><span class="p">,</span> <span class="n">num_epoch</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Infer using the SLVAE model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        - test_dataset (List[torch.Tensor]): List of tensors containing test data.</span>
+<span class="sd">        - slvae_model (SLVAE_model): Trained SLVAE model.</span>
+<span class="sd">        - seed_vae_train (torch.Tensor): Seed VAE training data.</span>
+<span class="sd">        - thres (float): Threshold value.</span>
+<span class="sd">        - num_epoch (int): Number of epochs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - Metric: Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        <span class="n">test_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
+        <span class="n">slvae_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">slvae_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">seed_infer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">seed_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">seed_vae_train</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">test_num</span><span class="p">):</span>
+            <span class="n">seed_vec_hat</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">influ_vec_hat</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="p">(</span><span class="n">seed_mean</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">seed_infer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed_vec_hat</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seed_infer</span><span class="p">:</span>
+            <span class="n">seed</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">seed_infer</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epoch</span><span class="p">):</span>
+            <span class="n">overall_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">):</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="n">seed_vec_hat</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">influ_vec_hat</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="p">(</span><span class="n">seed_infer</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">slvae_model</span><span class="o">.</span><span class="n">infer_loss</span><span class="p">(</span><span class="n">influ_vec</span><span class="p">,</span> <span class="n">influ_vec_hat</span><span class="p">,</span> <span class="n">seed_vec_hat</span><span class="p">,</span> <span class="n">seed_vae_train</span><span class="p">)</span>
+
+                <span class="n">overall_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="n">test_acc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">test_pr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">test_re</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">test_f1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">test_auc</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">):</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">seed_pred</span> <span class="o">=</span> <span class="n">seed_infer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+            <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span><span class="p">)</span>
+
+        <span class="n">test_acc</span> <span class="o">=</span> <span class="n">test_acc</span> <span class="o">/</span> <span class="n">test_num</span>
+        <span class="n">test_pr</span> <span class="o">=</span> <span class="n">test_pr</span> <span class="o">/</span> <span class="n">test_num</span>
+        <span class="n">test_re</span> <span class="o">=</span> <span class="n">test_re</span> <span class="o">/</span> <span class="n">test_num</span>
+        <span class="n">test_f1</span> <span class="o">=</span> <span class="n">test_f1</span> <span class="o">/</span> <span class="n">test_num</span>
+        <span class="n">test_auc</span> <span class="o">=</span> <span class="n">test_auc</span> <span class="o">/</span> <span class="n">test_num</span>
+
+        <span class="n">metric</span> <span class="o">=</span> <span class="n">Metric</span><span class="p">(</span><span class="n">test_acc</span><span class="p">,</span> <span class="n">test_pr</span><span class="p">,</span> <span class="n">test_re</span><span class="p">,</span> <span class="n">test_f1</span><span class="p">,</span> <span class="n">test_auc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metric</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Junxiang Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -5,16 +5,16 @@ import copy
 import torch
 from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
 from scipy.sparse import csgraph,coo_matrix
-from evaluation import Metric
+from Evaluation import Metric
 
 class LPSI(nn.Module):
     """
-    Defines a module for Label Propagation based Source Identification (LPSI).
+    Define a module for Label Propagation based Source Identification (LPSI).
     """
 
     def __init__(self):
         """
-        Initializes the LPSI module.
+        Initialize the LPSI module.
         """
         super().__init__()
 
@@ -23,12 +23,17 @@ class LPSI(nn.Module):
         Forward pass of the LPSI module.
 
         Args:
+
         - laplacian (numpy.ndarray): The Laplacian matrix of the graph.
+
         - num_node (int): Number of nodes in the graph.
+
         - alpha (float): Label propagation parameter.
-        - diff_vec (numpy.ndarray): The difference vector.
+
+        - diff_vec (numpy.ndarray): The diffusion vector.
 
         Returns:
+
         - x (numpy.ndarray): The output of the label propagation.
         """
         x = (1 - alpha) * np.matmul(np.linalg.inv(np.eye(N=num_node) - alpha * laplacian), diff_vec)
@@ -39,15 +44,23 @@ class LPSI(nn.Module):
         Trains the LPSI module.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+
         - train_dataset (list): List of training datasets.
+
         - alpha_list (list): List of alpha values to try.
+
         - thres_list (list): List of threshold values to try.
 
         Returns:
+
         - opt_alpha (float): Optimal alpha value.
+
         - opt_thres (float): Optimal threshold value.
+
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
+
         - opt_f1 (float): Optimal F1 score value.
         """
         laplacian = csgraph.laplacian(adj, normed=False)
@@ -88,12 +101,17 @@ class LPSI(nn.Module):
         Tests the LPSI module.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+
         - test_dataset (list): List of testing datasets.
+
         - alpha (float): Alpha value.
+
         - thres (float): Threshold value.
 
         Returns:
+
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
         """
         laplacian = csgraph.laplacian(adj, normed=False)
@@ -139,12 +157,17 @@ class NetSleuth(nn.Module):
         Performs the forward pass of the NetSleuth module.
 
         Args:
+
         - G (networkx.Graph): The input graph.
+
         - k (int): Number of source nodes to identify.
+
         - diff_vec (numpy.ndarray): The diffusion vector.
 
         Returns:
+
         - seed_vec (torch.Tensor): A tensor representing identified source nodes.
+
         """
         g = copy.deepcopy(G)  # Creating a deep copy of the input graph
         g.remove_nodes_from([n for n in g if n not in np.where(diff_vec == 1)[0]])  # Removing non-relevant nodes
@@ -170,15 +193,23 @@ class NetSleuth(nn.Module):
         Trains the NetSleuth module.
 
         Args:
+
         - adj (numpy.ndarray): The adjacency matrix of the graph.
+
         - train_dataset (list): List of training datasets.
+
         - k_list (list): List of k values to try.
+
         - thres_list (list): List of threshold values to try.
 
         Returns:
+
         - opt_k (int): Optimal k value.
+
         - opt_thres (float): Optimal threshold value.
+
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
+
         - opt_f1 (float): Optimal F1 score value.
         """
         G = nx.from_numpy_array(adj)
@@ -216,12 +247,17 @@ class NetSleuth(nn.Module):
         Tests the NetSleuth module.
 
         Args:
+
         - adj (numpy.ndarray): The adjacency matrix of the graph.
+
         - test_dataset (list): List of testing datasets.
+
         - k (int): Number of source nodes.
+
         - thres (float): Threshold value.
 
         Returns:
+
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
         """
         G = nx.from_numpy_array(adj)
@@ -267,12 +303,17 @@ class OJC(nn.Module):
         Helper function to get the list of potential source nodes.
 
         Args:
+
         - G (networkx.Graph): The input graph.
+
         - Y (int): Number of desired source nodes.
+
         - I (list): diffused nodes.
+
         - target (numpy.ndarray): Target vector.
 
         Returns:
+
         - K (list): List of potential source nodes.
         """
         K = list()
@@ -292,13 +333,19 @@ class OJC(nn.Module):
         Identifies potential source nodes based on the given criteria.
 
         Args:
+
         - G (networkx.Graph): The input graph.
+
         - Y (int): Number of desired source nodes.
+
         - I (list): List of diffused nodes.
+
         - target (numpy.ndarray): Target vector.
 
         Returns:
+
         - K (list): List of potential source nodes.
+
         - G_bar (networkx.Graph): Subgraph containing potential source nodes.
         """
         K = self.get_K_list(G, Y, I, target)
@@ -318,16 +365,22 @@ class OJC(nn.Module):
 
     def forward(self, G, Y, I, target, num_source):
         """
-        Performs the forward pass of the OJC module.
+        Perform the forward pass of the OJC module.
 
         Args:
+
         - G (networkx.Graph): The input graph.
+
         - Y (int): Number of desired source nodes.
+
         - I (list): List of diffused nodes.
+
         - target (numpy.ndarray): Target vector.
-        - num_source (int): Number of potential source nodes to return.
+
+        - num_source (int): Number of  source nodes.
 
         Returns:
+
         - x (numpy.ndarray): Binary vector representing identified potential source nodes.
         """
         K, G_bar = self.Candidate(G, Y, I, target)
@@ -351,18 +404,26 @@ class OJC(nn.Module):
 
     def train(self, adj, train_dataset, Y_list=[1, 2, 3, 4, 5, 10, 20, 50], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
         """
-        Trains the OJC module.
+        Train the OJC module.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+
         - train_dataset (list): List of training datasets.
+
         - Y_list (list): List of Y values to try.
+
         - thres_list (list): List of threshold values to try.
 
         Returns:
+
         - opt_Y (int): Optimal Y value.
+
         - opt_thres (float): Optimal threshold value.
+
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
+
         - opt_f1 (float): Optimal F1 score value.
         """
         G = nx.from_scipy_sparse_array(adj)
@@ -401,15 +462,20 @@ class OJC(nn.Module):
 
     def test(self, adj, test_dataset, Y, thres):
         """
-        Tests the OJC module.
+        Test the OJC module.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+
         - test_dataset (list): List of testing datasets.
+
         - Y (int): Number of desired source nodes.
+
         - thres (float): Threshold value.
 
         Returns:
+
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
         """
         G = nx.from_scipy_sparse_array(adj)

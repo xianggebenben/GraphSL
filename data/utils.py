@@ -1,4 +1,3 @@
-
 import numpy as np
 import networkx as nx
 import pickle
@@ -8,12 +7,23 @@ import ndlib.models.epidemics as ep
 import torch
 import copy
 
+
 def load_dataset(dataset, data_dir='data'):
+    """
+    Load a dataset from a pickle file.
+
+    Parameters:
+        dataset (str): The name of the dataset file.
+        data_dir (str): The directory where the dataset files are stored. Default is 'data'.
+
+    Returns:
+        dict: A dictionary containing the dataset.
+    """
     from pathlib import Path
     import pickle
     import sys
 
-    sys.path.append('data') # for pickle.load
+    sys.path.append(data_dir)  # for pickle.load
 
     data_dir = Path(data_dir)
     graph_name = dataset
@@ -23,17 +33,42 @@ def load_dataset(dataset, data_dir='data'):
     return graph
 
 
-def load_dataset(path:str):
-    with open(path, 'rb') as f:
-        graph = pickle.load(f)
-    return graph
-
 def generate_seed_vector(top_nodes, seed_num, G):
+    """
+    Generate a seed vector for diffusion simulation.
+
+    Parameters:
+        top_nodes (list): List of top nodes based on node degree.
+        seed_num (int): Number of seed nodes.
+        G (networkx.Graph): The graph object.
+
+    Returns:
+        list: Seed vector for diffusion simulation.
+    """
     seed_nodes = random.sample(top_nodes, seed_num)
     seed_vector = [1 if node in seed_nodes else 0 for node in G.nodes()]
     return seed_vector
 
-def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=100,repeat_step=10,seed_ratio=0.1, infect_prob=0.1, recover_prob=0.005, threshold=0.5):
+
+def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=100, repeat_step=10, seed_ratio=0.1,
+                         infect_prob=0.1, recover_prob=0.005, threshold=0.5):
+    """
+    Generate diffusion matrices for a graph.
+
+    Parameters:
+        graph (dict): Dictionary containing the graph information.
+        sim_num (int): Number of simulations.
+        diff_type (str): Type of diffusion model (IC, LT, SIS, SIR, SI).
+        time_step (int): Number of time steps in the simulation.
+        repeat_step (int): Number of repetitions for each simulation.
+        seed_ratio (float): Ratio of seed nodes.
+        infect_prob (float): Infection probability.
+        recover_prob (float): Recovery probability.
+        threshold (float): Threshold parameter for diffusion models.
+
+    Returns:
+        dict: Dictionary containing ('adj_mat')adjacency matrix and ('diff_mat') diffusion matrices.
+    """
     adj_mat = graph['adj_mat']
     G = nx.from_scipy_sparse_array(adj_mat)
     node_num = len(G.nodes())
@@ -64,7 +99,7 @@ def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=100,repeat
             elif diff_type == 'SIR':
                 model = ep.SIRModel(G)
                 config.add_model_parameter('beta', infect_prob)
-                config.add_model_parameter('lambda', recover_prob)
+                config.add_model_parameter('gamma', recover_prob)
             elif diff_type == 'SI':
                 model = ep.SIModel(G)
                 config.add_model_parameter('beta', infect_prob)
@@ -87,16 +122,28 @@ def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=100,repeat
 
             inf_vec_all += inf_vec
 
-        inf_vec_all=inf_vec_all/repeat_step
+        inf_vec_all = inf_vec_all / repeat_step
 
         simulation.append([seed_vector, inf_vec_all])
 
     simulation = torch.Tensor(simulation).permute(0, 2, 1)
 
-    dataset ={'adj_mat': adj_mat, 'diff_mat': simulation}
+    dataset = {'adj_mat': adj_mat, 'diff_mat': simulation}
     return dataset
 
-def split_dataset(dataset,train_ratio:float=0.6,seed:int=0):
+
+def split_dataset(dataset, train_ratio: float = 0.6, seed: int = 0):
+    """
+    Split the dataset into training and testing sets.
+
+    Parameters:
+        dataset (dict): Dictionary containing the dataset.
+        train_ratio (float): Ratio of training data. Default is 0.6.
+        seed (int): Random seed for reproducibility. Default is 0.
+
+    Returns:
+        tuple: Adjacency matrix, training diffusion matrices, testing diffusion matrices.
+    """
     adj = dataset['adj_mat']
     diff_mat = copy.deepcopy(dataset['diff_mat'])
     all_num = len(diff_mat)
@@ -106,4 +153,3 @@ def split_dataset(dataset,train_ratio:float=0.6,seed:int=0):
                                                                   generator=torch.Generator().manual_seed(seed))
 
     return adj, train_diff_mat, test_diff_mat
-
