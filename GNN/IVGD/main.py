@@ -111,7 +111,7 @@ class IVGD_model(torch.nn.Module):
             temp)) / self.number_layer
 
 
-class IVGD(torch.nn.Module):
+class IVGD:
     """
     Implementation of Invertible Validity-aware Graph Diffusion (IVGD) model.
     """
@@ -120,7 +120,6 @@ class IVGD(torch.nn.Module):
         """
         Initializes the IVGD model.
         """
-        super(IVGD, self).__init__()
 
     def train_diffusion(self, adj, train_dataset):
         """

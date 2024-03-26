@@ -20,7 +20,9 @@
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="GNN.IVGD.model package" href="GNN.IVGD.model.html" />
+    <link rel="prev" title="GNN.GCNSI package" href="GNN.GCNSI.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,110 +44,25 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">GNN.IVGD package</a><ul>
-<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-GNN.IVGD.correction">GNN.IVGD.correction module</a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.correction.correction"><code class="docutils literal notranslate"><span class="pre">correction</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.correction.correction.forward"><code class="docutils literal notranslate"><span class="pre">correction.forward()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.correction.correction.training"><code class="docutils literal notranslate"><span class="pre">correction.training</span></code></a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">GraphSL</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Evaluation.html">Evaluation module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="GNN.html">GNN package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="GNN.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="GNN.GCNSI.html">GNN.GCNSI package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">GNN.IVGD package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GNN.SLVAE.html">GNN.SLVAE package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="GNN.html#module-GNN">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Prescribed.html">Prescribed module</a></li>
 </ul>
 </li>
 </ul>
-</li>
-<li><a class="reference internal" href="#module-GNN.IVGD.earlystopping">GNN.IVGD.earlystopping module</a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.Best"><code class="docutils literal notranslate"><span class="pre">Best</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.Best.ALL"><code class="docutils literal notranslate"><span class="pre">Best.ALL</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.Best.RANKED"><code class="docutils literal notranslate"><span class="pre">Best.RANKED</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.EarlyStopping"><code class="docutils literal notranslate"><span class="pre">EarlyStopping</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.EarlyStopping.check"><code class="docutils literal notranslate"><span class="pre">EarlyStopping.check()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.StopVariable"><code class="docutils literal notranslate"><span class="pre">StopVariable</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.StopVariable.ACCURACY"><code class="docutils literal notranslate"><span class="pre">StopVariable.ACCURACY</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.StopVariable.LOSS"><code class="docutils literal notranslate"><span class="pre">StopVariable.LOSS</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.earlystopping.StopVariable.NONE"><code class="docutils literal notranslate"><span class="pre">StopVariable.NONE</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-GNN.IVGD.i_deepis">GNN.IVGD.i_deepis module</a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.DiffusionPropagate"><code class="docutils literal notranslate"><span class="pre">DiffusionPropagate</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.DiffusionPropagate.backward"><code class="docutils literal notranslate"><span class="pre">DiffusionPropagate.backward()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.DiffusionPropagate.forward"><code class="docutils literal notranslate"><span class="pre">DiffusionPropagate.forward()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.DiffusionPropagate.training"><code class="docutils literal notranslate"><span class="pre">DiffusionPropagate.training</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.Identity.forward"><code class="docutils literal notranslate"><span class="pre">Identity.forward()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.Identity.training"><code class="docutils literal notranslate"><span class="pre">Identity.training</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.i_DeepIS"><code class="docutils literal notranslate"><span class="pre">i_DeepIS</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.i_DeepIS.backward"><code class="docutils literal notranslate"><span class="pre">i_DeepIS.backward()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.i_DeepIS.forward"><code class="docutils literal notranslate"><span class="pre">i_DeepIS.forward()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.i_DeepIS.loss"><code class="docutils literal notranslate"><span class="pre">i_DeepIS.loss()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.i_deepis.i_DeepIS.training"><code class="docutils literal notranslate"><span class="pre">i_DeepIS.training</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-GNN.IVGD.main">GNN.IVGD.main module</a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD"><code class="docutils literal notranslate"><span class="pre">IVGD</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD.normalize"><code class="docutils literal notranslate"><span class="pre">IVGD.normalize()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD.test"><code class="docutils literal notranslate"><span class="pre">IVGD.test()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD.train"><code class="docutils literal notranslate"><span class="pre">IVGD.train()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD.train_diffusion"><code class="docutils literal notranslate"><span class="pre">IVGD.train_diffusion()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD.training"><code class="docutils literal notranslate"><span class="pre">IVGD.training</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD_model"><code class="docutils literal notranslate"><span class="pre">IVGD_model</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD_model.correction"><code class="docutils literal notranslate"><span class="pre">IVGD_model.correction()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD_model.forward"><code class="docutils literal notranslate"><span class="pre">IVGD_model.forward()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.main.IVGD_model.training"><code class="docutils literal notranslate"><span class="pre">IVGD_model.training</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-GNN.IVGD.preprocessing">GNN.IVGD.preprocessing module</a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.preprocessing.exclude_idx"><code class="docutils literal notranslate"><span class="pre">exclude_idx()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.preprocessing.gen_seeds"><code class="docutils literal notranslate"><span class="pre">gen_seeds()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.preprocessing.gen_splits_"><code class="docutils literal notranslate"><span class="pre">gen_splits_()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.preprocessing.normalize_attributes"><code class="docutils literal notranslate"><span class="pre">normalize_attributes()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-GNN.IVGD.training">GNN.IVGD.training module</a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.training.FeatureCons"><code class="docutils literal notranslate"><span class="pre">FeatureCons</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.GetPrediction"><code class="docutils literal notranslate"><span class="pre">GetPrediction</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.PIteration"><code class="docutils literal notranslate"><span class="pre">PIteration()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.construct_attr_mat"><code class="docutils literal notranslate"><span class="pre">construct_attr_mat()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.get_dataloaders"><code class="docutils literal notranslate"><span class="pre">get_dataloaders()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.get_idx_new_seeds"><code class="docutils literal notranslate"><span class="pre">get_idx_new_seeds()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.get_predictions"><code class="docutils literal notranslate"><span class="pre">get_predictions()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.get_predictions_new_seeds"><code class="docutils literal notranslate"><span class="pre">get_predictions_new_seeds()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.lanczos_algo"><code class="docutils literal notranslate"><span class="pre">lanczos_algo()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.train_model"><code class="docutils literal notranslate"><span class="pre">train_model()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.training.update_embedding"><code class="docutils literal notranslate"><span class="pre">update_embedding()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-GNN.IVGD.validity_net">GNN.IVGD.validity_net module</a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.validity_net.validity_net"><code class="docutils literal notranslate"><span class="pre">validity_net</span></code></a><ul>
-<li><a class="reference internal" href="#GNN.IVGD.validity_net.validity_net.correction"><code class="docutils literal notranslate"><span class="pre">validity_net.correction()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.validity_net.validity_net.forward"><code class="docutils literal notranslate"><span class="pre">validity_net.forward()</span></code></a></li>
-<li><a class="reference internal" href="#GNN.IVGD.validity_net.validity_net.training"><code class="docutils literal notranslate"><span class="pre">validity_net.training</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-GNN.IVGD">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -160,6 +77,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">GraphSL</a></li>
+          <li class="breadcrumb-item"><a href="GNN.html">GNN package</a></li>
       <li class="breadcrumb-item active">GNN.IVGD package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/GNN.IVGD.rst.txt" rel="nofollow"> View page source</a>
@@ -391,7 +310,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GNN.IVGD.main.</span></span><span class="sig-name descname"><span class="pre">IVGD</span></span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Implementation of Invertible Validity-aware Graph Diffusion (IVGD) model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD.normalize">
@@ -447,11 +366,6 @@
 <p>Returns:
 - torch.nn.Module: Trained diffusion model.</p>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="GNN.IVGD.main.IVGD.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#GNN.IVGD.main.IVGD.training" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -728,7 +642,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="GNN.GCNSI.html" class="btn btn-neutral float-left" title="GNN.GCNSI package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="GNN.IVGD.model.html" class="btn btn-neutral float-right" title="GNN.IVGD.model package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

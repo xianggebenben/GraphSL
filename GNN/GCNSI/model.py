@@ -80,11 +80,11 @@ class GCNSI_model(torch.nn.Module):
         V4[diff_vec >= 0.5] = 0.5
         d1 = copy.deepcopy(diff_vec)
         d1 = d1[:, np.newaxis]
-        d2 = lpsi(laplacian, num_node,alpha, diff_vec)
+        d2 = lpsi.predict(laplacian, num_node,alpha, diff_vec)
         d2 = d2[:, np.newaxis]
-        d3 = lpsi(laplacian, num_node,alpha, V3)
+        d3 = lpsi.predict(laplacian, num_node,alpha, V3)
         d3 = d3[:, np.newaxis]
-        d4 = lpsi(laplacian, num_node,alpha, V4)
+        d4 = lpsi.predict(laplacian, num_node,alpha, V4)
         d4 = d4[:, np.newaxis]
         x = np.concatenate((d1, d2, d3, d4), axis=1)
         x = torch.tensor(x, dtype=torch.float)

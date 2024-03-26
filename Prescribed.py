@@ -1,4 +1,3 @@
-import torch.nn as nn
 import numpy as np
 import networkx as nx
 import copy
@@ -7,20 +6,21 @@ from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_scor
 from scipy.sparse import csgraph,coo_matrix
 from Evaluation import Metric
 
-class LPSI(nn.Module):
+class LPSI:
     """
-    Define a module for Label Propagation based Source Identification (LPSI).
+    Implement the Label Propagation based Source Identification (LPSI) algorithm.
+
+    Wang, Zheng, et al. "Multiple source detection without knowing the underlying propagation model." Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 31. No. 1. 2017.
     """
 
     def __init__(self):
         """
         Initialize the LPSI module.
         """
-        super().__init__()
 
-    def forward(self, laplacian, num_node, alpha, diff_vec):
+    def predict(self, laplacian, num_node, alpha, diff_vec):
         """
-        Forward pass of the LPSI module.
+        Prediction of the LPSI algorithm.
 
         Args:
 
@@ -28,34 +28,34 @@ class LPSI(nn.Module):
 
         - num_node (int): Number of nodes in the graph.
 
-        - alpha (float): Label propagation parameter.
+        - alpha (float): the fraction of label information that a node gets from its neighbors (between 0 and 1).
 
         - diff_vec (numpy.ndarray): The diffusion vector.
 
         Returns:
 
-        - x (numpy.ndarray): The output of the label propagation.
+        - x (numpy.ndarray): The prediction of source nodes.
         """
         x = (1 - alpha) * np.matmul(np.linalg.inv(np.eye(N=num_node) - alpha * laplacian), diff_vec)
         return x
 
     def train(self, adj, train_dataset, alpha_list=[0.01, 0.1, 1], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
         """
-        Trains the LPSI module.
+         Train the LPSI algorithm.
 
         Args:
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - train_dataset (list): List of training datasets.
+        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
-        - alpha_list (list): List of alpha values to try.
+        - alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
 
         - thres_list (list): List of threshold values to try.
 
         Returns:
 
-        - opt_alpha (float): Optimal alpha value.
+        - opt_alpha (float): Optimal fraction of label information that a node gets from its neighbors, between 0 and 1.
 
         - opt_thres (float): Optimal threshold value.
 
@@ -74,7 +74,7 @@ class LPSI(nn.Module):
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
-                x = self.forward(laplacian, num_node, alpha, influ_vec)
+                x = self.predict(laplacian, num_node, alpha, influ_vec)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
             if train_auc > opt_auc:
@@ -88,7 +88,7 @@ class LPSI(nn.Module):
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
-                x = self.forward(laplacian, num_node, opt_alpha, influ_vec)
+                x = self.predict(laplacian, num_node, opt_alpha, influ_vec)
                 train_f1 += f1_score(seed_vec, x >= thres)
             train_f1 = train_f1 / train_num
             if train_f1 > opt_f1:
@@ -98,15 +98,15 @@ class LPSI(nn.Module):
 
     def test(self, adj, test_dataset, alpha, thres):
         """
-        Tests the LPSI module.
+        Test the LPSI algorithm.
 
         Args:
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - test_dataset (list): List of testing datasets.
+        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
 
-        - alpha (float): Alpha value.
+        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).
 
         - thres (float): Threshold value.
 
@@ -126,7 +126,7 @@ class LPSI(nn.Module):
         for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
-            x = self.forward(laplacian, num_node, alpha, influ_vec)
+            x = self.predict(laplacian, num_node, alpha, influ_vec)
             test_acc += accuracy_score(seed_vec, x >= thres)
             test_pr += precision_score(seed_vec, x >= thres)
             test_re += recall_score(seed_vec, x >= thres)
@@ -141,20 +141,22 @@ class LPSI(nn.Module):
         metric = Metric(test_acc, test_pr, test_re, test_f1, test_auc)
         return metric
 
-class NetSleuth(nn.Module):
+class NetSleuth:
     """
-    Defines a module for NetSleuth.
+    Implement the NetSleuth algorithm.
+
+    Prakash, B. Aditya, Jilles Vreeken, and Christos Faloutsos. "Spotting culprits in epidemics: How many and which ones?." 2012 IEEE 12th international conference on data mining. IEEE, 2012.
     """
 
     def __init__(self):
-        """
-        Initializes the NetSleuth module with a given graph.
-        """
-        super().__init__()  # Call the constructor of the superclass
 
-    def forward(self, G, k, diff_vec):
         """
-        Performs the forward pass of the NetSleuth module.
+        Initialize the NetSleuth.
+        """
+
+    def predict(self, G, k, diff_vec):
+        """
+        Prediction of the NetSleuth algorithm.
 
         Args:
 
@@ -190,21 +192,21 @@ class NetSleuth(nn.Module):
 
     def train(self, adj, train_dataset, k_list=[5, 10, 50, 100], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
         """
-        Trains the NetSleuth module.
+        Train the NetSleuth algorithm.
 
         Args:
 
-        - adj (numpy.ndarray): The adjacency matrix of the graph.
+        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - train_dataset (list): List of training datasets.
+        - train_dataset (torch.utils.data.dataset.Subset): The training dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
 
-        - k_list (list): List of k values to try.
+        - k_list (list): List of the numbers of source nodes to try.
 
         - thres_list (list): List of threshold values to try.
 
         Returns:
 
-        - opt_k (int): Optimal k value.
+        - opt_k (int): Optimal number of source nodes.
 
         - opt_thres (float): Optimal threshold value.
 
@@ -221,7 +223,7 @@ class NetSleuth(nn.Module):
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
-                x = self.forward(G, k, influ_vec)
+                x = self.predict(G, k, influ_vec)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
             if train_auc > opt_auc:
@@ -234,7 +236,7 @@ class NetSleuth(nn.Module):
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
-                x = self.forward(G, opt_k, influ_vec)
+                x = self.predict(G, opt_k, influ_vec)
                 train_f1 += f1_score(seed_vec, x >= thres)
             train_f1 = train_f1 / train_num
             if train_f1 > opt_f1:
@@ -244,13 +246,13 @@ class NetSleuth(nn.Module):
 
     def test(self, adj, test_dataset, k, thres):
         """
-        Tests the NetSleuth module.
+        Test the NetSleuth algorithm.
 
         Args:
 
-        - adj (numpy.ndarray): The adjacency matrix of the graph.
+        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - test_dataset (list): List of testing datasets.
+        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
 
         - k (int): Number of source nodes.
 
@@ -270,7 +272,7 @@ class NetSleuth(nn.Module):
         for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
-            x = self.forward(G, k, influ_vec)
+            x = self.predict(G, k, influ_vec)
             test_acc += accuracy_score(seed_vec, x >= thres)
             test_pr += precision_score(seed_vec, x >= thres)
             test_re += recall_score(seed_vec, x >= thres)
@@ -287,20 +289,21 @@ class NetSleuth(nn.Module):
 
 
 
-class OJC(nn.Module):
+class OJC:
     """
-    Defines a module for identifying potential source nodes using Optimal-Jordan-Cover (OJC) algorithm.
+    Implement the Optimal-Jordan-Cover (OJC) algorithm.
+
+    Zhu, Kai, Zhen Chen, and Lei Ying. "Catch’em all: Locating multiple diffusion sources in networks with partial observations." Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 31. No. 1. 2017.
     """
 
     def __init__(self):
         """
-        Initializes the OJC module.
+        Initialize the OJC module.
         """
-        super().__init__()  # Call the constructor of the superclass
 
     def get_K_list(self, G, Y, I, target):
         """
-        Helper function to get the list of potential source nodes.
+         Get the list of potential source nodes.
 
         Args:
 
@@ -363,15 +366,15 @@ class OJC(nn.Module):
             G_bar = G_prime
         return K, G_bar
 
-    def forward(self, G, Y, I, target, num_source):
+    def predict(self, G, Y, I, target, num_source):
         """
-        Perform the forward pass of the OJC module.
+        Prediction of the OJC algorithm.
 
         Args:
 
         - G (networkx.Graph): The input graph.
 
-        - Y (int): Number of desired source nodes.
+        - Y (int): Number of source nodes.
 
         - I (list): List of diffused nodes.
 
@@ -404,21 +407,21 @@ class OJC(nn.Module):
 
     def train(self, adj, train_dataset, Y_list=[1, 2, 3, 4, 5, 10, 20, 50], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
         """
-        Train the OJC module.
+        Train the OJC algorithm.
 
         Args:
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - train_dataset (list): List of training datasets.
+        - train_dataset (torch.utils.data.dataset.Subset): The train dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
 
-        - Y_list (list): List of Y values to try.
+        - Y_list (list): List of numbers of source nodes to try.
 
         - thres_list (list): List of threshold values to try.
 
         Returns:
 
-        - opt_Y (int): Optimal Y value.
+        - opt_Y (int): Optimal number of source nodes.
 
         - opt_thres (float): Optimal threshold value.
 
@@ -437,7 +440,7 @@ class OJC(nn.Module):
                 influ_vec = influ_mat[:, -1]
                 num_source = len(influ_vec[influ_vec == 1])
                 I = (influ_vec == 1).nonzero()[0].tolist()
-                x = self.forward(G, Y, I, influ_vec, num_source)
+                x = self.predict(G, Y, I, influ_vec, num_source)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
             if train_auc > opt_auc:
@@ -452,7 +455,7 @@ class OJC(nn.Module):
                 influ_vec = influ_mat[:, -1]
                 num_source = len(influ_vec[influ_vec == 1])
                 I = (influ_vec == 1).nonzero()[0].tolist()
-                x = self.forward(G, opt_Y, I, influ_vec, num_source)
+                x = self.predict(G, opt_Y, I, influ_vec, num_source)
                 train_f1 += f1_score(seed_vec, x >= thres)
             train_f1 = train_f1 / train_num
             if train_f1 > opt_f1:
@@ -462,15 +465,15 @@ class OJC(nn.Module):
 
     def test(self, adj, test_dataset, Y, thres):
         """
-        Test the OJC module.
+        Test the OJC algorithm.
 
         Args:
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - test_dataset (list): List of testing datasets.
+        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
 
-        - Y (int): Number of desired source nodes.
+        - Y (int): Number of source nodes.
 
         - thres (float): Threshold value.
 
@@ -490,7 +493,7 @@ class OJC(nn.Module):
             influ_vec = influ_mat[:, -1]
             num_source = len(influ_vec[influ_vec == 1])
             I = (influ_vec == 1).nonzero()[0].tolist()
-            x = self.forward(G, Y, I, influ_vec, num_source)
+            x = self.predict(G, Y, I, influ_vec, num_source)
             test_acc += accuracy_score(seed_vec, x >= thres)
             test_pr += precision_score(seed_vec, x >= thres)
             test_re += recall_score(seed_vec, x >= thres)

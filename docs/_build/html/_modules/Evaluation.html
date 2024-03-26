@@ -41,8 +41,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">GraphSL</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -73,7 +76,7 @@
 
 <div class="viewcode-block" id="Metric">
 <a class="viewcode-back" href="../Evaluation.html#Evaluation.Metric">[docs]</a>
-<span class="k">class</span> <span class="nc">Metric</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Metric</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">pr</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">auc</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -86,7 +89,6 @@
 <span class="sd">            f1 (float): F1-score metric value.</span>
 <span class="sd">            auc (float): Area Under the Curve metric value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="n">acc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pr</span> <span class="o">=</span> <span class="n">pr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">re</span> <span class="o">=</span> <span class="n">re</span>

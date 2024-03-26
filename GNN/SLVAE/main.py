@@ -110,7 +110,7 @@ class SLVAE_model(nn.Module):
 
         return total_loss
 
-class SLVAE(nn.Module):
+class SLVAE:
     """
     Source Localization Variational Autoencoder (SLVAE) model.
 
@@ -122,7 +122,6 @@ class SLVAE(nn.Module):
         """
         Initialize the SLVAE model.
         """
-        super(SLVAE, self).__init__()
 
     def train(self, adj, train_dataset, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], num_epoch=50):
         """

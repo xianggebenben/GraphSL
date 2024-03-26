@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 
-class Metric(nn.Module):
+class Metric:
 
     def __init__(self, acc, pr, re, f1, auc):
         """
@@ -14,7 +14,6 @@ class Metric(nn.Module):
             f1 (float): F1-score metric value.
             auc (float): Area Under the Curve metric value.
         """
-        super().__init__()
         self.acc = acc
         self.pr = pr
         self.re = re

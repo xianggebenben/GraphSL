@@ -5,7 +5,7 @@ from GNN.GCNSI.model import GCNSI_model
 import copy
 from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
 from Evaluation import Metric
-class GCNSI(torch.nn.Module):
+class GCNSI:
     """
     Defines a module for Graph Convolutional Networks based Source Identification (GCNSI).
     """
@@ -14,7 +14,6 @@ class GCNSI(torch.nn.Module):
         """
         Initializes the GCNSI module.
         """
-        super(GCNSI, self).__init__()
 
     def train(self, adj, train_dataset, alpha_list=[0.01, 0.1, 1], thres_list=[0.1,0.3,0.5,0.7,0.9], num_epoch=500, weight=torch.tensor([1.0,3.0])):
         """
