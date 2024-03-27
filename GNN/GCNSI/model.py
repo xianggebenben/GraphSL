@@ -23,7 +23,7 @@ class GCNConv(MessagePassing):
 
     def forward(self, x, edge_index):
         """
-        Performs the forward pass of the GCNConv layer.
+        Perform the forward pass of the GCNConv layer.
 
         Args:
         - x (torch.Tensor): Input node features.
@@ -49,7 +49,7 @@ class GCNConv(MessagePassing):
 
 class GCNSI_model(torch.nn.Module):
     """
-    Defines a Graph Convolutional Networks based Source Identification (GCNSI).
+    Defines the model of Graph Convolutional Networks based Source Identification (GCNSI).
     """
 
     def __init__(self):
@@ -66,8 +66,7 @@ class GCNSI_model(torch.nn.Module):
         - alpha (float): The fraction of label information that node gets from its neighbors..
         - laplacian (numpy.ndarray): The Laplacian matrix of the graph.
         - num_node (int): Number of nodes in the graph.
-        - threshold (float): Threshold value.
-        - diff_vec (numpy.ndarray): The difference vector.
+        - diff_vec (torch.Tensor): The difference vector.
         - edge_index (torch.Tensor): Edge indices representing connectivity.
 
         Returns:

@@ -114,7 +114,7 @@ class LPSI:
 
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
         """
-        laplacian = csgraph.laplacian(adj, normed=False)
+        laplacian = csgraph.laplacian(adj, normed=True)
         laplacian = np.array(coo_matrix.todense(laplacian))
         num_node = adj.shape[0]
         test_num = len(test_dataset)
@@ -208,7 +208,7 @@ class NetSleuth:
 
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
-        - opt_f1 (float): Optimal F1 score value.
+        - train_f1 (float): Training F1 score value.
         """
         # Y should be no more than number of nodes
         num_node = adj.shape[0]

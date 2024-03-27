@@ -7,7 +7,9 @@ from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_scor
 from Evaluation import Metric
 class GCNSI:
     """
-    Defines a module for Graph Convolutional Networks based Source Identification (GCNSI).
+    Implement the Graph Convolutional Networks based Source Identification (GCNSI).
+
+    Dong, Ming, et al. "Multiple rumor source detection with graph convolutional networks." Proceedings of the 28th ACM international conference on information and knowledge management. 2019.
     """
 
     def __init__(self):
@@ -15,17 +17,17 @@ class GCNSI:
         Initializes the GCNSI module.
         """
 
-    def train(self, adj, train_dataset, alpha_list=[0.01, 0.1, 1], thres_list=[0.1,0.3,0.5,0.7,0.9], num_epoch=500, weight=torch.tensor([1.0,3.0])):
+    def train(self, adj, train_dataset, alpha_list=[0.01, 0.1, 1], thres_list=[0.1,0.3,0.5,0.7,0.9], num_epoch=100, weight=torch.tensor([1.0,3.0])):
         """
-        Trains the GCNSI model.
+        Train the GCNSI model.
 
         Args:
         - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
-        - train_dataset (list): List of training data matrices.
-        - alpha_list (list): List of alpha values for training.
-        - thres_list (list): List of threshold values for training.
+        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
+        - alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
+        - thres_list (list): List of threshold values to try.
         - num_epoch (int): Number of training epochs.
-        - weight (torch.Tensor): Weight tensor for loss computation.
+        - weight (torch.Tensor): Weight tensor for loss computation, the first and second values are loss weights for non-seed and seed, respectively.
 
         Returns:
         - opt_gcnsi_model (GCNSI_model): Optimized GCNSI model.
@@ -35,7 +37,7 @@ class GCNSI:
         - opt_f1 (float): Optimal F1 score.
         """
         # Compute Laplacian matrix
-        S = csgraph.laplacian(adj, normed=False)
+        S = csgraph.laplacian(adj, normed=True)
         S = np.array(coo_matrix.todense(S))
         num_node = adj.shape[0]
         train_num = len(train_dataset)
@@ -100,20 +102,20 @@ class GCNSI:
 
     def test(self, adj, test_dataset, gcnsi_model, alpha, thres):
         """
-        Tests the GCNSI model.
+        Test the GCNSI model.
 
         Args:
         - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
-        - test_dataset (list): List of testing data matrices.
+        - test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
         - gcnsi_model (GCNSI_model): Trained GCNSI model.
-        - alpha (float): Alpha value.
+        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try..
         - thres (float): Threshold value.
 
         Returns:
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.
         """
         # Compute Laplacian matrix
-        S = csgraph.laplacian(adj, normed=False)
+        S = csgraph.laplacian(adj, normed=True)
         S = np.array(coo_matrix.todense(S))
         num_node = adj.shape[0]
         test_num = len(test_dataset)
