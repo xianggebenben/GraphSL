@@ -34,9 +34,9 @@ class LPSI:
 
         Returns:
 
-        - x (numpy.ndarray): The prediction of source nodes.
+        - x (numpy.ndarray): Prediction of source nodes.
         """
-        x = (1 - alpha) * np.matmul(np.linalg.inv(np.eye(N=num_node) - alpha * laplacian), diff_vec)
+        x = (1 - alpha) * np.matmul(np.linalg.pinv(np.eye(N=num_node) - alpha * laplacian), diff_vec)
         return x
 
     def train(self, adj, train_dataset, alpha_list=[0.01, 0.1, 1], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
@@ -63,7 +63,7 @@ class LPSI:
 
         - opt_f1 (float): Optimal F1 score value.
         """
-        laplacian = csgraph.laplacian(adj, normed=False)
+        laplacian = csgraph.laplacian(adj, normed=True)
         laplacian = np.array(coo_matrix.todense(laplacian))
         num_node = adj.shape[0]
         train_num = len(train_dataset)
@@ -164,11 +164,11 @@ class NetSleuth:
 
         - k (int): Number of source nodes to identify.
 
-        - diff_vec (numpy.ndarray): The diffusion vector.
+        - diff_vec (torch.Tensor): The diffusion vector.
 
         Returns:
 
-        - seed_vec (torch.Tensor): A tensor representing identified source nodes.
+        - seed_vec (torch.Tensor): A binary tensor representing identified source nodes.
 
         """
         g = copy.deepcopy(G)  # Creating a deep copy of the input graph
@@ -190,7 +190,7 @@ class NetSleuth:
         seed_vec[seed] = 1
         return seed_vec
 
-    def train(self, adj, train_dataset, k_list=[5, 10, 50, 100], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
+    def train(self, adj, train_dataset, k_list=[5, 10, 50, 100]):
         """
         Train the NetSleuth algorithm.
 
@@ -202,18 +202,19 @@ class NetSleuth:
 
         - k_list (list): List of the numbers of source nodes to try.
 
-        - thres_list (list): List of threshold values to try.
-
         Returns:
 
         - opt_k (int): Optimal number of source nodes.
-
-        - opt_thres (float): Optimal threshold value.
 
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
         - opt_f1 (float): Optimal F1 score value.
         """
+        # Y should be no more than number of nodes
+        num_node = adj.shape[0]
+        condition = lambda k: k <= num_node
+        k_list = list(filter(condition, k_list))
+
         G = nx.from_numpy_array(adj)
         opt_auc = 0
         opt_k = 0
@@ -229,22 +230,18 @@ class NetSleuth:
             if train_auc > opt_auc:
                 opt_auc = train_auc
                 opt_k = k
-        opt_f1 = 0
-        opt_thres = 0
-        for thres in thres_list:
-            train_f1 = 0
-            for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
-                x = self.predict(G, opt_k, influ_vec)
-                train_f1 += f1_score(seed_vec, x >= thres)
-            train_f1 = train_f1 / train_num
-            if train_f1 > opt_f1:
-                opt_f1 = train_f1
-                opt_thres = thres
-        return opt_k, opt_thres, opt_auc, opt_f1
 
-    def test(self, adj, test_dataset, k, thres):
+        train_f1 = 0
+        for influ_mat in train_dataset:
+            seed_vec = influ_mat[:, 0]
+            influ_vec = influ_mat[:, -1]
+            x = self.predict(G, opt_k, influ_vec)
+            train_f1 += f1_score(seed_vec, x)
+        train_f1 = train_f1 / train_num
+
+        return opt_k, opt_auc, train_f1
+
+    def test(self, adj, test_dataset, k):
         """
         Test the NetSleuth algorithm.
 
@@ -256,7 +253,6 @@ class NetSleuth:
 
         - k (int): Number of source nodes.
 
-        - thres (float): Threshold value.
 
         Returns:
 
@@ -273,10 +269,10 @@ class NetSleuth:
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
             x = self.predict(G, k, influ_vec)
-            test_acc += accuracy_score(seed_vec, x >= thres)
-            test_pr += precision_score(seed_vec, x >= thres)
-            test_re += recall_score(seed_vec, x >= thres)
-            test_f1 += f1_score(seed_vec, x >= thres)
+            test_acc += accuracy_score(seed_vec, x)
+            test_pr += precision_score(seed_vec, x)
+            test_re += recall_score(seed_vec, x)
+            test_f1 += f1_score(seed_vec, x)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num
@@ -311,7 +307,7 @@ class OJC:
 
         - Y (int): Number of desired source nodes.
 
-        - I (list): diffused nodes.
+        - I (list): list of diffused nodes.
 
         - target (numpy.ndarray): Target vector.
 
@@ -343,7 +339,7 @@ class OJC:
 
         - I (list): List of diffused nodes.
 
-        - target (numpy.ndarray): Target vector.
+        - target (torch.Tensor): Target vector.
 
         Returns:
 
@@ -380,11 +376,11 @@ class OJC:
 
         - target (numpy.ndarray): Target vector.
 
-        - num_source (int): Number of  source nodes.
+        - num_source (int): Maximal number of source nodes.
 
         Returns:
 
-        - x (numpy.ndarray): Binary vector representing identified potential source nodes.
+        - x (numpy.ndarray): A binary vector representing identified potential source nodes.
         """
         K, G_bar = self.Candidate(G, Y, I, target)
         ecc = []
@@ -429,6 +425,10 @@ class OJC:
 
         - opt_f1 (float): Optimal F1 score value.
         """
+        # Y should be no more than number of nodes
+        num_node = adj.shape[0]
+        condition = lambda k: k <= num_node
+        Y_list = list(filter(condition, Y_list))
         G = nx.from_scipy_sparse_array(adj)
         train_num = len(train_dataset)
         opt_auc = 0
@@ -439,7 +439,7 @@ class OJC:
                 seed_vec = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
                 num_source = len(influ_vec[influ_vec == 1])
-                I = (influ_vec == 1).nonzero()[0].tolist()
+                I = (influ_vec == 1).nonzero().squeeze(-1).tolist()
                 x = self.predict(G, Y, I, influ_vec, num_source)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
