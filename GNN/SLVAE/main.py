@@ -34,24 +34,35 @@ class SLVAE_model(nn.Module):
 
     def forward(self, seed_vec, train_mode):
         """
-        Forward pass method of the model.
+        Forward pass method of the SLVAE model.
 
         Args:
-        - seed_vec (Tensor): Seed vector tensor.
+        - seed_vec (Tensor): Seed vector.
         - train_mode (bool): Flag indicating whether in training mode.
 
         Returns:
-        - Tuple[Tensor, Tensor, Tensor, Tensor]: Tuple containing seed_hat, mean, log_var, and predictions tensors.
+        - seed_hat (Tensor): reconstructed seed vector.
+        - mean (Tensor): Mean of the VAE.
+        - log_var (Tensor): Log variance of the VAE.
+        - predictions (Tensor): Predictions made by the SLVAE model.
         """
+        # Pass seed_vec through VAE to obtain reconstructed seed vector, mean, and log variance
         seed_hat, mean, log_var = self.vae(seed_vec)
+
         if train_mode:
+            # Ensure values of seed_hat are within range [0, 1]
             seed_hat.clamp(0, 1)
+            # Pass seed_hat through GNN and perform propagation
             predictions = self.gnn(seed_hat)
             predictions = self.propagate(predictions)
         else:
+            # Ensure values of seed_vec are within range [0, 1]
             seed_vec.clamp(0, 1)
+            # Pass seed_vec through GNN and perform propagation
             predictions = self.gnn(seed_vec)
             predictions = self.propagate(predictions)
+
+        # Return reconstructed seed vector, mean, log variance, and predictions
         return seed_hat, mean, log_var, predictions
 
     def train_loss(self, x, x_hat, mean, log_var, y, y_hat):
@@ -59,15 +70,15 @@ class SLVAE_model(nn.Module):
         Compute training loss.
 
         Args:
-        - x (Tensor): Input tensor.
-        - x_hat (Tensor): Reconstructed input tensor.
-        - mean (Tensor): Mean tensor.
-        - log_var (Tensor): Log variance tensor.
-        - y (Tensor): Target tensor.
-        - y_hat (Tensor): Predicted tensor.
+        - x (Tensor): Seed vector.
+        - x_hat (Tensor): Reconstructed seed tensor.
+        - mean (Tensor): Mean of the VAE.
+        - log_var (Tensor): Log variance of the VAE.
+        - y (Tensor): Influence vector.
+        - y_hat (Tensor): Predicted influence vector.
 
         Returns:
-        - Tensor: Total loss tensor.
+        - Tensor: Total loss is the sum of prediction loss, reconstruction loss and KL divergence.
         """
         forward_loss = F.mse_loss(y_hat, y)
         reproduction_loss = F.binary_cross_entropy(x_hat, x, reduction='mean')
@@ -112,10 +123,9 @@ class SLVAE_model(nn.Module):
 
 class SLVAE:
     """
-    Source Localization Variational Autoencoder (SLVAE) model.
+    Implement the Source Localization Variational Autoencoder (SLVAE) model.
 
-    Attributes:
-    - None
+Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via variational autoencoders for graph inverse problems[C]//Proceedings of the 28th ACM SIGKDD conference on knowledge discovery and data mining. 2022: 1010-1020.
     """
 
     def __init__(self):
@@ -128,14 +138,26 @@ class SLVAE:
         Train the SLVAE model.
 
         Args:
-        - adj (torch.Tensor): Adjacency matrix tensor.
-        - train_dataset (List[torch.Tensor]): List of tensors containing training data.
-        - infect_prob (float): Infection probability.
-        - thres_list (List[float]): List of threshold values.
+        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+
+        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of
+        graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
+
+        - thres_list (list): List of threshold values to try.
+
         - num_epoch (int): Number of training epochs.
 
         Returns:
-        - Tuple: Tuple containing SLVAE model, seed , optimal threshold, train AUC, and optimal F1 score.
+        - slvae_model (SLVAE_model): Trained SLVAE model.
+
+        - seed_vae_train (torch.Tensor): the latent representations of training seed vector from VAE, which is used to initialize
+        seed vector in the test set.
+
+        - opt_thres (float): Optimal threshold.
+
+        - train_auc (float): Train AUC.
+
+        - opt_f1 (float): Optimal F1 score.
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         num_node = adj.shape[0]
