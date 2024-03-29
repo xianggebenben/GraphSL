@@ -17,24 +17,38 @@ class GCNSI:
         Initializes the GCNSI module.
         """
 
-    def train(self, adj, train_dataset, alpha_list=[0.01, 0.1, 1], thres_list=[0.1,0.3,0.5,0.7,0.9], num_epoch=100, weight=torch.tensor([1.0,3.0])):
+    def train(self, adj, train_dataset, alpha_list=[0.001,0.01, 0.1], thres_list=[0.1,0.3,0.5,0.7,0.9], num_epoch=50,print_epoch=10, weight=torch.tensor([1.0,3.0])):
         """
         Train the GCNSI model.
 
         Args:
         - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
+
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
+        
         - alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
+        
         - thres_list (list): List of threshold values to try.
+        
         - num_epoch (int): Number of training epochs.
+        
+        - print_epoch (int): Number of epochs every time to print loss.
+
         - weight (torch.Tensor): Weight tensor for loss computation, the first and second values are loss weights for non-seed and seed, respectively.
 
         Returns:
         - opt_gcnsi_model (GCNSI_model): Optimized GCNSI model.
+
         - opt_alpha (float): Optimal alpha value.
+
         - opt_thres (float): Optimal threshold value.
+
         - opt_auc (float): Optimal AUC score.
+
         - opt_f1 (float): Optimal F1 score.
+
+        - opt_pred (torch.Tensor): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.
+
         """
         # Compute Laplacian matrix
         S = csgraph.laplacian(adj, normed=True)
@@ -49,6 +63,7 @@ class GCNSI:
         opt_auc = 0
         # Iterate over alpha values
         for alpha in alpha_list:
+            print(f"alpha = {alpha:.3f}")
             gcnsi_model = GCNSI_model()
             optimizer = torch.optim.SGD(gcnsi_model.parameters(), lr=1e-3, weight_decay=1e-4)
             criterion = torch.nn.CrossEntropyLoss(weight=weight)
@@ -57,14 +72,18 @@ class GCNSI:
                 optimizer.zero_grad()
                 total_loss = 0
                 for influ_mat in train_dataset:
-                    seed_vec = influ_mat[:, 0]
+                    seed_vec = influ_mat[:, 0].unsqueeze(-1)
+                    seed_vec_onehot =torch.concat((seed_vec,1-seed_vec),dim=1)
                     diff_vec = influ_mat[:, -1]
-                    seed_vec = seed_vec.squeeze(-1).long()
                     pred = gcnsi_model(alpha, S, num_node, diff_vec, edge_index)
-                    loss = criterion(pred, seed_vec)
+                    loss = criterion(pred, seed_vec_onehot)
                     total_loss += loss
                     loss.backward()
                     optimizer.step()
+                average_loss =total_loss/train_num
+                if epoch%print_epoch==0:
+                    print(f"epoch = {epoch}")
+                    print(f"loss = {average_loss:.3f}")
             train_auc = 0
             # Compute AUC score on training data
             for influ_mat in train_dataset:
@@ -72,7 +91,6 @@ class GCNSI:
                 diff_vec = influ_mat[:, -1]
                 seed_vec = seed_vec.squeeze(-1).long()
                 pred = gcnsi_model(alpha, S, num_node, diff_vec, edge_index)
-                pred = torch.softmax(pred, dim=1)
                 pred = pred[:, 1].squeeze(-1).detach().numpy()
                 train_auc += roc_auc_score(seed_vec, pred)
             train_auc = train_auc / train_num
@@ -80,25 +98,31 @@ class GCNSI:
                 opt_auc = train_auc
                 opt_alpha = alpha
                 opt_gcnsi_model = copy.deepcopy(gcnsi_model)
+        
+        opt_pred = np.zeros((num_node,train_num))
+        seed_all = np.zeros((num_node,train_num))
+        for i,influ_mat in enumerate(train_dataset):
+                seed_all[:,i] = influ_mat[:, 0]
+                diff_vec = influ_mat[:, -1]
+                pred = opt_gcnsi_model(opt_alpha, S, num_node, diff_vec, edge_index)
+                pred = torch.softmax(pred, dim=1)
+                pred = pred[:, 1].squeeze(-1).detach().numpy()
+                opt_pred[:,i] = pred
 
         opt_f1 = 0
         # Find optimal threshold and F1 score
         for thres in thres_list:
+            print(f"thres = {thres:.3f}")
             train_f1 = 0
-            for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
-                diff_vec = influ_mat[:, -1]
-                seed_vec = seed_vec.squeeze(-1).long()
-                pred = opt_gcnsi_model(opt_alpha, S, num_node, diff_vec, edge_index)
-                pred = torch.softmax(pred, dim=1)
-                pred = pred[:, 1].squeeze(-1).detach().numpy()
-                train_f1 += f1_score(seed_vec, pred >= thres)
+            for i in range(train_num):
+                train_f1 += f1_score(seed_all[:,i], opt_pred[:,i] >= thres)
             train_f1 = train_f1 / train_num
+            print(f" train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
 
-        return opt_gcnsi_model, opt_alpha, opt_thres, opt_auc, opt_f1
+        return opt_gcnsi_model, opt_alpha, opt_thres, opt_auc, opt_f1, opt_pred
 
     def test(self, adj, test_dataset, gcnsi_model, alpha, thres):
         """

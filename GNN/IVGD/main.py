@@ -164,40 +164,54 @@ class IVGD:
         gnn_model = MLPTransform(input_dim=ndim, hiddenunits=[ndim, ndim], num_classes=1, device=device)
         diffusion_model = i_DeepIS(gnn_model=gnn_model, propagate=propagate_model)
         diffusion_model, result = train_model(diffusion_model, fea_constructor, prob_matrix, train_dataset, **args_dict)
-        print(f"train mean error:{result['train']['mean error']:.4f}")
-        print(f"early_stopping mean error:{result['early_stopping']['mean error']:.4f}")
-        print(f"validation mean error:{result['valtest']['mean error']:.4f}")
-        print(f"run time:{result['runtime']:.4f} seconds")
-        print(f"run time per epoch:{result['runtime_perepoch']:.4f} seconds")
+        print(f"train mean error:{result['train']['mean error']:.3f}")
+        print(f"early_stopping mean error:{result['early_stopping']['mean error']:.3f}")
+        print(f"validation mean error:{result['valtest']['mean error']:.3f}")
+        print(f"run time:{result['runtime']:.3f} seconds")
+        print(f"run time per epoch:{result['runtime_perepoch']:.3f} seconds")
         return diffusion_model
 
-    def train(self, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], num_epoch=100):
+    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], num_epoch=100):
         """
         Trains the IVGD model.
 
         Args:
+        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+
         - train_dataset (list): List of training datasets.
+
         - diffusion_model (torch.nn.Module): Trained diffusion model.
+
         - thres_list (list): List of threshold values.
+
         - num_epoch (int): Number of epochs for training.
 
         Returns:
         - torch.nn.Module: Trained IVGD model.
+
         - float: Lambda value.
+
         - float: Optimal threshold value.
+
         - float: Training AUC.
+
         - float: Optimal F1 score.
+
+        - opt_pred (numpy.ndarray): Prediction of training seed vector, every column is the prediction of every simulation. It is used to adjust thres_list.
         """
         criterion = nn.CrossEntropyLoss()
+        train_num = len(train_dataset)
+        num_node = adj.shape[0]
         alpha = 1
         tau = 1
         rho = 1e-3
         lamda = 0
         ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho)
-        optimizer = optim.SGD(ivgd.parameters(), lr=1e-2)
+        optimizer = optim.Adam(ivgd.parameters(), lr=1e-3)
         ivgd.train()
         train_num = len(train_dataset)
-        for influ_mat in train_dataset:
+        for i,influ_mat in enumerate(train_dataset):
+            print(f"optimize simulation {i+1}:")
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
             seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
@@ -209,6 +223,8 @@ class IVGD:
                 loss = criterion(seed_correction, seed_vec.squeeze(-1).long())
                 loss.backward(retain_graph=True)
                 optimizer.step()
+            print(f"loss = {loss:.3f}")
+        
         ivgd.eval()
         train_auc = 0
         for influ_mat in train_dataset:
@@ -226,29 +242,35 @@ class IVGD:
             train_auc += roc_auc_score(seed_vec, seed_correction)
         train_auc = train_auc / train_num
 
-        opt_f1 = 0
-        for thres in thres_list:
-            train_f1 = 0
-            for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
+        opt_pred = np.zeros((num_node,train_num))
+        seed_all = np.zeros((num_node,train_num))
+        for i,influ_mat in enumerate(train_dataset):
+                seed_all[:,i] = influ_mat[:, 0]
                 influ_vec = influ_mat[:, -1]
                 seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
                 seed_preds = torch.tensor(seed_preds).unsqueeze(-1).float()
-                seed_vec = seed_vec.unsqueeze(-1).float()
                 seed_correction = ivgd(seed_preds, seed_preds, lamda)
                 seed_correction = F.softmax(seed_correction, dim=1)
                 seed_correction = seed_correction[:, 1].unsqueeze(-1)
                 seed_correction = self.normalize(seed_correction)
                 seed_correction = seed_correction.squeeze(-1).detach().numpy()
-                seed_vec = seed_vec.squeeze(-1).detach().numpy()
-                train_f1 += f1_score(seed_vec, seed_correction >= thres)
-            train_f1 = train_f1 / train_num
+                opt_pred[:,i] = seed_correction
 
+        opt_f1 = 0
+        # Find optimal threshold and F1 score
+        for thres in thres_list:
+            print(f"thres = {thres:.3f}")
+            train_f1 = 0
+            for i in range(train_num):
+                train_f1 += f1_score(seed_all[:,i], opt_pred[:,i] >= thres)
+            train_f1 = train_f1 / train_num
+            print(f" train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
 
-        return ivgd, lamda, opt_thres, train_auc, opt_f1
+
+        return ivgd, lamda, opt_thres, train_auc, opt_f1, opt_pred
 
     def test(self, test_dataset, diffusion_model, IVGD_model, lamda, thres):
         """

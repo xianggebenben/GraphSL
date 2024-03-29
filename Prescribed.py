@@ -39,7 +39,7 @@ class LPSI:
         x = (1 - alpha) * np.matmul(np.linalg.pinv(np.eye(N=num_node) - alpha * laplacian), diff_vec)
         return x
 
-    def train(self, adj, train_dataset, alpha_list=[0.01, 0.1, 1], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
+    def train(self, adj, train_dataset, alpha_list=[0.001, 0.01, 0.1], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
         """
          Train the LPSI algorithm.
 
@@ -62,6 +62,8 @@ class LPSI:
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
         - opt_f1 (float): Optimal F1 score value.
+
+        - opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.
         """
         laplacian = csgraph.laplacian(adj, normed=True)
         laplacian = np.array(coo_matrix.todense(laplacian))
@@ -70,6 +72,7 @@ class LPSI:
         opt_auc = 0
         opt_alpha = 0
         for alpha in alpha_list:
+            print(f"alpha = {alpha}")
             train_auc = 0
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
@@ -77,24 +80,31 @@ class LPSI:
                 x = self.predict(laplacian, num_node, alpha, influ_vec)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
+            print(f"train_auc = {train_auc:3f}")
             if train_auc > opt_auc:
                 opt_auc = train_auc
                 opt_alpha = alpha
+        
+        opt_pred =np.zeros((num_node,train_num))
+        seed_all = np.zeros((num_node,train_num))
+        for i,influ_mat in enumerate(train_dataset):
+                seed_all[:,i] = influ_mat[:, 0]
+                influ_vec = influ_mat[:, -1]
+                opt_pred[:,i] = self.predict(laplacian, num_node, opt_alpha, influ_vec)
 
         opt_f1 = 0
         opt_thres = 0
         for thres in thres_list:
+            print(f"thres = {thres:.3f}")
             train_f1 = 0
-            for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
-                x = self.predict(laplacian, num_node, opt_alpha, influ_vec)
-                train_f1 += f1_score(seed_vec, x >= thres)
+            for i in range(train_num):
+                train_f1 += f1_score(seed_all[:,i], opt_pred[:,i] >= thres)
             train_f1 = train_f1 / train_num
+            print(f"train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
-        return opt_alpha, opt_thres, opt_auc, opt_f1
+        return opt_alpha, opt_thres, opt_auc, opt_f1, opt_pred
 
     def test(self, adj, test_dataset, alpha, thres):
         """
@@ -220,6 +230,7 @@ class NetSleuth:
         opt_k = 0
         train_num = len(train_dataset)
         for k in k_list:
+            print(f"k = {k}")
             train_auc = 0
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
@@ -227,6 +238,8 @@ class NetSleuth:
                 x = self.predict(G, k, influ_vec)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
+            print(f"train_auc = {train_auc:.3f}")
+
             if train_auc > opt_auc:
                 opt_auc = train_auc
                 opt_k = k
@@ -401,7 +414,7 @@ class OJC:
         x[index] = 1
         return x
 
-    def train(self, adj, train_dataset, Y_list=[1, 2, 3, 4, 5, 10, 20, 50], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
+    def train(self, adj, train_dataset, Y_list=[5, 10, 20, 50]):
         """
         Train the OJC algorithm.
 
@@ -413,17 +426,14 @@ class OJC:
 
         - Y_list (list): List of numbers of source nodes to try.
 
-        - thres_list (list): List of threshold values to try.
 
         Returns:
 
         - opt_Y (int): Optimal number of source nodes.
 
-        - opt_thres (float): Optimal threshold value.
-
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
-        - opt_f1 (float): Optimal F1 score value.
+        - train_f1 (float): Training F1 score value.
         """
         # Y should be no more than number of nodes
         num_node = adj.shape[0]
@@ -434,6 +444,7 @@ class OJC:
         opt_auc = 0
         opt_Y = 0
         for Y in Y_list:
+            print(f"Y = {Y}")
             train_auc = 0
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
@@ -443,27 +454,24 @@ class OJC:
                 x = self.predict(G, Y, I, influ_vec, num_source)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
+            print(f"train_auc = {train_auc:.3f}")
             if train_auc > opt_auc:
                 opt_auc = train_auc
                 opt_Y = Y
-        opt_f1 = 0
-        opt_thres = 0
-        for thres in thres_list:
-            train_f1 = 0
-            for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
-                num_source = len(influ_vec[influ_vec == 1])
-                I = (influ_vec == 1).nonzero()[0].tolist()
-                x = self.predict(G, opt_Y, I, influ_vec, num_source)
-                train_f1 += f1_score(seed_vec, x >= thres)
-            train_f1 = train_f1 / train_num
-            if train_f1 > opt_f1:
-                opt_f1 = train_f1
-                opt_thres = thres
-        return opt_Y, opt_thres, opt_auc, opt_f1
 
-    def test(self, adj, test_dataset, Y, thres):
+        train_f1 = 0
+        for influ_mat in train_dataset:
+            seed_vec = influ_mat[:, 0]
+            influ_vec = influ_mat[:, -1]
+            num_source = len(influ_vec[influ_vec == 1])
+            I = (influ_vec == 1).nonzero()[0].tolist()
+            x = self.predict(G, opt_Y, I, influ_vec, num_source)
+            train_f1 += f1_score(seed_vec, x)
+        train_f1 = train_f1 / train_num
+
+        return opt_Y, opt_auc, train_f1
+
+    def test(self, adj, test_dataset, Y):
         """
         Test the OJC algorithm.
 
@@ -474,8 +482,6 @@ class OJC:
         - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
 
         - Y (int): Number of source nodes.
-
-        - thres (float): Threshold value.
 
         Returns:
 
@@ -494,10 +500,10 @@ class OJC:
             num_source = len(influ_vec[influ_vec == 1])
             I = (influ_vec == 1).nonzero()[0].tolist()
             x = self.predict(G, Y, I, influ_vec, num_source)
-            test_acc += accuracy_score(seed_vec, x >= thres)
-            test_pr += precision_score(seed_vec, x >= thres)
-            test_re += recall_score(seed_vec, x >= thres)
-            test_f1 += f1_score(seed_vec, x >= thres)
+            test_acc += accuracy_score(seed_vec, x)
+            test_pr += precision_score(seed_vec, x)
+            test_re += recall_score(seed_vec, x)
+            test_f1 += f1_score(seed_vec, x)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num

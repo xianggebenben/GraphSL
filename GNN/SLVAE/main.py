@@ -158,6 +158,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         - train_auc (float): Train AUC.
 
         - opt_f1 (float): Optimal F1 score.
+
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         num_node = adj.shape[0]

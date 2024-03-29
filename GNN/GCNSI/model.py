@@ -54,9 +54,10 @@ class GCNSI_model(torch.nn.Module):
 
     def __init__(self):
         super(GCNSI_model, self).__init__()
-        self.conv1 = GCNConv(4, 128)  # Initializing the first GCN layer
-        self.conv2 = GCNConv(128, 128)  # Initializing the second GCN layer
-        self.fc = torch.nn.Linear(128, 2)  # Initializing a linear transformation layer
+        self.conv1 = GCNConv(4, 32)  # Initializing the first GCN layer
+        self.conv2 = GCNConv(32, 32)  # Initializing the second GCN layer
+        self.fc = torch.nn.Linear(32, 2)  # Initializing a linear transformation layer
+        #self.softmax=torch.nn.Softmax(dim=1)
 
     def forward(self, alpha, laplacian, num_node, diff_vec, edge_index):
         """
@@ -92,4 +93,5 @@ class GCNSI_model(torch.nn.Module):
         x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
         x = self.fc(x)
+        #x = self.softmax(x)
         return x
