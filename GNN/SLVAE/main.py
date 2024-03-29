@@ -156,7 +156,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         Initialize the SLVAE model.
         """
 
-    def train(self, adj, train_dataset, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], num_epoch=50):
+    def train(self, adj, train_dataset, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], lr =0.001, num_epoch = 50,print_epoch =10):
         """
         Train the SLVAE model.
 
@@ -169,7 +169,11 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
         - thres_list (list): List of threshold values to try.
 
+        - lr (float): Learning rate.
+
         - num_epoch (int): Number of training epochs.
+
+        - print_epoch (int): Number of epochs every time to print loss.
 
         Returns:
 
@@ -206,9 +210,10 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
         slvae_model = SLVAE_model(vae, gnn, propagate).to(device)
 
-        optimizer = Adam(slvae_model.parameters(), lr=1e-3)
+        optimizer = Adam(slvae_model.parameters(), lr=lr)
 
         # Train SLVAE
+        print("train SLVAE:")
         slvae_model.train()
         for epoch in range(num_epoch):
             overall_loss = 0
@@ -225,8 +230,13 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
                 loss.backward()
                 optimizer.step()
+            average_loss = overall_loss/train_num
+            if epoch % print_epoch ==0:
+                print(f"epoch = {epoch}, loss = {average_loss:.3f}")
 
         # Evaluation
+        print("infer seed from training set:")
+
         slvae_model.eval()
         for param in slvae_model.parameters():
             param.requires_grad = False
@@ -244,7 +254,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         for seed in seed_infer:
             seed.requires_grad = True
 
-        optimizer = Adam(seed_infer, lr=1e-3)
+        optimizer = Adam(seed_infer, lr=lr)
 
         for epoch in range(num_epoch):
             overall_loss = 0
@@ -259,6 +269,11 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
                 loss.backward()
                 optimizer.step()
+            
+            average_loss = overall_loss/train_num
+
+            if epoch % print_epoch ==0:
+                print(f"epoch = {epoch}")
 
         train_auc = 0
         for i, influ_mat in enumerate(train_dataset):
@@ -290,7 +305,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
         return slvae_model, seed_vae_train, opt_thres, train_auc, opt_f1, pred
 
-    def infer(self, test_dataset, slvae_model, seed_vae_train, thres, num_epoch=50):
+    def infer(self, test_dataset, slvae_model, seed_vae_train, thres, lr=0.001,num_epoch = 50, print_epoch = 10):
         """
         Infer using the SLVAE model.
 
@@ -304,7 +319,12 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
         - thres (float): Threshold value.
 
+        - lr (float): Learning rate.
+
         - num_epoch (int): Number of epochs.
+
+        - print_epoch (int): Number of epochs every time to print loss.
+
 
         Returns:
 
@@ -325,8 +345,9 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         for seed in seed_infer:
             seed.requires_grad = True
 
-        optimizer = Adam(seed_infer, lr=1e-3)
+        optimizer = Adam(seed_infer, lr=lr)
 
+        print("infer seed from test set:")
         for epoch in range(num_epoch):
             overall_loss = 0
             for i, influ_mat in enumerate(test_dataset):
@@ -340,6 +361,9 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
                 loss.backward()
                 optimizer.step()
+            
+            if epoch % print_epoch ==0:
+                print(f"epoch = {epoch}")
 
         test_acc = 0
         test_pr = 0

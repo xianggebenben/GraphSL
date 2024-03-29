@@ -171,7 +171,7 @@ class IVGD:
         print(f"run time per epoch:{result['runtime_perepoch']:.3f} seconds")
         return diffusion_model
 
-    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], num_epoch=100):
+    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9],lr =0.001, num_epoch=10):
         """
         Trains the IVGD model.
 
@@ -183,6 +183,8 @@ class IVGD:
         - diffusion_model (torch.nn.Module): Trained diffusion model.
 
         - thres_list (list): List of threshold values.
+
+        - lr (float): Learning rate.
 
         - num_epoch (int): Number of epochs for training.
 
@@ -205,11 +207,10 @@ class IVGD:
         rho = 1e-3
         lamda = 0
         ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho)
-        optimizer = optim.Adam(ivgd.parameters(), lr=1e-3)
+        optimizer = optim.Adam(ivgd.parameters(), lr=lr)
         ivgd.train()
         train_num = len(train_dataset)
         for i,influ_mat in enumerate(train_dataset):
-            print(f"optimize simulation {i+1}:")
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
             seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
@@ -221,7 +222,7 @@ class IVGD:
                 loss = criterion(seed_correction, seed_vec.squeeze(-1).long())
                 loss.backward(retain_graph=True)
                 optimizer.step()
-            print(f"loss = {loss:.3f}")
+            print(f"optimize simulation {i+1}: loss = {loss:.3f}")
         
         ivgd.eval()
         train_auc = 0
@@ -257,12 +258,11 @@ class IVGD:
         opt_f1 = 0
         # Find optimal threshold and F1 score
         for thres in thres_list:
-            print(f"thres = {thres:.3f}")
             train_f1 = 0
             for i in range(train_num):
                 train_f1 += f1_score(seed_all[:,i], pred[:,i] >= thres)
             train_f1 = train_f1 / train_num
-            print(f" train_f1 = {train_f1:.3f}")
+            print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres

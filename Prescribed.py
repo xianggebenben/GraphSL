@@ -72,7 +72,6 @@ class LPSI:
         opt_auc = 0
         opt_alpha = 0
         for alpha in alpha_list:
-            print(f"alpha = {alpha}")
             train_auc = 0
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
@@ -80,7 +79,7 @@ class LPSI:
                 x = self.predict(laplacian, num_node, alpha, influ_vec)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
-            print(f"train_auc = {train_auc:3f}")
+            print(f"alpha = {alpha}, train_auc = {train_auc:.3f}")
             if train_auc > opt_auc:
                 opt_auc = train_auc
                 opt_alpha = alpha
@@ -100,7 +99,7 @@ class LPSI:
             for i in range(train_num):
                 train_f1 += f1_score(seed_all[:,i], opt_pred[:,i] >= thres)
             train_f1 = train_f1 / train_num
-            print(f"train_f1 = {train_f1:.3f}")
+            print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
@@ -230,7 +229,6 @@ class NetSleuth:
         opt_k = 0
         train_num = len(train_dataset)
         for k in k_list:
-            print(f"k = {k}")
             train_auc = 0
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
@@ -238,7 +236,7 @@ class NetSleuth:
                 x = self.predict(G, k, influ_vec)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
-            print(f"train_auc = {train_auc:.3f}")
+            print(f"k = {k}, train_auc = {train_auc:.3f}")
 
             if train_auc > opt_auc:
                 opt_auc = train_auc
@@ -444,7 +442,6 @@ class OJC:
         opt_auc = 0
         opt_Y = 0
         for Y in Y_list:
-            print(f"Y = {Y}")
             train_auc = 0
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
@@ -454,7 +451,7 @@ class OJC:
                 x = self.predict(G, Y, I, influ_vec, num_source)
                 train_auc += roc_auc_score(seed_vec, x)
             train_auc = train_auc / train_num
-            print(f"train_auc = {train_auc:.3f}")
+            print(f"Y = {Y}, train_auc = {train_auc:.3f}")
             if train_auc > opt_auc:
                 opt_auc = train_auc
                 opt_Y = Y
