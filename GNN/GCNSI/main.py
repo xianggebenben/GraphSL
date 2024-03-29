@@ -47,7 +47,7 @@ class GCNSI:
 
         - opt_f1 (float): Optimal F1 score.
 
-        - opt_pred (torch.Tensor): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.
+        - opt_pred (numpy.ndarray): Predicted seed vector of the training set given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.
 
         """
         # Compute Laplacian matrix

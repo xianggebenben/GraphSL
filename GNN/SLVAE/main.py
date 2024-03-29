@@ -12,8 +12,11 @@ class SLVAE_model(nn.Module):
 
     Attributes:
     - vae (nn.Module): Variational Autoencoder module.
-    - GNN (nn.Module): Graph Neural Network module.
+
+    - gnn (nn.Module): Graph Neural Network module.
+
     - propagate (nn.Module): Propagation module.
+
     - reg_params (list): List of parameters requiring gradients.
     """
 
@@ -23,7 +26,9 @@ class SLVAE_model(nn.Module):
 
         Args:
         - vae (nn.Module): Variational Autoencoder module.
-        - GNN (nn.Module): Graph Neural Network module.
+
+        - gnn (nn.Module): Graph Neural Network module.
+
         - propagate (nn.Module): Propagation module.
         """
         super(SLVAE_model, self).__init__()
@@ -37,13 +42,19 @@ class SLVAE_model(nn.Module):
         Forward pass method of the SLVAE model.
 
         Args:
+
         - seed_vec (Tensor): Seed vector.
+
         - train_mode (bool): Flag indicating whether in training mode.
 
         Returns:
+
         - seed_hat (Tensor): reconstructed seed vector.
+
         - mean (Tensor): Mean of the VAE.
+
         - log_var (Tensor): Log variance of the VAE.
+
         - predictions (Tensor): Predictions made by the SLVAE model.
         """
         # Pass seed_vec through VAE to obtain reconstructed seed vector, mean, and log variance
@@ -70,14 +81,21 @@ class SLVAE_model(nn.Module):
         Compute training loss.
 
         Args:
+
         - x (Tensor): Seed vector.
+
         - x_hat (Tensor): Reconstructed seed tensor.
+
         - mean (Tensor): Mean of the VAE.
+
         - log_var (Tensor): Log variance of the VAE.
+
         - y (Tensor): Influence vector.
+
         - y_hat (Tensor): Predicted influence vector.
 
         Returns:
+
         - Tensor: Total loss is the sum of prediction loss, reconstruction loss and KL divergence.
         """
         forward_loss = F.mse_loss(y_hat, y)
@@ -91,12 +109,17 @@ class SLVAE_model(nn.Module):
         Compute inference loss.
 
         Args:
+
         - y_true (Tensor): True label tensor.
+
         - y_hat (Tensor): Predicted label tensor.
+
         - x_hat (Tensor): Reconstructed input tensor.
+
         - train_pred (Tensor): Predicted tensor during training.
 
         Returns:
+
         - Tensor: Total loss tensor.
         """
         device = y_true.device
@@ -138,6 +161,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         Train the SLVAE model.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of
@@ -148,6 +172,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         - num_epoch (int): Number of training epochs.
 
         Returns:
+
         - slvae_model (SLVAE_model): Trained SLVAE model.
 
         - seed_vae_train (torch.Tensor): the latent representations of training seed vector from VAE, which is used to initialize
@@ -158,6 +183,9 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         - train_auc (float): Train AUC.
 
         - opt_f1 (float): Optimal F1 score.
+
+        - pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.
+
 
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -253,21 +281,33 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
+        
+        pred = np.zeros((num_node,train_num))
 
-        return slvae_model, seed_vae_train, opt_thres, train_auc, opt_f1
+        for i in range(train_num):
+            pred[:,i] = seed_infer[i].squeeze(-1).detach().numpy()
+
+
+        return slvae_model, seed_vae_train, opt_thres, train_auc, opt_f1, pred
 
     def infer(self, test_dataset, slvae_model, seed_vae_train, thres, num_epoch=50):
         """
         Infer using the SLVAE model.
 
         Args:
+
         - test_dataset (List[torch.Tensor]): List of tensors containing test data.
+
         - slvae_model (SLVAE_model): Trained SLVAE model.
+
         - seed_vae_train (torch.Tensor): Seed VAE training data.
+
         - thres (float): Threshold value.
+
         - num_epoch (int): Number of epochs.
 
         Returns:
+
         - Metric: Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

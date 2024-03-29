@@ -189,15 +189,13 @@ class IVGD:
         Returns:
         - torch.nn.Module: Trained IVGD model.
 
-        - float: Lambda value.
-
         - float: Optimal threshold value.
 
         - float: Training AUC.
 
         - float: Optimal F1 score.
 
-        - opt_pred (numpy.ndarray): Prediction of training seed vector, every column is the prediction of every simulation. It is used to adjust thres_list.
+        - pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.
         """
         criterion = nn.CrossEntropyLoss()
         train_num = len(train_dataset)
@@ -242,19 +240,19 @@ class IVGD:
             train_auc += roc_auc_score(seed_vec, seed_correction)
         train_auc = train_auc / train_num
 
-        opt_pred = np.zeros((num_node,train_num))
+        pred = np.zeros((num_node,train_num))
         seed_all = np.zeros((num_node,train_num))
         for i,influ_mat in enumerate(train_dataset):
-                seed_all[:,i] = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
-                seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
-                seed_preds = torch.tensor(seed_preds).unsqueeze(-1).float()
-                seed_correction = ivgd(seed_preds, seed_preds, lamda)
-                seed_correction = F.softmax(seed_correction, dim=1)
-                seed_correction = seed_correction[:, 1].unsqueeze(-1)
-                seed_correction = self.normalize(seed_correction)
-                seed_correction = seed_correction.squeeze(-1).detach().numpy()
-                opt_pred[:,i] = seed_correction
+            seed_all[:,i] = influ_mat[:, 0]
+            influ_vec = influ_mat[:, -1]
+            seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
+            seed_preds = torch.tensor(seed_preds).unsqueeze(-1).float()
+            seed_correction = ivgd(seed_preds, seed_preds, lamda)
+            seed_correction = F.softmax(seed_correction, dim=1)
+            seed_correction = seed_correction[:, 1].unsqueeze(-1)
+            seed_correction = self.normalize(seed_correction)
+            seed_correction = seed_correction.squeeze(-1).detach().numpy()
+            pred[:,i] = seed_correction
 
         opt_f1 = 0
         # Find optimal threshold and F1 score
@@ -262,7 +260,7 @@ class IVGD:
             print(f"thres = {thres:.3f}")
             train_f1 = 0
             for i in range(train_num):
-                train_f1 += f1_score(seed_all[:,i], opt_pred[:,i] >= thres)
+                train_f1 += f1_score(seed_all[:,i], pred[:,i] >= thres)
             train_f1 = train_f1 / train_num
             print(f" train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
@@ -270,17 +268,19 @@ class IVGD:
                 opt_thres = thres
 
 
-        return ivgd, lamda, opt_thres, train_auc, opt_f1, opt_pred
+        return ivgd, opt_thres, train_auc, opt_f1, pred
 
-    def test(self, test_dataset, diffusion_model, IVGD_model, lamda, thres):
+    def test(self, test_dataset, diffusion_model, IVGD_model, thres):
         """
         Tests the IVGD model on the given test dataset.
 
         Args:
         - test_dataset (list): List of test datasets.
+
         - diffusion_model (torch.nn.Module): Trained diffusion model.
+
         - IVGD_model (torch.nn.Module): Trained IVGD model.
-        - lamda (float): Lambda value.
+
         - thres (float): Threshold value.
 
         Returns:
@@ -293,6 +293,7 @@ class IVGD:
         test_f1 = 0
         test_auc = 0
 
+        lamda = 0
         # Loop through each test dataset
         for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
