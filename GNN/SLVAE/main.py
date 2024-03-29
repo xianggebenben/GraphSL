@@ -293,6 +293,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
                 seed_pred = seed_infer[i].detach().numpy()
                 train_f1 += f1_score(seed_vec, seed_pred >= thres)
             train_f1 = train_f1 / train_num
+            print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
