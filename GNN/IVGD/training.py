@@ -20,6 +20,7 @@ class FeatureCons:
         Initialize FeatureCons object.
 
         Args:
+
         - ndim (int): Number of dimensions.
         """
         self.prob_matrix = None
@@ -30,10 +31,12 @@ class FeatureCons:
         Deeply compute features based on the given seed vector.
 
         Args:
+
         - seed_vec (torch.Tensor): Seed vector.
 
         Returns:
-        - numpy.ndarray: Feature matrix.
+
+        - attr_mat(numpy.ndarray): Feature matrix.
         """
         seed_vec = seed_vec.reshape((-1, 1))
         import scipy.sparse as sp
@@ -52,9 +55,11 @@ class FeatureCons:
         Call method to compute features based on the given seed vector.
 
         Args:
+
         - seed_vec (torch.Tensor): Seed vector.
 
         Returns:
+
         - numpy.ndarray: Feature matrix.
         """
         return self.__deepis_fea(seed_vec)
@@ -65,6 +70,7 @@ def get_dataloaders(idx, labels_np, batch_size=None):
     Get data loaders for training, validation, and testing.
 
     Args:
+
     - idx (dict): Dictionary containing indices for different phases, training, early stopping, and validation/test.
 
     - labels_np (numpy.ndarray): Labels as numpy array.
@@ -72,6 +78,7 @@ def get_dataloaders(idx, labels_np, batch_size=None):
     - batch_size (int): Batch size.
 
     Returns:
+
     - dataloaders (dict): Dictionary containing data loaders for different phases.
     """
     labels = torch.FloatTensor(labels_np)
@@ -88,12 +95,16 @@ def construct_attr_mat(prob_matrix, seed_vec, order=5):
     Construct attribute matrix based on the given probability matrix and seed vector.
 
     Args:
-    - prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.
+
+    - prob_matrix (scipy.sparse.csr_matrix): Probability matrix.
+
     - seed_vec (numpy.ndarray): Seed vector.
+
     - order (int): Order of attribute matrix construction.
 
     Returns:
-    - numpy.ndarray: Attribute matrix.
+
+    - attr_mat (numpy.ndarray): Attribute matrix.
     """
     lanczos_flag = False
     if lanczos_flag:
@@ -115,12 +126,17 @@ def lanczos_algo(prob_matrix, seed_vec, order=5, epsilon=0.001):
     Lanczos algorithm for computing attribute matrix.
 
     Args:
+
     - prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.
+
     - seed_vec (numpy.ndarray): Seed vector.
+
     - order (int): Order of attribute matrix construction.
+
     - epsilon (float): Threshold for stopping the iteration.
 
     Returns:
+
     - numpy.ndarray: Attribute matrix.
     """
     S = prob_matrix.T
@@ -147,10 +163,13 @@ def update_embedding(model, feature_mat):
     Update the embedding layer of the model with the new feature matrix.
 
     Args:
+
     - model (torch.nn.Module): Model.
+
     - feature_mat (numpy.ndarray): Feature matrix.
 
     Returns:
+
     - torch.nn.Module: Updated model.
     """
     assert getattr(model, 'gnn_model', None) is not None, 'Object model should have a submodule `gnn_model` '
@@ -174,6 +193,7 @@ def PIteration(prob_matrix, predictions, seed_idx, substitute=True, piter=10):
     Perform final prediction iteration to fit the ideal equation system.
 
     Args:
+
     - prob_matrix (numpy.ndarray): Probability matrix.
 
     - predictions (numpy.ndarray): Predictions.
@@ -185,7 +205,8 @@ def PIteration(prob_matrix, predictions, seed_idx, substitute=True, piter=10):
     - piter (int): Number of iterations.
 
     Returns:
-    - numpy.ndarray: Final predictions.
+
+    - final_preds (numpy.ndarray): Final predictions.
     """
 
     def one_iter(prob_matrix, predictions):
@@ -218,6 +239,7 @@ def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: fl
     Train the model using the specified parameters.
 
     Args:
+
     - model (nn.Module): Model to be trained.
 
     - fea_constructor (nn.Module): Feature constructor object.
@@ -247,6 +269,7 @@ def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: fl
     - batch_size (int): Batch size.
 
     Returns:
+
     - model (nn.Module): Trained model.
 
     - result (dict): Results of diffusion model,including predictions, train mean error, early_stopping mean error, val/test mean error, runtime, and runtime per epoch.
@@ -369,11 +392,15 @@ def get_predictions(model, idx, batch_size=None):
     Get predictions from the model.
 
     Args:
-    - model (nn.Module): Model.
+
+    - model (nn.Module): Diffusion model.
+
     - idx (Tensor): Indices.
+
     - batch_size (int): Batch size.
 
     Returns:
+
     - numpy.ndarray: Predictions.
     """
     if batch_size is None:
@@ -433,44 +460,22 @@ class GetPrediction:
         return preds
 
 
-def get_predictions_new_seeds(model, fea_constructor, seed_vec, idx):
-    """
-    Get predictions for new seeds.
-
-    Given a new seed set on the same graph, predict each node's probability.
-
-    Args:
-    - model: Model for prediction.
-    - fea_constructor: Feature constructor.
-    - seed_vec: Seed vector.
-    - idx: Indices.
-
-    Returns:
-    - numpy.ndarray: Predictions.
-    """
-    device = next(model.parameters()).device
-    idx = torch.LongTensor(idx).to(device)
-
-    attr_mat = fea_constructor(seed_vec)
-    model = update_embedding(model, attr_mat)
-
-    preds = model(idx)
-    preds = preds.detach().cpu().numpy()
-    return preds
-
 
 def get_idx_new_seeds(model, prediction):
     """
     Get indices for new seeds.
 
-    Given each node's probability, predict the seed set on the same graph.
+    Given each node's probability, predict the seed vector on the same graph.
 
     Args:
-    - model: Model for prediction.
-    - prediction: Predictions.
+
+    - model (nn.module): Model for prediction.
+
+    - prediction (torch.Tensor): Prediction of diffusion.
 
     Returns:
-    - Tensor: Result.
+
+    - result (torch.Tensor): Prediction of seeds.
     """
     device = next(model.parameters()).device
     prediction = torch.tensor(prediction).to(device)

@@ -41,8 +41,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">GraphSL</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -118,10 +121,15 @@
 <span class="sd">        Initializes the EarlyStopping object.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - model (Module): The neural network model.</span>
+
 <span class="sd">        - stop_varnames (List[StopVariable]): List of stopping criteria variables.</span>
+
 <span class="sd">        - patience (int): Number of epochs to wait after reaching the best model before stopping.</span>
+
 <span class="sd">        - max_epochs (int): Maximum number of epochs for training.</span>
+
 <span class="sd">        - remember (Best): Specifies how to remember the best model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
@@ -152,10 +160,13 @@
 <span class="sd">        Checks if early stopping criteria are met.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - values (List[np.floating]): List of evaluation metric values.</span>
+
 <span class="sd">        - epoch (int): Current epoch number.</span>
 
 <span class="sd">        Returns:</span>
+
 <span class="sd">        - bool: True if early stopping criteria are met, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">checks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">comp_ops</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>

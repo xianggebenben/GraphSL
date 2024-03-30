@@ -43,19 +43,19 @@ class SLVAE_model(nn.Module):
 
         Args:
 
-        - seed_vec (Tensor): Seed vector.
+        - seed_vec (torch.Tensor): Seed vector.
 
         - train_mode (bool): Flag indicating whether in training mode.
 
         Returns:
 
-        - seed_hat (Tensor): reconstructed seed vector.
+        - seed_hat (torch.Tensor): reconstructed seed vector.
 
-        - mean (Tensor): Mean of the VAE.
+        - mean (torch.Tensor): Mean of the VAE.
 
-        - log_var (Tensor): Log variance of the VAE.
+        - log_var (torch.Tensor): Log variance of the VAE.
 
-        - predictions (Tensor): Predictions made by the SLVAE model.
+        - predictions (torch.Tensor): Predictions made by the SLVAE model.
         """
         # Pass seed_vec through VAE to obtain reconstructed seed vector, mean, and log variance
         seed_hat, mean, log_var = self.vae(seed_vec)
@@ -82,21 +82,21 @@ class SLVAE_model(nn.Module):
 
         Args:
 
-        - x (Tensor): Seed vector.
+        - x (torch.Tensor): Seed vector.
 
-        - x_hat (Tensor): Reconstructed seed tensor.
+        - x_hat (torch.Tensor): Reconstructed seed tensor.
 
-        - mean (Tensor): Mean of the VAE.
+        - mean (torch.Tensor): Mean of the VAE.
 
-        - log_var (Tensor): Log variance of the VAE.
+        - log_var (torch.Tensor): Log variance of the VAE.
 
-        - y (Tensor): Influence vector.
+        - y (torch.Tensor): Diffusion vector.
 
-        - y_hat (Tensor): Predicted influence vector.
+        - y_hat (torch.Tensor): Predicted Diffusion vector.
 
         Returns:
 
-        - Tensor: Total loss is the sum of prediction loss, reconstruction loss and KL divergence.
+        - total_loss (torch.Tensor): Total loss is the sum of prediction loss, reconstruction loss and KL divergence.
         """
         forward_loss = F.mse_loss(y_hat, y)
         reproduction_loss = F.binary_cross_entropy(x_hat, x, reduction='mean')
@@ -110,17 +110,17 @@ class SLVAE_model(nn.Module):
 
         Args:
 
-        - y_true (Tensor): True label tensor.
+        - y_true (torch.Tensor): True label tensor.
 
-        - y_hat (Tensor): Predicted label tensor.
+        - y_hat (torch.Tensor): Predicted label tensor.
 
-        - x_hat (Tensor): Reconstructed input tensor.
+        - x_hat (torch.Tensor): Reconstructed input tensor.
 
-        - train_pred (Tensor): Predicted tensor during training.
+        - train_pred (torch.Tensor): Predicted tensor during training.
 
         Returns:
 
-        - Tensor: Total loss tensor.
+        - total_loss (torch.Tensor): Total loss tensor.
         """
         device = y_true.device
         BN = nn.BatchNorm1d(1, affine=False).to(device)
@@ -164,8 +164,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of
-        graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
+        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
         - thres_list (list): List of threshold values to try.
 
@@ -179,8 +178,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
         - slvae_model (SLVAE_model): Trained SLVAE model.
 
-        - seed_vae_train (torch.Tensor): the latent representations of training seed vector from VAE, which is used to initialize
-        seed vector in the test set.
+        - seed_vae_train (torch.Tensor): The latent representations of training seed vector from VAE, which is used to initialize seed vector in the test set.
 
         - opt_thres (float): Optimal threshold.
 
@@ -189,8 +187,6 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         - opt_f1 (float): Optimal F1 score.
 
         - pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.
-
-
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         num_node = adj.shape[0]
@@ -312,11 +308,12 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
         Args:
 
-        - test_dataset (List[torch.Tensor]): List of tensors containing test data.
+        - test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
         - slvae_model (SLVAE_model): Trained SLVAE model.
 
-        - seed_vae_train (torch.Tensor): Seed VAE training data.
+        - seed_vae_train (torch.Tensor): The latent representations of training seed vector from VAE, which is used to initialize
+          seed vector in the test set.
 
         - thres (float): Threshold value.
 

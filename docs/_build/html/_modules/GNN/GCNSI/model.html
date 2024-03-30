@@ -82,15 +82,17 @@
 <a class="viewcode-back" href="../../../GNN.GCNSI.html#GNN.GCNSI.model.GCNConv">[docs]</a>
 <span class="k">class</span> <span class="nc">GCNConv</span><span class="p">(</span><span class="n">MessagePassing</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Defines a Graph Convolutional Network (GCN) layer.</span>
+<span class="sd">    Define a Graph Convolutional Network (GCN) layer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initializes the GCNConv layer with input and output channel dimensions.</span>
+<span class="sd">        Initialize the GCNConv layer with input and output channel dimensions.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - in_channels (int): Number of input channels.</span>
+
 <span class="sd">        - out_channels (int): Number of output channels.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">GCNConv</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">aggr</span><span class="o">=</span><span class="s1">&#39;add&#39;</span><span class="p">)</span>  <span class="c1"># Setting the aggregation method for message passing</span>
@@ -100,14 +102,17 @@
 <a class="viewcode-back" href="../../../GNN.GCNSI.html#GNN.GCNSI.model.GCNConv.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Performs the forward pass of the GCNConv layer.</span>
+<span class="sd">        Perform the forward pass of the GCNConv layer.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - x (torch.Tensor): Input node features.</span>
+
 <span class="sd">        - edge_index (torch.Tensor): Edge indices representing connectivity.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        - Output tensor after the GCN layer computation.</span>
+
+<span class="sd">        - torch.Tensor: Tensor after the GCN layer computation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Step 1: Add self-loops</span>
         <span class="n">edge_index</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">add_self_loops</span><span class="p">(</span><span class="n">edge_index</span><span class="p">,</span> <span class="n">num_nodes</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
@@ -130,14 +135,15 @@
 <a class="viewcode-back" href="../../../GNN.GCNSI.html#GNN.GCNSI.model.GCNSI_model">[docs]</a>
 <span class="k">class</span> <span class="nc">GCNSI_model</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Defines a Graph Convolutional Networks based Source Identification (GCNSI).</span>
+<span class="sd">    Define the model of Graph Convolutional Networks based Source Identification (GCNSI).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">GCNSI_model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">GCNConv</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>  <span class="c1"># Initializing the first GCN layer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">GCNConv</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>  <span class="c1"># Initializing the second GCN layer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># Initializing a linear transformation layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">GCNConv</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>  <span class="c1"># Initializing the first GCN layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">GCNConv</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>  <span class="c1"># Initializing the second GCN layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># Initializing a linear transformation layer</span>
+        <span class="c1">#self.softmax=torch.nn.Softmax(dim=1)</span>
 
 <div class="viewcode-block" id="GCNSI_model.forward">
 <a class="viewcode-back" href="../../../GNN.GCNSI.html#GNN.GCNSI.model.GCNSI_model.forward">[docs]</a>
@@ -146,15 +152,20 @@
 <span class="sd">        Performs the forward pass of the GCNSI model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        - alpha (float): The fraction of label information that node gets from its neighbors..</span>
+
+<span class="sd">        - alpha (float): The fraction of label information that node gets from its neighbors.</span>
+
 <span class="sd">        - laplacian (numpy.ndarray): The Laplacian matrix of the graph.</span>
+
 <span class="sd">        - num_node (int): Number of nodes in the graph.</span>
-<span class="sd">        - threshold (float): Threshold value.</span>
-<span class="sd">        - diff_vec (numpy.ndarray): The difference vector.</span>
+
+<span class="sd">        - diff_vec (torch.Tensor): The difference vector.</span>
+
 <span class="sd">        - edge_index (torch.Tensor): Edge indices representing connectivity.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        - A tensor representing identified source nodes.</span>
+
+<span class="sd">        - x (torch.Tensor): A tensor representing identified source nodes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lpsi</span> <span class="o">=</span> <span class="n">LPSI</span><span class="p">()</span>  <span class="c1"># Initializing LPSI module</span>
         <span class="n">V3</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">)</span>
@@ -176,6 +187,7 @@
         <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1">#x = self.softmax(x)</span>
         <span class="k">return</span> <span class="n">x</span></div>
 </div>
 

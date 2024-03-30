@@ -8,8 +8,11 @@ class Encoder(nn.Module):
     Encoder module for a variational autoencoder (VAE).
 
     Attributes:
+
     - input_dim (int): Dimension of the input.
+
     - hidden_dim (int): Dimension of the hidden layer.
+
     - latent_dim (int): Dimension of the latent space.
     """
 
@@ -18,8 +21,11 @@ class Encoder(nn.Module):
         Initialize the Encoder.
 
         Args:
+
         - input_dim (int): Dimension of the input.
+
         - hidden_dim (int): Dimension of the hidden layer.
+
         - latent_dim (int): Dimension of the latent space.
         """
         super(Encoder, self).__init__()
@@ -38,7 +44,11 @@ class Encoder(nn.Module):
         - x (torch.Tensor): Input tensor.
 
         Returns:
-        - Tuple: Tuple containing the mean and log variance.
+
+        - mean (torch.Tensor): The mean of the latent space.
+
+        - log_var (torch.Tensor): The log variance of the latent space.
+
         """
         x = self.LeakyReLU(self.linear1(x))
         x = self.LeakyReLU(self.linear2(x))
@@ -53,8 +63,11 @@ class Decoder(nn.Module):
     Decoder module for a variational autoencoder (VAE).
 
     Attributes:
+
     - output_dim (int): Dimension of the output.
+
     - hidden_dim (int): Dimension of the hidden layer.
+
     - latent_dim (int): Dimension of the latent space.
     """
 
@@ -63,8 +76,12 @@ class Decoder(nn.Module):
         Initialize the Decoder.
 
         Args:
+
         - output_dim (int): Dimension of the output.
+
+
         - hidden_dim (int): Dimension of the hidden layer.
+
         - latent_dim (int): Dimension of the latent space.
         """
         super(Decoder, self).__init__()
@@ -79,10 +96,12 @@ class Decoder(nn.Module):
         Forward pass of the Decoder.
 
         Args:
+
         - x (torch.Tensor): Input tensor.
 
         Returns:
-        - torch.Tensor: Decoded output tensor.
+
+        - x_hat (torch.Tensor): Decoded output tensor.
         """
         x = self.LeakyReLU(self.linear2(x))
         x = self.LeakyReLU(self.linear1(x))
@@ -97,8 +116,11 @@ class VAE(nn.Module):
     Variational Autoencoder (VAE) model.
 
     Attributes:
+
     - input_dim (int): Dimension of the input.
+
     - hidden_dim (int): Dimension of the hidden layer.
+
     - latent_dim (int): Dimension of the latent space.
     """
 
@@ -107,8 +129,11 @@ class VAE(nn.Module):
         Initialize the VAE model.
 
         Args:
+
         - input_dim (int): Dimension of the input.
+
         - hidden_dim (int): Dimension of the hidden layer.
+
         - latent_dim (int): Dimension of the latent space.
         """
         super(VAE, self).__init__()
@@ -140,10 +165,14 @@ class VAE(nn.Module):
         Encode input data into latent space.
 
         Args:
+
         - x (torch.Tensor): Input tensor.
 
         Returns:
-        - Tuple: Tuple containing the mean and log variance.
+
+        - mean (torch.Tensor):  The mean of latent space
+
+        - logvar (torch.Tensor):   Log variance of latent space.
         """
         x = self.encoder(x)
         mean, logvar = self.mean_layer(x), self.logvar_layer(x)
@@ -154,12 +183,16 @@ class VAE(nn.Module):
         Reparameterization trick to sample from the latent space.
 
         Args:
+
         - mean (torch.Tensor): Mean of the latent space.
+
         - var (torch.Tensor): Variance of the latent space.
-        - device (torch.device): Device to be used for computation.
+
+        - device (torch.device): Device to be used for computation, cpu or cuda.
 
         Returns:
-        - torch.Tensor: Sampled latent vector.
+
+        - z (torch.Tensor): Sampled latent vector.
         """
         epsilon = torch.randn_like(var).to(device)
         z = mean + var * epsilon
@@ -170,9 +203,11 @@ class VAE(nn.Module):
         Decode latent vector into output space.
 
         Args:
+
         - x (torch.Tensor): Latent vector.
 
         Returns:
+
         - torch.Tensor: Decoded output tensor.
         """
         return self.decoder(x)
@@ -182,10 +217,17 @@ class VAE(nn.Module):
         Forward pass of the VAE.
 
         Args:
+
         - x (torch.Tensor): Input tensor.
 
         Returns:
-        - Tuple: Tuple containing the reconstructed input, mean, and log variance.
+
+        - x_hat (tensor.Tensor): The reconstructed input.
+
+        - mean (tensor.Tensor): The mean of the latent space.
+
+        - log_var (tensor.Tensor): The log variance of the latent space.
+
         """
         device = x.device
         mean, log_var = self.encode(x)
@@ -199,11 +241,17 @@ class GNN(nn.Module):
     Graph Neural Network (GNN) model.
 
     Attributes:
+
     - input_dim (int): Dimension of the input.
+
     - adj_matrix (torch.Tensor): adjacency matrix representing graph connectivity.
+
     - hiddenunits (List[int]): List of hidden units for each layer.
+
     - num_classes (int): Number of output classes.
+
     - bias (bool): Whether to include bias in linear layers.
+
     - drop_prob (float): Dropout probability.
     """
 
@@ -212,11 +260,17 @@ class GNN(nn.Module):
         Initialize the GNN model.
 
         Args:
+
         - adj_matrix (torch.Tensor): adjacency matrix representing graph connectivity.
+
         - input_dim (int): Dimension of the input.
+
         - hiddenunits (List[int]): List of hidden units for each layer.
+
         - num_classes (int): Number of output classes.
+
         - bias (bool): Whether to include bias in linear layers.
+
         - drop_prob (float): Dropout probability.
         """
         super(GNN, self).__init__()
@@ -251,10 +305,12 @@ class GNN(nn.Module):
         Forward pass of the GNN.
 
         Args:
+
         - seed_vec (torch.Tensor): Input seed vector.
 
         Returns:
-        - torch.Tensor: Predicted output.
+
+        - res (torch.Tensor): Predicted output.
         """
         for i in range(self.input_dim - 1):
             if i == 0:
@@ -275,11 +331,14 @@ class GNN(nn.Module):
         Calculate loss.
 
         Args:
+
         - y (torch.Tensor): Ground truth.
+
         - y_hat (torch.Tensor): Predicted output.
 
         Returns:
-        - torch.Tensor: Forward loss.
+
+        - forward_loss (torch.Tensor): Forward loss.
         """
         forward_loss = F.mse_loss(y_hat, y)
         return forward_loss
@@ -290,7 +349,9 @@ class DiffusionPropagate(nn.Module):
     Diffusion Propagation module for graph data.
 
     Attributes:
+
     - adj_matrix (torch.Tensor): adjacency matrix representing graph connectivity.
+
     - niter (int): Number of diffusion iterations.
     """
 
@@ -299,7 +360,9 @@ class DiffusionPropagate(nn.Module):
         Initialize the DiffusionPropagate module.
 
         Args:
+
         - adj_matrix (torch.Tensor): adjacency matrix representing graph connectivity.
+
         - niter (int): Number of diffusion iterations.
         """
         super(DiffusionPropagate, self).__init__()
@@ -317,10 +380,12 @@ class DiffusionPropagate(nn.Module):
         Forward pass of the DiffusionPropagate module.
 
         Args:
+
         - preds (torch.Tensor): Predictions.
 
         Returns:
-        - torch.Tensor: Propagated predictions.
+
+        - prop_preds (torch.Tensor): Propagated predictions.
         """
         device = preds.device
 
@@ -342,23 +407,61 @@ class DiffusionPropagate(nn.Module):
 
 class ForwardModel(nn.Module):
     def __init__(self, gnn_model: nn.Module, propagate: nn.Module):
-        super(ForwardModel, self).__init__()
-        self.gnn_model = gnn_model
-        self.propagate = propagate
-        self.relu = nn.ReLU(inplace=True)
+        """
+        Constructor for ForwardModel class.
 
+        Args:
+            
+            gnn_model (nn.Module): Graph Neural Network model used as feature extractor.
+            
+            propagate (nn.Module): Module to perform additional computation on GNN outputs.
+        """
+        super(ForwardModel, self).__init__()
+        self.gnn_model = gnn_model  # Assigning the GNN model
+        self.propagate = propagate  # Assigning the propagation module
+        self.relu = nn.ReLU(inplace=True)  # ReLU activation function
+
+        # Extracting parameters requiring gradients from gnn_model for optimization
         self.reg_params = list(filter(lambda x: x.requires_grad, self.gnn_model.parameters()))
 
     def forward(self, seed_vec):
+        """
+        Forward pass of the ForwardModel.
+
+        Args:
+            
+            seed_vec (torch.Tensor): Input tensor for the forward pass.
+
+        Returns:
+            
+           predictions (torch.Tensor): Predictions after the forward pass.
+        """
+        # Extracting indices where seed_vec equals 1
         seed_idx = (seed_vec == 1).nonzero(as_tuple=False)
 
+        # Forward pass through the GNN model
         predictions = self.gnn_model(seed_vec)
+
+        # Additional computation using propagate module, possibly considering seed indices
         predictions = self.propagate(predictions, seed_idx)
 
+        # Applying ReLU activation function
         predictions = self.relu(predictions)
 
         return predictions
 
     def loss(self, y, y_hat):
+        """
+        Compute the loss between predicted and actual values.
+
+        Args:
+            y (torch.Tensor): Actual values.
+            
+            y_hat (torch.Tensor): Predicted values.
+
+        Returns:
+            forward_loss (torch.Tensor): Forward loss computed using Mean Squared Error.
+        """
+        # Computing Mean Squared Error loss
         forward_loss = F.mse_loss(y_hat, y)
         return forward_loss

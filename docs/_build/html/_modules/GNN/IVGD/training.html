@@ -41,8 +41,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">GraphSL</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -92,6 +95,7 @@
 <span class="sd">        Initialize FeatureCons object.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - ndim (int): Number of dimensions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prob_matrix</span> <span class="o">=</span> <span class="kc">None</span>
@@ -102,10 +106,12 @@
 <span class="sd">        Deeply compute features based on the given seed vector.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        - seed_vec (numpy.ndarray): Seed vector.</span>
+
+<span class="sd">        - seed_vec (torch.Tensor): Seed vector.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        - numpy.ndarray: Feature matrix.</span>
+
+<span class="sd">        - attr_mat(numpy.ndarray): Feature matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span>
@@ -124,9 +130,11 @@
 <span class="sd">        Call method to compute features based on the given seed vector.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        - seed_vec (numpy.ndarray): Seed vector.</span>
+
+<span class="sd">        - seed_vec (torch.Tensor): Seed vector.</span>
 
 <span class="sd">        Returns:</span>
+
 <span class="sd">        - numpy.ndarray: Feature matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__deepis_fea</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">)</span></div>
@@ -140,12 +148,16 @@
 <span class="sd">    Get data loaders for training, validation, and testing.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    - idx (dict): Dictionary containing indices for different phases.</span>
+
+<span class="sd">    - idx (dict): Dictionary containing indices for different phases, training, early stopping, and validation/test.</span>
+
 <span class="sd">    - labels_np (numpy.ndarray): Labels as numpy array.</span>
+
 <span class="sd">    - batch_size (int): Batch size.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    - dict: Dictionary containing data loaders for different phases.</span>
+
+<span class="sd">    - dataloaders (dict): Dictionary containing data loaders for different phases.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">labels_np</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -164,12 +176,16 @@
 <span class="sd">    Construct attribute matrix based on the given probability matrix and seed vector.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    - prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.</span>
+
+<span class="sd">    - prob_matrix (scipy.sparse.csr_matrix): Probability matrix.</span>
+
 <span class="sd">    - seed_vec (numpy.ndarray): Seed vector.</span>
+
 <span class="sd">    - order (int): Order of attribute matrix construction.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    - numpy.ndarray: Attribute matrix.</span>
+
+<span class="sd">    - attr_mat (numpy.ndarray): Attribute matrix.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">lanczos_flag</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">lanczos_flag</span><span class="p">:</span>
@@ -194,12 +210,17 @@
 <span class="sd">    Lanczos algorithm for computing attribute matrix.</span>
 
 <span class="sd">    Args:</span>
+
 <span class="sd">    - prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.</span>
+
 <span class="sd">    - seed_vec (numpy.ndarray): Seed vector.</span>
+
 <span class="sd">    - order (int): Order of attribute matrix construction.</span>
+
 <span class="sd">    - epsilon (float): Threshold for stopping the iteration.</span>
 
 <span class="sd">    Returns:</span>
+
 <span class="sd">    - numpy.ndarray: Attribute matrix.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">prob_matrix</span><span class="o">.</span><span class="n">T</span>
@@ -229,10 +250,13 @@
 <span class="sd">    Update the embedding layer of the model with the new feature matrix.</span>
 
 <span class="sd">    Args:</span>
+
 <span class="sd">    - model (torch.nn.Module): Model.</span>
+
 <span class="sd">    - feature_mat (numpy.ndarray): Feature matrix.</span>
 
 <span class="sd">    Returns:</span>
+
 <span class="sd">    - torch.nn.Module: Updated model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;gnn_model&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Object model should have a submodule `gnn_model` &#39;</span>
@@ -259,14 +283,20 @@
 <span class="sd">    Perform final prediction iteration to fit the ideal equation system.</span>
 
 <span class="sd">    Args:</span>
+
 <span class="sd">    - prob_matrix (numpy.ndarray): Probability matrix.</span>
+
 <span class="sd">    - predictions (numpy.ndarray): Predictions.</span>
+
 <span class="sd">    - seed_idx (numpy.ndarray): Seed indices.</span>
+
 <span class="sd">    - substitute (bool): Whether to substitute seed indices.</span>
+
 <span class="sd">    - piter (int): Number of iterations.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    - numpy.ndarray: Final predictions.</span>
+
+<span class="sd">    - final_preds (numpy.ndarray): Final predictions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">one_iter</span><span class="p">(</span><span class="n">prob_matrix</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
@@ -302,23 +332,40 @@
 <span class="sd">    Train the model using the specified parameters.</span>
 
 <span class="sd">    Args:</span>
+
 <span class="sd">    - model (nn.Module): Model to be trained.</span>
-<span class="sd">    - fea_constructor: Feature constructor object.</span>
-<span class="sd">    - prob_matrix (numpy.ndarray): Probability matrix.</span>
-<span class="sd">    - diff_mat (numpy.ndarray): Difference matrix.</span>
+
+<span class="sd">    - fea_constructor (nn.Module): Feature constructor object.</span>
+
+<span class="sd">    - prob_matrix (torch.Tensor): Probability matrix.</span>
+
+<span class="sd">    - diff_mat (torch.utils.data.dataset.Subset): The diffusion matrix (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</span>
+
 <span class="sd">    - learning_rate (float): Learning rate for optimizer.</span>
+
 <span class="sd">    - λ: Lambda value.</span>
+
 <span class="sd">    - γ: Gamma value.</span>
-<span class="sd">    - idx_split_args (dict): Index split arguments.</span>
+
+<span class="sd">    - idx_split_args (dict): Split of the dataset, ntraining is the number of training set, nstopping is the number of samples to determine the early stopping, and nval is the number of validation set.</span>
+
 <span class="sd">    - stopping_args (dict): Stopping arguments.</span>
+
 <span class="sd">    - test (bool): Whether to perform testing.</span>
-<span class="sd">    - device (str): Device for training.</span>
+
+<span class="sd">    - device (str): Device for training, cpu or cuda.</span>
+
 <span class="sd">    - torch_seed (int): Seed for torch.</span>
+
 <span class="sd">    - print_interval (int): Print interval.</span>
-<span class="sd">    - batch_size: Batch size.</span>
+
+<span class="sd">    - batch_size (int): Batch size.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    - Tuple: Model and training result.</span>
+
+<span class="sd">    - model (nn.Module): Trained model.</span>
+
+<span class="sd">    - result (dict): Results of diffusion model,including predictions, train mean error, early_stopping mean error, val/test mean error, runtime, and runtime per epoch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">torch_seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">torch_seed</span> <span class="o">=</span> <span class="n">gen_seeds</span><span class="p">()</span>
@@ -441,11 +488,15 @@
 <span class="sd">    Get predictions from the model.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    - model (nn.Module): Model.</span>
+
+<span class="sd">    - model (nn.Module): Diffusion model.</span>
+
 <span class="sd">    - idx (Tensor): Indices.</span>
+
 <span class="sd">    - batch_size (int): Batch size.</span>
 
 <span class="sd">    Returns:</span>
+
 <span class="sd">    - numpy.ndarray: Predictions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -509,34 +560,6 @@
 
 
 
-<div class="viewcode-block" id="get_predictions_new_seeds">
-<a class="viewcode-back" href="../../../GNN.IVGD.html#GNN.IVGD.training.get_predictions_new_seeds">[docs]</a>
-<span class="k">def</span> <span class="nf">get_predictions_new_seeds</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fea_constructor</span><span class="p">,</span> <span class="n">seed_vec</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get predictions for new seeds.</span>
-
-<span class="sd">    Given a new seed set on the same graph, predict each node&#39;s probability.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">    - model: Model for prediction.</span>
-<span class="sd">    - fea_constructor: Feature constructor.</span>
-<span class="sd">    - seed_vec: Seed vector.</span>
-<span class="sd">    - idx: Indices.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">    - numpy.ndarray: Predictions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">device</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
-    <span class="n">idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-
-    <span class="n">attr_mat</span> <span class="o">=</span> <span class="n">fea_constructor</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">update_embedding</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">attr_mat</span><span class="p">)</span>
-
-    <span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
-    <span class="n">preds</span> <span class="o">=</span> <span class="n">preds</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">preds</span></div>
-
-
 
 <div class="viewcode-block" id="get_idx_new_seeds">
 <a class="viewcode-back" href="../../../GNN.IVGD.html#GNN.IVGD.training.get_idx_new_seeds">[docs]</a>
@@ -544,14 +567,17 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get indices for new seeds.</span>
 
-<span class="sd">    Given each node&#39;s probability, predict the seed set on the same graph.</span>
+<span class="sd">    Given each node&#39;s probability, predict the seed vector on the same graph.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    - model: Model for prediction.</span>
-<span class="sd">    - prediction: Predictions.</span>
+
+<span class="sd">    - model (nn.module): Model for prediction.</span>
+
+<span class="sd">    - prediction (torch.Tensor): Prediction of diffusion.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    - Tensor: Result.</span>
+
+<span class="sd">    - result (torch.Tensor): Prediction of seeds.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">device</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
     <span class="n">prediction</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>

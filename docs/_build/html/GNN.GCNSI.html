@@ -100,38 +100,50 @@
 <dt class="sig sig-object py" id="GNN.GCNSI.main.GCNSI">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GNN.GCNSI.main.</span></span><span class="sig-name descname"><span class="pre">GCNSI</span></span><a class="reference internal" href="_modules/GNN/GCNSI/main.html#GCNSI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.GCNSI.main.GCNSI" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Defines a module for Graph Convolutional Networks based Source Identification (GCNSI).</p>
+<p>Implement the Graph Convolutional Networks based Source Identification (GCNSI).</p>
+<p>Dong, Ming, et al. “Multiple rumor source detection with graph convolutional networks.” Proceedings of the 28th ACM international conference on information and knowledge management. 2019.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.GCNSI.main.GCNSI.test">
 <span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gcnsi_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/GCNSI/main.html#GCNSI.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.GCNSI.main.GCNSI.test" title="Link to this definition"></a></dt>
-<dd><p>Tests the GCNSI model.</p>
-<p>Args:
-- adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
-- test_dataset (list): List of testing data matrices.
-- gcnsi_model (GCNSI_model): Trained GCNSI model.
-- alpha (float): Alpha value.
-- thres (float): Threshold value.</p>
-<p>Returns:
-- metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.</p>
+<dd><p>Test the GCNSI model.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.</p></li>
+<li><p>test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>gcnsi_model (GCNSI_model): Trained GCNSI model.</p></li>
+<li><p>alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try.</p></li>
+<li><p>thres (float): Threshold value.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.GCNSI.main.GCNSI.train">
-<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.01,</span> <span class="pre">0.1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">tensor([1.,</span> <span class="pre">3.])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/GCNSI/main.html#GCNSI.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.GCNSI.main.GCNSI.train" title="Link to this definition"></a></dt>
-<dd><p>Trains the GCNSI model.</p>
-<p>Args:
-- adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
-- train_dataset (list): List of training data matrices.
-- alpha_list (list): List of alpha values for training.
-- thres_list (list): List of threshold values for training.
-- num_epoch (int): Number of training epochs.
-- weight (torch.Tensor): Weight tensor for loss computation.</p>
-<p>Returns:
-- opt_gcnsi_model (GCNSI_model): Optimized GCNSI model.
-- opt_alpha (float): Optimal alpha value.
-- opt_thres (float): Optimal threshold value.
-- opt_auc (float): Optimal AUC score.
-- opt_f1 (float): Optimal F1 score.</p>
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.001,</span> <span class="pre">0.01,</span> <span class="pre">0.1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">tensor([1.,</span> <span class="pre">3.])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/GCNSI/main.html#GCNSI.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.GCNSI.main.GCNSI.train" title="Link to this definition"></a></dt>
+<dd><p>Train the GCNSI model.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.</p></li>
+<li><p>thres_list (list): List of threshold values to try.</p></li>
+<li><p>lr (float): Learning rate.</p></li>
+<li><p>num_epoch (int): Number of training epochs.</p></li>
+<li><p>print_epoch (int): Number of epochs every time to print loss.</p></li>
+<li><p>weight (torch.Tensor): Weight tensor for loss computation, the first and second values are loss weights for non-seed and seed, respectively.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>opt_gcnsi_model (GCNSI_model): Optimized GCNSI model.</p></li>
+<li><p>opt_alpha (float): Optimal alpha value.</p></li>
+<li><p>opt_thres (float): Optimal threshold value.</p></li>
+<li><p>opt_auc (float): Optimal AUC score.</p></li>
+<li><p>opt_f1 (float): Optimal F1 score.</p></li>
+<li><p>opt_pred (numpy.ndarray): Predicted seed vector of the training set given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
+</ul>
 </dd></dl>
 
 </dd></dl>
@@ -143,16 +155,20 @@
 <dt class="sig sig-object py" id="GNN.GCNSI.model.GCNConv">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GNN.GCNSI.model.</span></span><span class="sig-name descname"><span class="pre">GCNConv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/GCNSI/model.html#GCNConv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.GCNSI.model.GCNConv" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MessagePassing</span></code></p>
-<p>Defines a Graph Convolutional Network (GCN) layer.</p>
+<p>Define a Graph Convolutional Network (GCN) layer.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.GCNSI.model.GCNConv.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/GCNSI/model.html#GCNConv.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.GCNSI.model.GCNConv.forward" title="Link to this definition"></a></dt>
-<dd><p>Performs the forward pass of the GCNConv layer.</p>
-<p>Args:
-- x (torch.Tensor): Input node features.
-- edge_index (torch.Tensor): Edge indices representing connectivity.</p>
-<p>Returns:
-- Output tensor after the GCN layer computation.</p>
+<dd><p>Perform the forward pass of the GCNConv layer.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>x (torch.Tensor): Input node features.</p></li>
+<li><p>edge_index (torch.Tensor): Edge indices representing connectivity.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>torch.Tensor: Tensor after the GCN layer computation.</p></li>
+</ul>
 </dd></dl>
 
 </dd></dl>
@@ -161,20 +177,23 @@
 <dt class="sig sig-object py" id="GNN.GCNSI.model.GCNSI_model">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GNN.GCNSI.model.</span></span><span class="sig-name descname"><span class="pre">GCNSI_model</span></span><a class="reference internal" href="_modules/GNN/GCNSI/model.html#GCNSI_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.GCNSI.model.GCNSI_model" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>Defines a Graph Convolutional Networks based Source Identification (GCNSI).</p>
+<p>Define the model of Graph Convolutional Networks based Source Identification (GCNSI).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.GCNSI.model.GCNSI_model.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laplacian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/GCNSI/model.html#GCNSI_model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.GCNSI.model.GCNSI_model.forward" title="Link to this definition"></a></dt>
 <dd><p>Performs the forward pass of the GCNSI model.</p>
-<p>Args:
-- alpha (float): The fraction of label information that node gets from its neighbors..
-- laplacian (numpy.ndarray): The Laplacian matrix of the graph.
-- num_node (int): Number of nodes in the graph.
-- threshold (float): Threshold value.
-- diff_vec (numpy.ndarray): The difference vector.
-- edge_index (torch.Tensor): Edge indices representing connectivity.</p>
-<p>Returns:
-- A tensor representing identified source nodes.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>alpha (float): The fraction of label information that node gets from its neighbors.</p></li>
+<li><p>laplacian (numpy.ndarray): The Laplacian matrix of the graph.</p></li>
+<li><p>num_node (int): Number of nodes in the graph.</p></li>
+<li><p>diff_vec (torch.Tensor): The difference vector.</p></li>
+<li><p>edge_index (torch.Tensor): Edge indices representing connectivity.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>x (torch.Tensor): A tensor representing identified source nodes.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py attribute">

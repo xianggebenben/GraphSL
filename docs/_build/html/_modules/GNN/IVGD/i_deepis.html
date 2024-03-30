@@ -41,8 +41,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">GraphSL</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -93,10 +96,13 @@
 <span class="sd">        Forward pass to select specific elements from input tensor.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - preds (torch.Tensor): Input tensor.</span>
+
 <span class="sd">        - idx (torch.Tensor): Indices of elements to select.</span>
 
 <span class="sd">        Returns:</span>
+
 <span class="sd">        - torch.Tensor: Selected elements from input tensor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">preds</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
@@ -116,8 +122,10 @@
 <span class="sd">        Initializes the DiffusionPropagate module.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        - prob_matrix: Probability matrix for diffusion.</span>
-<span class="sd">        - niter: Number of iterations for diffusion propagation.</span>
+
+<span class="sd">        - prob_matrix (torch.Tensor): Probability matrix for diffusion.</span>
+
+<span class="sd">        - niter (int): Number of iterations for diffusion propagation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DiffusionPropagate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">niter</span> <span class="o">=</span> <span class="n">niter</span>
@@ -132,11 +140,15 @@
 <span class="sd">        Performs forward pass for diffusion propagation.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - preds (torch.Tensor): Input tensor of predictions.</span>
+
 <span class="sd">        - seed_idx (torch.Tensor): Indices of seed nodes.</span>
+
 <span class="sd">        - idx (torch.Tensor): Indices of nodes to propagate to.</span>
 
 <span class="sd">        Returns:</span>
+
 <span class="sd">        - torch.Tensor: Resulting propagated predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="n">preds</span>
@@ -155,13 +167,15 @@
 <a class="viewcode-back" href="../../../GNN.IVGD.html#GNN.IVGD.i_deepis.DiffusionPropagate.backward">[docs]</a>
     <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Performs backward pass for diffusion propagation.</span>
+<span class="sd">        Perform backward pass for diffusion propagation.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        - preds (torch.Tensor): Input tensor of predictions.</span>
+
+<span class="sd">        - preds (torch.Tensor):  Prediction of diffusion.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        - torch.Tensor: Resulting propagated predictions after backward pass.</span>
+
+<span class="sd">        - res (torch.Tensor): Prediction of seeds.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">device</span> <span class="o">=</span> <span class="n">preds</span><span class="o">.</span><span class="n">device</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">preds</span>
@@ -191,7 +205,9 @@
 <span class="sd">        Initializes the i_DeepIS module.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - gnn_model (nn.Module): Graph neural network model.</span>
+
 <span class="sd">        - propagate (nn.Module): Propagation module for diffusion.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">i_DeepIS</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -207,9 +223,11 @@
 <span class="sd">        Forward pass for i_DeepIS module.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - idx (torch.LongTensor): Indices of nodes to fetch predictions for.</span>
 
 <span class="sd">        Returns:</span>
+
 <span class="sd">        - torch.Tensor: Predictions for selected nodes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">device</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gnn_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
@@ -233,9 +251,11 @@
 <span class="sd">        Backward pass for i_DeepIS module.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - prediction (torch.LongTensor): Predictions.</span>
 
 <span class="sd">        Returns:</span>
+
 <span class="sd">        - torch.Tensor: Resulting propagated predictions after backward pass.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">device</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gnn_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
@@ -257,13 +277,18 @@
 <span class="sd">        Computes the loss function for i_DeepIS module.</span>
 
 <span class="sd">        Args:</span>
+
 <span class="sd">        - predictions (torch.Tensor): Predicted values.</span>
+
 <span class="sd">        - labels (torch.Tensor): Ground truth labels.</span>
+
 <span class="sd">        - λ (float): Influence spread coefficient.</span>
+
 <span class="sd">        - γ (float): Regularization coefficient.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        - torch.Tensor: Computed loss value.</span>
+
+<span class="sd">        - Loss (torch.Tensor): Computed loss value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">L1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">predictions</span> <span class="o">-</span> <span class="n">labels</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>  <span class="c1"># node-level error</span>
         <span class="n">L2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>

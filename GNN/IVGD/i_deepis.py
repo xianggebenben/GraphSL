@@ -19,10 +19,13 @@ class Identity(nn.Module):
         Forward pass to select specific elements from input tensor.
 
         Args:
+
         - preds (torch.Tensor): Input tensor.
+
         - idx (torch.Tensor): Indices of elements to select.
 
         Returns:
+
         - torch.Tensor: Selected elements from input tensor.
         """
         return preds[idx]
@@ -38,8 +41,10 @@ class DiffusionPropagate(nn.Module):
         Initializes the DiffusionPropagate module.
 
         Args:
-        - prob_matrix: Probability matrix for diffusion.
-        - niter: Number of iterations for diffusion propagation.
+
+        - prob_matrix (torch.Tensor): Probability matrix for diffusion.
+
+        - niter (int): Number of iterations for diffusion propagation.
         """
         super(DiffusionPropagate, self).__init__()
         self.niter = niter
@@ -52,6 +57,7 @@ class DiffusionPropagate(nn.Module):
         Performs forward pass for diffusion propagation.
 
         Args:
+
         - preds (torch.Tensor): Input tensor of predictions.
 
         - seed_idx (torch.Tensor): Indices of seed nodes.
@@ -59,6 +65,7 @@ class DiffusionPropagate(nn.Module):
         - idx (torch.Tensor): Indices of nodes to propagate to.
 
         Returns:
+
         - torch.Tensor: Resulting propagated predictions.
         """
         temp = preds
@@ -74,13 +81,15 @@ class DiffusionPropagate(nn.Module):
 
     def backward(self, preds):
         """
-        Performs backward pass for diffusion propagation.
+        Perform backward pass for diffusion propagation.
 
         Args:
-        - preds (torch.Tensor): Input tensor of predictions.
+
+        - preds (torch.Tensor):  Prediction of diffusion.
 
         Returns:
-        - torch.Tensor: Resulting propagated predictions after backward pass.
+
+        - res (torch.Tensor): Prediction of seeds.
         """
         device = preds.device
         res = preds
@@ -106,7 +115,9 @@ class i_DeepIS(nn.Module):
         Initializes the i_DeepIS module.
 
         Args:
+
         - gnn_model (nn.Module): Graph neural network model.
+
         - propagate (nn.Module): Propagation module for diffusion.
         """
         super(i_DeepIS, self).__init__()
@@ -120,9 +131,11 @@ class i_DeepIS(nn.Module):
         Forward pass for i_DeepIS module.
 
         Args:
+
         - idx (torch.LongTensor): Indices of nodes to fetch predictions for.
 
         Returns:
+
         - torch.Tensor: Predictions for selected nodes.
         """
         device = next(self.gnn_model.parameters()).device
@@ -143,9 +156,11 @@ class i_DeepIS(nn.Module):
         Backward pass for i_DeepIS module.
 
         Args:
+
         - prediction (torch.LongTensor): Predictions.
 
         Returns:
+
         - torch.Tensor: Resulting propagated predictions after backward pass.
         """
         device = next(self.gnn_model.parameters()).device
@@ -164,13 +179,18 @@ class i_DeepIS(nn.Module):
         Computes the loss function for i_DeepIS module.
 
         Args:
+
         - predictions (torch.Tensor): Predicted values.
+
         - labels (torch.Tensor): Ground truth labels.
+
         - λ (float): Influence spread coefficient.
+
         - γ (float): Regularization coefficient.
 
         Returns:
-        - torch.Tensor: Computed loss value.
+
+        - Loss (torch.Tensor): Computed loss value.
         """
         L1 = torch.sum(torch.abs(predictions - labels)) / len(labels)  # node-level error
         L2 = torch.abs(torch.sum(predictions) - torch.sum(labels)) / (

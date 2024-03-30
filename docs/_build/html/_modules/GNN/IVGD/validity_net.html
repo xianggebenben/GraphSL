@@ -41,8 +41,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">GraphSL</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -79,10 +82,15 @@
 <span class="sd">    Validity-aware layers.</span>
 
 <span class="sd">    Attributes:</span>
+<span class="sd">        </span>
 <span class="sd">    - number_layer (int): Number of layers.</span>
+<span class="sd">    </span>
 <span class="sd">    - alpha1, alpha2, alpha3, alpha4, alpha5 (float): Alpha values for each layer.</span>
+<span class="sd">    </span>
 <span class="sd">    - tau1, tau2, tau3, tau4, tau5 (float): Tau values for each layer.</span>
-<span class="sd">    - net1, net2, net3, net4, net5 (correction): Correction networks for each layer.</span>
+<span class="sd">    </span>
+<span class="sd">    - net1, net2, net3, net4, net5 (correction): Correction layer.</span>
+<span class="sd">    </span>
 <span class="sd">    - rho1, rho2, rho3, rho4, rho5 (float): Rho values for each layer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -91,8 +99,11 @@
 <span class="sd">        Initialize the validity_net model.</span>
 
 <span class="sd">        Args:</span>
+<span class="sd">            </span>
 <span class="sd">        - alpha (float): Alpha value.</span>
+<span class="sd">        </span>
 <span class="sd">        - tau (float): Tau value.</span>
+<span class="sd">        </span>
 <span class="sd">        - rho (float): Rho value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">validity_net</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -128,12 +139,17 @@
 <span class="sd">        Forward pass of the validity-ware layer.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        - x (Tensor): corrected prediction of seed vector.</span>
-<span class="sd">        - label (Tensor): Source Label.</span>
-<span class="sd">        - lamda (Tensor): Lambda tensor.</span>
+
+<span class="sd">        - x (torch.Tensor): corrected prediction of seed vector.</span>
+
+<span class="sd">        - label (torch.Tensor): Source Label.</span>
+
+<span class="sd">        - lamda (torch.Tensor): Lambda tensor.</span>
 
 <span class="sd">        Returns:</span>
+
 <span class="sd">        - Tensor: prediction subject to the validity constraint.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">sum</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
         <span class="n">label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">label</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -172,9 +188,11 @@
 <span class="sd">        Impose validity constraint on predictions.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        - pred (Tensor): Predictions tensor.</span>
+
+<span class="sd">        - pred (torch.Tensor): Predictions tensor.</span>
 
 <span class="sd">        Returns:</span>
+
 <span class="sd">        - Tensor: predictions tensor after passing validity-ware layers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>

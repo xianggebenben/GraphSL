@@ -121,15 +121,19 @@
 <dt class="sig sig-object py" id="GNN.IVGD.correction.correction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GNN.IVGD.correction.</span></span><span class="sig-name descname"><span class="pre">correction</span></span><a class="reference internal" href="_modules/GNN/IVGD/correction.html#correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.correction.correction" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<p>Defines a error correction module.</p>
+<p>Define a error correction module.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.correction.correction.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/correction.html#correction.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.correction.correction.forward" title="Link to this definition"></a></dt>
-<dd><p>Defines the forward pass of the error correction module.</p>
-<p>Args:
-- x (torch.Tensor): Prediction of the seed vector from invertible graph residual net.</p>
-<p>Returns:
-- Output: Corrected prediction of the seed vector.</p>
+<dd><p>Define the forward pass of the error correction module.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>x (torch.Tensor): Prediction of the seed vector from invertible graph residual net.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>temp (torch.Tensor): Corrected prediction of the seed vector.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py attribute">
@@ -168,11 +172,15 @@
 <dt class="sig sig-object py" id="GNN.IVGD.earlystopping.EarlyStopping.check">
 <span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">floating</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/GNN/IVGD/earlystopping.html#EarlyStopping.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.earlystopping.EarlyStopping.check" title="Link to this definition"></a></dt>
 <dd><p>Checks if early stopping criteria are met.</p>
-<p>Args:
-- values (List[np.floating]): List of evaluation metric values.
-- epoch (int): Current epoch number.</p>
-<p>Returns:
-- bool: True if early stopping criteria are met, False otherwise.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>values (List[np.floating]): List of evaluation metric values.</p></li>
+<li><p>epoch (int): Current epoch number.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>bool: True if early stopping criteria are met, False otherwise.</p></li>
+</ul>
 </dd></dl>
 
 </dd></dl>
@@ -210,23 +218,31 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.i_deepis.DiffusionPropagate.backward">
 <span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/i_deepis.html#DiffusionPropagate.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.i_deepis.DiffusionPropagate.backward" title="Link to this definition"></a></dt>
-<dd><p>Performs backward pass for diffusion propagation.</p>
-<p>Args:
-- preds (torch.Tensor): Input tensor of predictions.</p>
-<p>Returns:
-- torch.Tensor: Resulting propagated predictions after backward pass.</p>
+<dd><p>Perform backward pass for diffusion propagation.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>preds (torch.Tensor):  Prediction of diffusion.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>res (torch.Tensor): Prediction of seeds.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.i_deepis.DiffusionPropagate.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/i_deepis.html#DiffusionPropagate.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.i_deepis.DiffusionPropagate.forward" title="Link to this definition"></a></dt>
 <dd><p>Performs forward pass for diffusion propagation.</p>
-<p>Args:
-- preds (torch.Tensor): Input tensor of predictions.
-- seed_idx (torch.Tensor): Indices of seed nodes.
-- idx (torch.Tensor): Indices of nodes to propagate to.</p>
-<p>Returns:
-- torch.Tensor: Resulting propagated predictions.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>preds (torch.Tensor): Input tensor of predictions.</p></li>
+<li><p>seed_idx (torch.Tensor): Indices of seed nodes.</p></li>
+<li><p>idx (torch.Tensor): Indices of nodes to propagate to.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>torch.Tensor: Resulting propagated predictions.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py attribute">
@@ -245,11 +261,15 @@
 <dt class="sig sig-object py" id="GNN.IVGD.i_deepis.Identity.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/i_deepis.html#Identity.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.i_deepis.Identity.forward" title="Link to this definition"></a></dt>
 <dd><p>Forward pass to select specific elements from input tensor.</p>
-<p>Args:
-- preds (torch.Tensor): Input tensor.
-- idx (torch.Tensor): Indices of elements to select.</p>
-<p>Returns:
-- torch.Tensor: Selected elements from input tensor.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>preds (torch.Tensor): Input tensor.</p></li>
+<li><p>idx (torch.Tensor): Indices of elements to select.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>torch.Tensor: Selected elements from input tensor.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py attribute">
@@ -268,33 +288,45 @@
 <dt class="sig sig-object py" id="GNN.IVGD.i_deepis.i_DeepIS.backward">
 <span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/i_deepis.html#i_DeepIS.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.i_deepis.i_DeepIS.backward" title="Link to this definition"></a></dt>
 <dd><p>Backward pass for i_DeepIS module.</p>
-<p>Args:
-- prediction (torch.LongTensor): Predictions.</p>
-<p>Returns:
-- torch.Tensor: Resulting propagated predictions after backward pass.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>prediction (torch.LongTensor): Predictions.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>torch.Tensor: Resulting propagated predictions after backward pass.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.i_deepis.i_DeepIS.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/i_deepis.html#i_DeepIS.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.i_deepis.i_DeepIS.forward" title="Link to this definition"></a></dt>
 <dd><p>Forward pass for i_DeepIS module.</p>
-<p>Args:
-- idx (torch.LongTensor): Indices of nodes to fetch predictions for.</p>
-<p>Returns:
-- torch.Tensor: Predictions for selected nodes.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>idx (torch.LongTensor): Indices of nodes to fetch predictions for.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>torch.Tensor: Predictions for selected nodes.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.i_deepis.i_DeepIS.loss">
 <span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">γ</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/i_deepis.html#i_DeepIS.loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.i_deepis.i_DeepIS.loss" title="Link to this definition"></a></dt>
 <dd><p>Computes the loss function for i_DeepIS module.</p>
-<p>Args:
-- predictions (torch.Tensor): Predicted values.
-- labels (torch.Tensor): Ground truth labels.
-- λ (float): Influence spread coefficient.
-- γ (float): Regularization coefficient.</p>
-<p>Returns:
-- torch.Tensor: Computed loss value.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>predictions (torch.Tensor): Predicted values.</p></li>
+<li><p>labels (torch.Tensor): Ground truth labels.</p></li>
+<li><p>λ (float): Influence spread coefficient.</p></li>
+<li><p>γ (float): Regularization coefficient.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>Loss (torch.Tensor): Computed loss value.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py attribute">
@@ -311,60 +343,75 @@
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GNN.IVGD.main.</span></span><span class="sig-name descname"><span class="pre">IVGD</span></span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Implementation of Invertible Validity-aware Graph Diffusion (IVGD) model.</p>
+<p>Implement the Invertible Validity-aware Graph Diffusion (IVGD) model.</p>
+<p>Wang, Junxiang, Junji Jiang, and Liang Zhao. “An invertible graph diffusion neural network for source localization.” Proceedings of the ACM Web Conference 2022. 2022.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD.normalize">
 <span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD.normalize" title="Link to this definition"></a></dt>
-<dd><blockquote>
-<div><p>The input tensor x is normalized to between 0 and 1.</p>
-</div></blockquote>
-<p>Args:
-- x (torch.Tensor): Input tensor to be normalized.</p>
-<p>Returns:
-- torch.Tensor: Normalized tensor.</p>
+<dd><p>The input tensor x is normalized to between 0 and 1.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>x (torch.Tensor): Input tensor to be normalized.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>x (torch.Tensor): Normalized tensor.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD.test">
-<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IVGD_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD.test" title="Link to this definition"></a></dt>
-<dd><p>Tests the IVGD model on the given test dataset.</p>
-<p>Args:
-- test_dataset (list): List of test datasets.
-- diffusion_model (torch.nn.Module): Trained diffusion model.
-- IVGD_model (torch.nn.Module): Trained IVGD model.
-- lamda (float): Lambda value.
-- thres (float): Threshold value.</p>
-<p>Returns:
-- Metric: Object containing test metrics.</p>
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IVGD_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD.test" title="Link to this definition"></a></dt>
+<dd><p>Test the IVGD model on the given test dataset.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>diffusion_model (torch.nn.Module): Trained diffusion model.</p></li>
+<li><p>IVGD_model (torch.nn.Module): Trained IVGD model.</p></li>
+<li><p>thres (float): Threshold value.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>metric (Metric): Object containing test metrics.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD.train">
-<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD.train" title="Link to this definition"></a></dt>
-<dd><p>Trains the IVGD model.</p>
-<p>Args:
-- train_dataset (list): List of training datasets.
-- diffusion_model (torch.nn.Module): Trained diffusion model.
-- thres_list (list): List of threshold values.
-- num_epoch (int): Number of epochs for training.</p>
-<p>Returns:
-- torch.nn.Module: Trained IVGD model.
-- float: Lambda value.
-- float: Optimal threshold value.
-- float: Training AUC.
-- float: Optimal F1 score.</p>
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD.train" title="Link to this definition"></a></dt>
+<dd><p>Train the IVGD model.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>diffusion_model (torch.nn.Module): Trained diffusion model.</p></li>
+<li><p>thres_list (list): List of threshold values.</p></li>
+<li><p>lr (float): Learning rate.</p></li>
+<li><p>num_epoch (int): Number of epochs for training.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>ivgd (torch.nn.Module): Trained IVGD model.</p></li>
+<li><p>opt_thres (float): Optimal threshold value.</p></li>
+<li><p>train_auc (float): Training AUC.</p></li>
+<li><p>opt_f1 (float): Optimal F1 score.</p></li>
+<li><p>pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD.train_diffusion">
 <span class="sig-name descname"><span class="pre">train_diffusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD.train_diffusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD.train_diffusion" title="Link to this definition"></a></dt>
-<dd><p>Trains the diffusion model.</p>
-<p>Args:
-- adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
-- train_dataset (list): List of training datasets.
-- infect_prob (float): Probability of infection.</p>
-<p>Returns:
-- torch.nn.Module: Trained diffusion model.</p>
+<dd><p>Train the diffusion model.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>torch.nn.Module: Trained diffusion model.</p></li>
+</ul>
 </dd></dl>
 
 </dd></dl>
@@ -378,22 +425,30 @@
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD_model.correction">
 <span class="sig-name descname"><span class="pre">correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD_model.correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD_model.correction" title="Link to this definition"></a></dt>
 <dd><p>Corrects predictions based on input.</p>
-<p>Args:
-- pred (torch.Tensor): Input tensor of predictions.</p>
-<p>Returns:
-- torch.Tensor: Corrected predictions.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>pred (torch.Tensor): Input tensor of predictions.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>torch.Tensor: Corrected predictions.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD_model.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD_model.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD_model.forward" title="Link to this definition"></a></dt>
-<dd><p>Performs the forward pass of IVGD_model.</p>
-<p>Args:
-- x (torch.Tensor): Input tensor.
-- label (torch.Tensor): Label tensor.
-- lamda (float): Value of lambda parameter.</p>
-<p>Returns:
-- torch.Tensor: Output tensor after forward pass.</p>
+<dd><p>Perform the forward pass of IVGD_model.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>x (torch.Tensor): Input tensor.</p></li>
+<li><p>label (torch.Tensor): Label tensor.</p></li>
+<li><p>lamda (float): Value of lambda parameter.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>x (torch.Tensor): Output tensor after forward pass.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py attribute">
@@ -410,44 +465,62 @@
 <dt class="sig sig-object py" id="GNN.IVGD.preprocessing.exclude_idx">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.preprocessing.</span></span><span class="sig-name descname"><span class="pre">exclude_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_exclude_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/GNN/IVGD/preprocessing.html#exclude_idx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.preprocessing.exclude_idx" title="Link to this definition"></a></dt>
 <dd><p>Exclude indices from a given array based on a list of arrays containing indices to exclude.</p>
-<p>Args:
-- idx (np.ndarray): Array of indices.
-- idx_exclude_list (List[np.ndarray]): List of arrays containing indices to exclude.</p>
-<p>Returns:
-- np.ndarray: Array of indices after exclusion.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>idx (np.ndarray): Array of indices.</p></li>
+<li><p>idx_exclude_list (List[np.ndarray]): List of arrays containing indices to exclude.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>np.ndarray: Array of indices after exclusion.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.preprocessing.gen_seeds">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.preprocessing.</span></span><span class="sig-name descname"><span class="pre">gen_seeds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/GNN/IVGD/preprocessing.html#gen_seeds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.preprocessing.gen_seeds" title="Link to this definition"></a></dt>
 <dd><p>Generate an array of random seeds.</p>
-<p>Args:
-- size (int, optional): Size of the array to generate. If None, a single random seed is returned.</p>
-<p>Returns:
-- np.ndarray: Array of random seeds.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>size (int, optional): Size of the array to generate. If None, a single random seed is returned.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>np.ndarray: Array of random seeds.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.preprocessing.gen_splits_">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.preprocessing.</span></span><span class="sig-name descname"><span class="pre">gen_splits_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopping_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/preprocessing.html#gen_splits_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.preprocessing.gen_splits_" title="Link to this definition"></a></dt>
 <dd><p>Generate train, stopping, and validation indices splits from a given array.</p>
-<p>Args:
-- array: Array of indices.
-- train_size: Size of the training split.
-- stopping_size: Size of the stopping split.
-- val_size: Size of the validation split.</p>
-<p>Returns:
-- Tuple: Tuple containing train, stopping, and validation indices splits.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>array: Array of indices.</p></li>
+<li><p>train_size (int): Size of the training split.</p></li>
+<li><p>stopping_size (int): Size of the stopping split.</p></li>
+<li><p>val_size (int): Size of the validation split.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>train_idx (numpy.ndarray): Train indices splits.</p></li>
+<li><p>stopping_idx (numpy.ndarray): Stopping indices splits.</p></li>
+<li><p>val_idx (numpy.ndarray): Validation indices splits.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.preprocessing.normalize_attributes">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.preprocessing.</span></span><span class="sig-name descname"><span class="pre">normalize_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr_matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/preprocessing.html#normalize_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.preprocessing.normalize_attributes" title="Link to this definition"></a></dt>
 <dd><p>Normalize attributes in a matrix.</p>
-<p>Args:
-- attr_matrix: Matrix containing attributes to normalize.</p>
-<p>Returns:
-- np.ndarray: Normalized attribute matrix.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>attr_matrix: Matrix containing attributes to normalize.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>attr_mat_norm (np.ndarray): Normalized attribute matrix.</p></li>
+</ul>
 </dd></dl>
 
 </section>
@@ -471,123 +544,142 @@
 <dt class="sig sig-object py" id="GNN.IVGD.training.PIteration">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">PIteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">piter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/training.html#PIteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.PIteration" title="Link to this definition"></a></dt>
 <dd><p>Perform final prediction iteration to fit the ideal equation system.</p>
-<p>Args:
-- prob_matrix (numpy.ndarray): Probability matrix.
-- predictions (numpy.ndarray): Predictions.
-- seed_idx (numpy.ndarray): Seed indices.
-- substitute (bool): Whether to substitute seed indices.
-- piter (int): Number of iterations.</p>
-<p>Returns:
-- numpy.ndarray: Final predictions.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>prob_matrix (numpy.ndarray): Probability matrix.</p></li>
+<li><p>predictions (numpy.ndarray): Predictions.</p></li>
+<li><p>seed_idx (numpy.ndarray): Seed indices.</p></li>
+<li><p>substitute (bool): Whether to substitute seed indices.</p></li>
+<li><p>piter (int): Number of iterations.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>final_preds (numpy.ndarray): Final predictions.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.training.construct_attr_mat">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">construct_attr_mat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/training.html#construct_attr_mat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.construct_attr_mat" title="Link to this definition"></a></dt>
 <dd><p>Construct attribute matrix based on the given probability matrix and seed vector.</p>
-<p>Args:
-- prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.
-- seed_vec (numpy.ndarray): Seed vector.
-- order (int): Order of attribute matrix construction.</p>
-<p>Returns:
-- numpy.ndarray: Attribute matrix.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>prob_matrix (scipy.sparse.csr_matrix): Probability matrix.</p></li>
+<li><p>seed_vec (numpy.ndarray): Seed vector.</p></li>
+<li><p>order (int): Order of attribute matrix construction.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>attr_mat (numpy.ndarray): Attribute matrix.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.training.get_dataloaders">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">get_dataloaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_np</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/training.html#get_dataloaders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.get_dataloaders" title="Link to this definition"></a></dt>
 <dd><p>Get data loaders for training, validation, and testing.</p>
-<p>Args:
-- idx (dict): Dictionary containing indices for different phases.
-- labels_np (numpy.ndarray): Labels as numpy array.
-- batch_size (int): Batch size.</p>
-<p>Returns:
-- dict: Dictionary containing data loaders for different phases.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>idx (dict): Dictionary containing indices for different phases, training, early stopping, and validation/test.</p></li>
+<li><p>labels_np (numpy.ndarray): Labels as numpy array.</p></li>
+<li><p>batch_size (int): Batch size.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>dataloaders (dict): Dictionary containing data loaders for different phases.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.training.get_idx_new_seeds">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">get_idx_new_seeds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/training.html#get_idx_new_seeds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.get_idx_new_seeds" title="Link to this definition"></a></dt>
 <dd><p>Get indices for new seeds.</p>
-<p>Given each node’s probability, predict the seed set on the same graph.</p>
-<p>Args:
-- model: Model for prediction.
-- prediction: Predictions.</p>
-<p>Returns:
-- Tensor: Result.</p>
+<p>Given each node’s probability, predict the seed vector on the same graph.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>model (nn.module): Model for prediction.</p></li>
+<li><p>prediction (torch.Tensor): Prediction of diffusion.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>result (torch.Tensor): Prediction of seeds.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.training.get_predictions">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">get_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/training.html#get_predictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.get_predictions" title="Link to this definition"></a></dt>
 <dd><p>Get predictions from the model.</p>
-<p>Args:
-- model (nn.Module): Model.
-- idx (Tensor): Indices.
-- batch_size (int): Batch size.</p>
-<p>Returns:
-- numpy.ndarray: Predictions.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="GNN.IVGD.training.get_predictions_new_seeds">
-<span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">get_predictions_new_seeds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fea_constructor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/training.html#get_predictions_new_seeds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.get_predictions_new_seeds" title="Link to this definition"></a></dt>
-<dd><p>Get predictions for new seeds.</p>
-<p>Given a new seed set on the same graph, predict each node’s probability.</p>
-<p>Args:
-- model: Model for prediction.
-- fea_constructor: Feature constructor.
-- seed_vec: Seed vector.
-- idx: Indices.</p>
-<p>Returns:
-- numpy.ndarray: Predictions.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>model (nn.Module): Diffusion model.</p></li>
+<li><p>idx (Tensor): Indices.</p></li>
+<li><p>batch_size (int): Batch size.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>numpy.ndarray: Predictions.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.training.lanczos_algo">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">lanczos_algo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prob_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/training.html#lanczos_algo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.lanczos_algo" title="Link to this definition"></a></dt>
 <dd><p>Lanczos algorithm for computing attribute matrix.</p>
-<p>Args:
-- prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.
-- seed_vec (numpy.ndarray): Seed vector.
-- order (int): Order of attribute matrix construction.
-- epsilon (float): Threshold for stopping the iteration.</p>
-<p>Returns:
-- numpy.ndarray: Attribute matrix.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>prob_matrix (numpy.ndarray or scipy.sparse.csr_matrix): Probability matrix.</p></li>
+<li><p>seed_vec (numpy.ndarray): Seed vector.</p></li>
+<li><p>order (int): Order of attribute matrix construction.</p></li>
+<li><p>epsilon (float): Threshold for stopping the iteration.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>numpy.ndarray: Attribute matrix.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.training.train_model">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fea_constructor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">γ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_split_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'nstopping':</span> <span class="pre">400,</span> <span class="pre">'ntraining':</span> <span class="pre">200,</span> <span class="pre">'nval':</span> <span class="pre">10}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopping_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'max_epochs':</span> <span class="pre">1000,</span> <span class="pre">'patience':</span> <span class="pre">30,</span> <span class="pre">'remember':</span> <span class="pre">Best.RANKED,</span> <span class="pre">'stop_varnames':</span> <span class="pre">[StopVariable.LOSS]}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">torch_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/GNN/IVGD/training.html#train_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.train_model" title="Link to this definition"></a></dt>
 <dd><p>Train the model using the specified parameters.</p>
-<p>Args:
-- model (nn.Module): Model to be trained.
-- fea_constructor: Feature constructor object.
-- prob_matrix (numpy.ndarray): Probability matrix.
-- diff_mat (numpy.ndarray): Difference matrix.
-- learning_rate (float): Learning rate for optimizer.
-- λ: Lambda value.
-- γ: Gamma value.
-- idx_split_args (dict): Index split arguments.
-- stopping_args (dict): Stopping arguments.
-- test (bool): Whether to perform testing.
-- device (str): Device for training.
-- torch_seed (int): Seed for torch.
-- print_interval (int): Print interval.
-- batch_size: Batch size.</p>
-<p>Returns:
-- Tuple: Model and training result.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>model (nn.Module): Model to be trained.</p></li>
+<li><p>fea_constructor (nn.Module): Feature constructor object.</p></li>
+<li><p>prob_matrix (torch.Tensor): Probability matrix.</p></li>
+<li><p>diff_mat (torch.utils.data.dataset.Subset): The diffusion matrix (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>learning_rate (float): Learning rate for optimizer.</p></li>
+<li><p>λ: Lambda value.</p></li>
+<li><p>γ: Gamma value.</p></li>
+<li><p>idx_split_args (dict): Split of the dataset, ntraining is the number of training set, nstopping is the number of samples to determine the early stopping, and nval is the number of validation set.</p></li>
+<li><p>stopping_args (dict): Stopping arguments.</p></li>
+<li><p>test (bool): Whether to perform testing.</p></li>
+<li><p>device (str): Device for training, cpu or cuda.</p></li>
+<li><p>torch_seed (int): Seed for torch.</p></li>
+<li><p>print_interval (int): Print interval.</p></li>
+<li><p>batch_size (int): Batch size.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>model (nn.Module): Trained model.</p></li>
+<li><p>result (dict): Results of diffusion model,including predictions, train mean error, early_stopping mean error, val/test mean error, runtime, and runtime per epoch.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GNN.IVGD.training.update_embedding">
 <span class="sig-prename descclassname"><span class="pre">GNN.IVGD.training.</span></span><span class="sig-name descname"><span class="pre">update_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_mat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/training.html#update_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.training.update_embedding" title="Link to this definition"></a></dt>
 <dd><p>Update the embedding layer of the model with the new feature matrix.</p>
-<p>Args:
-- model (torch.nn.Module): Model.
-- feature_mat (numpy.ndarray): Feature matrix.</p>
-<p>Returns:
-- torch.nn.Module: Updated model.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>model (torch.nn.Module): Model.</p></li>
+<li><p>feature_mat (numpy.ndarray): Feature matrix.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>torch.nn.Module: Updated model.</p></li>
+</ul>
 </dd></dl>
 
 </section>
@@ -598,32 +690,42 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GNN.IVGD.validity_net.</span></span><span class="sig-name descname"><span class="pre">validity_net</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/validity_net.html#validity_net"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.validity_net.validity_net" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <p>Validity-aware layers.</p>
-<p>Attributes:
-- number_layer (int): Number of layers.
-- alpha1, alpha2, alpha3, alpha4, alpha5 (float): Alpha values for each layer.
-- tau1, tau2, tau3, tau4, tau5 (float): Tau values for each layer.
-- net1, net2, net3, net4, net5 (correction): Correction networks for each layer.
-- rho1, rho2, rho3, rho4, rho5 (float): Rho values for each layer.</p>
+<p>Attributes:</p>
+<ul class="simple">
+<li><p>number_layer (int): Number of layers.</p></li>
+<li><p>alpha1, alpha2, alpha3, alpha4, alpha5 (float): Alpha values for each layer.</p></li>
+<li><p>tau1, tau2, tau3, tau4, tau5 (float): Tau values for each layer.</p></li>
+<li><p>net1, net2, net3, net4, net5 (correction): Correction layer.</p></li>
+<li><p>rho1, rho2, rho3, rho4, rho5 (float): Rho values for each layer.</p></li>
+</ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.validity_net.validity_net.correction">
 <span class="sig-name descname"><span class="pre">correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/validity_net.html#validity_net.correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.validity_net.validity_net.correction" title="Link to this definition"></a></dt>
 <dd><p>Impose validity constraint on predictions.</p>
-<p>Args:
-- pred (Tensor): Predictions tensor.</p>
-<p>Returns:
-- Tensor: predictions tensor after passing validity-ware layers.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>pred (torch.Tensor): Predictions tensor.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>Tensor: predictions tensor after passing validity-ware layers.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.validity_net.validity_net.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/validity_net.html#validity_net.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.validity_net.validity_net.forward" title="Link to this definition"></a></dt>
 <dd><p>Forward pass of the validity-ware layer.</p>
-<p>Args:
-- x (Tensor): corrected prediction of seed vector.
-- label (Tensor): Source Label.
-- lamda (Tensor): Lambda tensor.</p>
-<p>Returns:
-- Tensor: prediction subject to the validity constraint.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>x (torch.Tensor): corrected prediction of seed vector.</p></li>
+<li><p>label (torch.Tensor): Source Label.</p></li>
+<li><p>lamda (torch.Tensor): Lambda tensor.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>Tensor: prediction subject to the validity constraint.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py attribute">

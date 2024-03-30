@@ -7,10 +7,15 @@ class validity_net(torch.nn.Module):
     Validity-aware layers.
 
     Attributes:
+        
     - number_layer (int): Number of layers.
+    
     - alpha1, alpha2, alpha3, alpha4, alpha5 (float): Alpha values for each layer.
+    
     - tau1, tau2, tau3, tau4, tau5 (float): Tau values for each layer.
-    - net1, net2, net3, net4, net5 (correction): Correction  layer.
+    
+    - net1, net2, net3, net4, net5 (correction): Correction layer.
+    
     - rho1, rho2, rho3, rho4, rho5 (float): Rho values for each layer.
     """
 
@@ -19,8 +24,11 @@ class validity_net(torch.nn.Module):
         Initialize the validity_net model.
 
         Args:
+            
         - alpha (float): Alpha value.
+        
         - tau (float): Tau value.
+        
         - rho (float): Rho value.
         """
         super(validity_net, self).__init__()
@@ -54,12 +62,17 @@ class validity_net(torch.nn.Module):
         Forward pass of the validity-ware layer.
 
         Args:
-        - x (Tensor): corrected prediction of seed vector.
-        - label (Tensor): Source Label.
-        - lamda (Tensor): Lambda tensor.
+
+        - x (torch.Tensor): corrected prediction of seed vector.
+
+        - label (torch.Tensor): Source Label.
+
+        - lamda (torch.Tensor): Lambda tensor.
 
         Returns:
+
         - Tensor: prediction subject to the validity constraint.
+
         """
         sum = torch.sum(label)
         label = torch.cat((1 - label, label), dim=1)
@@ -95,9 +108,11 @@ class validity_net(torch.nn.Module):
         Impose validity constraint on predictions.
 
         Args:
-        - pred (Tensor): Predictions tensor.
+
+        - pred (torch.Tensor): Predictions tensor.
 
         Returns:
+
         - Tensor: predictions tensor after passing validity-ware layers.
         """
         temp = pred[:, 0].unsqueeze(-1)

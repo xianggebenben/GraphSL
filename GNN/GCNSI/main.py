@@ -22,6 +22,7 @@ class GCNSI:
         Train the GCNSI model.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
 
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
@@ -39,6 +40,7 @@ class GCNSI:
         - weight (torch.Tensor): Weight tensor for loss computation, the first and second values are loss weights for non-seed and seed, respectively.
 
         Returns:
+
         - opt_gcnsi_model (GCNSI_model): Optimized GCNSI model.
 
         - opt_alpha (float): Optimal alpha value.
@@ -131,13 +133,19 @@ class GCNSI:
         Test the GCNSI model.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
+
         - test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
+
         - gcnsi_model (GCNSI_model): Trained GCNSI model.
-        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try..
+
+        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
+
         - thres (float): Threshold value.
 
         Returns:
+
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.
         """
         # Compute Laplacian matrix

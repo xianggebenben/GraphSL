@@ -25,8 +25,11 @@ class IVGD_model(torch.nn.Module):
         Initializes the IVGD_model.
 
         Args:
+
         - alpha (float): Value of alpha parameter.
+
         - tau (float): Value of tau parameter.
+
         - rho (float): Value of rho parameter.
         """
         super(IVGD_model, self).__init__()
@@ -57,15 +60,19 @@ class IVGD_model(torch.nn.Module):
 
     def forward(self, x, label, lamda):
         """
-        Performs the forward pass of IVGD_model.
+        Perform the forward pass of IVGD_model.
 
         Args:
+
         - x (torch.Tensor): Input tensor.
+
         - label (torch.Tensor): Label tensor.
+
         - lamda (float): Value of lambda parameter.
 
         Returns:
-        - torch.Tensor: Output tensor after forward pass.
+
+        - x (torch.Tensor): Output tensor after forward pass.
         """
         sum = torch.sum(label)
         label = torch.cat((1 - label, label), dim=1)
@@ -101,9 +108,11 @@ class IVGD_model(torch.nn.Module):
         Corrects predictions based on input.
 
         Args:
+
         - pred (torch.Tensor): Input tensor of predictions.
 
         Returns:
+
         - torch.Tensor: Corrected predictions.
         """
         temp = pred[:, 0].unsqueeze(-1)
@@ -125,14 +134,16 @@ class IVGD:
 
     def train_diffusion(self, adj, train_dataset):
         """
-        Trains the diffusion model.
+        Train the diffusion model.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
 
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
         Returns:
+
         - torch.nn.Module: Trained diffusion model.
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -173,11 +184,12 @@ class IVGD:
         print(f"run time per epoch:{result['runtime_perepoch']:.3f} seconds")
         return diffusion_model
 
-    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9],lr =0.001, num_epoch=10):
+    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9],lr =0.001, num_epoch = 10):
         """
         Train the IVGD model.
 
         Args:
+
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
@@ -191,13 +203,14 @@ class IVGD:
         - num_epoch (int): Number of epochs for training.
 
         Returns:
-        - torch.nn.Module: Trained IVGD model.
 
-        - float: Optimal threshold value.
+        - ivgd (torch.nn.Module): Trained IVGD model.
 
-        - float: Training AUC.
+        - opt_thres (float): Optimal threshold value.
 
-        - float: Optimal F1 score.
+        - train_auc (float): Training AUC.
+
+        - opt_f1 (float): Optimal F1 score.
 
         - pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.
         """
@@ -275,10 +288,11 @@ class IVGD:
 
     def test(self, test_dataset, diffusion_model, IVGD_model, thres):
         """
-        Tests the IVGD model on the given test dataset.
+        Test the IVGD model on the given test dataset.
 
         Args:
-        - test_dataset (list): List of test datasets.
+
+        - test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
         - diffusion_model (torch.nn.Module): Trained diffusion model.
 
@@ -287,7 +301,8 @@ class IVGD:
         - thres (float): Threshold value.
 
         Returns:
-        - Metric: Object containing test metrics.
+
+        - metric (Metric): Object containing test metrics.
         """
         test_num = len(test_dataset)
         test_acc = 0
@@ -335,13 +350,15 @@ class IVGD:
 
     def normalize(self, x):
         """
-         The input tensor x is normalized to between 0 and 1.
+        The input tensor x is normalized to between 0 and 1.
 
         Args:
+
         - x (torch.Tensor): Input tensor to be normalized.
 
         Returns:
-        - torch.Tensor: Normalized tensor.
+
+        - x (torch.Tensor): Normalized tensor.
         """
         # Compute minimum and maximum values along each dimension
         min_vals, _ = torch.min(x, dim=0)

@@ -7,15 +7,17 @@ import numpy as np
 from Prescribed import LPSI
 class GCNConv(MessagePassing):
     """
-    Defines a Graph Convolutional Network (GCN) layer.
+    Define a Graph Convolutional Network (GCN) layer.
     """
 
     def __init__(self, in_channels, out_channels):
         """
-        Initializes the GCNConv layer with input and output channel dimensions.
+        Initialize the GCNConv layer with input and output channel dimensions.
 
         Args:
+
         - in_channels (int): Number of input channels.
+
         - out_channels (int): Number of output channels.
         """
         super(GCNConv, self).__init__(aggr='add')  # Setting the aggregation method for message passing
@@ -26,11 +28,14 @@ class GCNConv(MessagePassing):
         Perform the forward pass of the GCNConv layer.
 
         Args:
+
         - x (torch.Tensor): Input node features.
+
         - edge_index (torch.Tensor): Edge indices representing connectivity.
 
         Returns:
-        - Output tensor after the GCN layer computation.
+
+        - torch.Tensor: Tensor after the GCN layer computation.
         """
         # Step 1: Add self-loops
         edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
@@ -49,7 +54,7 @@ class GCNConv(MessagePassing):
 
 class GCNSI_model(torch.nn.Module):
     """
-    Defines the model of Graph Convolutional Networks based Source Identification (GCNSI).
+    Define the model of Graph Convolutional Networks based Source Identification (GCNSI).
     """
 
     def __init__(self):
@@ -64,14 +69,20 @@ class GCNSI_model(torch.nn.Module):
         Performs the forward pass of the GCNSI model.
 
         Args:
-        - alpha (float): The fraction of label information that node gets from its neighbors..
+
+        - alpha (float): The fraction of label information that node gets from its neighbors.
+
         - laplacian (numpy.ndarray): The Laplacian matrix of the graph.
+
         - num_node (int): Number of nodes in the graph.
+
         - diff_vec (torch.Tensor): The difference vector.
+
         - edge_index (torch.Tensor): Edge indices representing connectivity.
 
         Returns:
-        - A tensor representing identified source nodes.
+
+        - x (torch.Tensor): A tensor representing identified source nodes.
         """
         lpsi = LPSI()  # Initializing LPSI module
         V3 = copy.deepcopy(diff_vec)

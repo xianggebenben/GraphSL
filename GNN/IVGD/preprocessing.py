@@ -9,9 +9,11 @@ def gen_seeds(size: int = None) -> np.ndarray:
     Generate an array of random seeds.
 
     Args:
+
     - size (int, optional): Size of the array to generate. If None, a single random seed is returned.
 
     Returns:
+
     - np.ndarray: Array of random seeds.
     """
     max_uint32 = np.iinfo(np.uint32).max
@@ -23,10 +25,13 @@ def exclude_idx(idx: np.ndarray, idx_exclude_list: List[np.ndarray]) -> np.ndarr
     Exclude indices from a given array based on a list of arrays containing indices to exclude.
 
     Args:
+
     - idx (np.ndarray): Array of indices.
+
     - idx_exclude_list (List[np.ndarray]): List of arrays containing indices to exclude.
 
     Returns:
+
     - np.ndarray: Array of indices after exclusion.
     """
     idx_exclude = np.concatenate(idx_exclude_list)
@@ -38,13 +43,23 @@ def gen_splits_(array, train_size, stopping_size, val_size):
     Generate train, stopping, and validation indices splits from a given array.
 
     Args:
+
     - array: Array of indices.
-    - train_size: Size of the training split.
-    - stopping_size: Size of the stopping split.
-    - val_size: Size of the validation split.
+
+    - train_size (int): Size of the training split.
+
+    - stopping_size (int): Size of the stopping split.
+
+    - val_size (int): Size of the validation split.
 
     Returns:
-    - Tuple: Tuple containing train, stopping, and validation indices splits.
+
+    - train_idx (numpy.ndarray): Train indices splits.
+
+    - stopping_idx (numpy.ndarray): Stopping indices splits.
+
+    - val_idx (numpy.ndarray): Validation indices splits.
+
     """
     assert train_size + stopping_size + val_size <= len(array), 'length error'
     from sklearn.model_selection import train_test_split
@@ -59,10 +74,12 @@ def normalize_attributes(attr_matrix):
     Normalize attributes in a matrix.
 
     Args:
+
     - attr_matrix: Matrix containing attributes to normalize.
 
     Returns:
-    - np.ndarray: Normalized attribute matrix.
+
+    - attr_mat_norm (np.ndarray): Normalized attribute matrix.
     """
     epsilon = 1e-12
     if isinstance(attr_matrix, sp.csr_matrix):

@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 class correction(torch.nn.Module):
     """
-    Defines a error correction module.
+    Define a error correction module.
     """
 
     def __init__(self):
@@ -19,13 +19,15 @@ class correction(torch.nn.Module):
 
     def forward(self, x):
         """
-        Defines the forward pass of the error correction module.
+        Define the forward pass of the error correction module.
 
         Args:
+
         - x (torch.Tensor): Prediction of the seed vector from invertible graph residual net.
 
         Returns:
-        - Output: Corrected prediction of the seed vector.
+
+        - temp (torch.Tensor): Corrected prediction of the seed vector.
         """
         # Concatenate the input tensor with its complement along the second dimension
         x = torch.cat((1 - x, x), dim=1)

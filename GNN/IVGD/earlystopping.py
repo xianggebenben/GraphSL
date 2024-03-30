@@ -40,10 +40,15 @@ class EarlyStopping:
         Initializes the EarlyStopping object.
 
         Args:
+
         - model (Module): The neural network model.
+
         - stop_varnames (List[StopVariable]): List of stopping criteria variables.
+
         - patience (int): Number of epochs to wait after reaching the best model before stopping.
+
         - max_epochs (int): Maximum number of epochs for training.
+
         - remember (Best): Specifies how to remember the best model.
         """
         self.model = model
@@ -72,11 +77,13 @@ class EarlyStopping:
         Checks if early stopping criteria are met.
 
         Args:
+
         - values (List[np.floating]): List of evaluation metric values.
 
         - epoch (int): Current epoch number.
 
         Returns:
+
         - bool: True if early stopping criteria are met, False otherwise.
         """
         checks = [self.comp_ops[i](val, self.best_vals[i])

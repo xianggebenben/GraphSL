@@ -340,7 +340,7 @@ class OJC:
 
     def Candidate(self, G, Y, I, target):
         """
-        Identifies potential source nodes based on the given criteria.
+        Identify potential source nodes based on the given criteria.
 
         Args:
 

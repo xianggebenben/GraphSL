@@ -121,7 +121,7 @@
 </ul>
 <p>Returns:</p>
 <ul class="simple">
-<li><p>x (numpy.ndarray): The prediction of source nodes.</p></li>
+<li><p>x (numpy.ndarray): Prediction of source nodes.</p></li>
 </ul>
 </dd></dl>
 
@@ -144,7 +144,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Prescribed.LPSI.train">
-<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.01,</span> <span class="pre">0.1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#LPSI.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.LPSI.train" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.001,</span> <span class="pre">0.01,</span> <span class="pre">0.1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#LPSI.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.LPSI.train" title="Link to this definition"></a></dt>
 <dd><blockquote>
 <div><p>Train the LPSI algorithm.</p>
 </div></blockquote>
@@ -161,6 +161,7 @@
 <li><p>opt_thres (float): Optimal threshold value.</p></li>
 <li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
 <li><p>opt_f1 (float): Optimal F1 score value.</p></li>
+<li><p>opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
 </dd></dl>
 
@@ -180,24 +181,23 @@
 <ul class="simple">
 <li><p>G (networkx.Graph): The input graph.</p></li>
 <li><p>k (int): Number of source nodes to identify.</p></li>
-<li><p>diff_vec (numpy.ndarray): The diffusion vector.</p></li>
+<li><p>diff_vec (torch.Tensor): The diffusion vector.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
-<li><p>seed_vec (torch.Tensor): A tensor representing identified source nodes.</p></li>
+<li><p>seed_vec (torch.Tensor): A binary tensor representing identified source nodes.</p></li>
 </ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Prescribed.NetSleuth.test">
-<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#NetSleuth.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.NetSleuth.test" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#NetSleuth.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.NetSleuth.test" title="Link to this definition"></a></dt>
 <dd><p>Test the NetSleuth algorithm.</p>
 <p>Args:</p>
 <ul class="simple">
-<li><p>adj (numpy.ndarray): The adjacency matrix of the graph.</p></li>
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
 <li><p>test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
 <li><p>k (int): Number of source nodes.</p></li>
-<li><p>thres (float): Threshold value.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
@@ -207,21 +207,19 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Prescribed.NetSleuth.train">
-<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[5,</span> <span class="pre">10,</span> <span class="pre">50,</span> <span class="pre">100]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#NetSleuth.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.NetSleuth.train" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[5,</span> <span class="pre">10,</span> <span class="pre">50,</span> <span class="pre">100]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#NetSleuth.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.NetSleuth.train" title="Link to this definition"></a></dt>
 <dd><p>Train the NetSleuth algorithm.</p>
 <p>Args:</p>
 <ul class="simple">
-<li><p>adj (numpy.ndarray): The adjacency matrix of the graph.</p></li>
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
 <li><p>train_dataset (torch.utils.data.dataset.Subset): The training dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
 <li><p>k_list (list): List of the numbers of source nodes to try.</p></li>
-<li><p>thres_list (list): List of threshold values to try.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
 <li><p>opt_k (int): Optimal number of source nodes.</p></li>
-<li><p>opt_thres (float): Optimal threshold value.</p></li>
 <li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
-<li><p>opt_f1 (float): Optimal F1 score value.</p></li>
+<li><p>train_f1 (float): Training F1 score value.</p></li>
 </ul>
 </dd></dl>
 
@@ -236,13 +234,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="Prescribed.OJC.Candidate">
 <span class="sig-name descname"><span class="pre">Candidate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.Candidate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.Candidate" title="Link to this definition"></a></dt>
-<dd><p>Identifies potential source nodes based on the given criteria.</p>
+<dd><p>Identify potential source nodes based on the given criteria.</p>
 <p>Args:</p>
 <ul class="simple">
 <li><p>G (networkx.Graph): The input graph.</p></li>
 <li><p>Y (int): Number of desired source nodes.</p></li>
 <li><p>I (list): List of diffused nodes.</p></li>
-<li><p>target (numpy.ndarray): Target vector.</p></li>
+<li><p>target (torch.Tensor): Target vector.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
@@ -261,7 +259,7 @@
 <ul class="simple">
 <li><p>G (networkx.Graph): The input graph.</p></li>
 <li><p>Y (int): Number of desired source nodes.</p></li>
-<li><p>I (list): diffused nodes.</p></li>
+<li><p>I (list): list of diffused nodes.</p></li>
 <li><p>target (numpy.ndarray): Target vector.</p></li>
 </ul>
 <p>Returns:</p>
@@ -280,24 +278,23 @@
 <li><p>Y (int): Number of source nodes.</p></li>
 <li><p>I (list): List of diffused nodes.</p></li>
 <li><p>target (numpy.ndarray): Target vector.</p></li>
-<li><p>num_source (int): Number of  source nodes.</p></li>
+<li><p>num_source (int): Maximal number of source nodes.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
-<li><p>x (numpy.ndarray): Binary vector representing identified potential source nodes.</p></li>
+<li><p>x (numpy.ndarray): A binary vector representing identified potential source nodes.</p></li>
 </ul>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Prescribed.OJC.test">
-<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.test" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.test" title="Link to this definition"></a></dt>
 <dd><p>Test the OJC algorithm.</p>
 <p>Args:</p>
 <ul class="simple">
 <li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
 <li><p>test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
 <li><p>Y (int): Number of source nodes.</p></li>
-<li><p>thres (float): Threshold value.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
@@ -307,21 +304,19 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Prescribed.OJC.train">
-<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4,</span> <span class="pre">5,</span> <span class="pre">10,</span> <span class="pre">20,</span> <span class="pre">50]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.train" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[5,</span> <span class="pre">10,</span> <span class="pre">20,</span> <span class="pre">50]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Prescribed.html#OJC.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Prescribed.OJC.train" title="Link to this definition"></a></dt>
 <dd><p>Train the OJC algorithm.</p>
 <p>Args:</p>
 <ul class="simple">
 <li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
 <li><p>train_dataset (torch.utils.data.dataset.Subset): The train dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
 <li><p>Y_list (list): List of numbers of source nodes to try.</p></li>
-<li><p>thres_list (list): List of threshold values to try.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
 <li><p>opt_Y (int): Optimal number of source nodes.</p></li>
-<li><p>opt_thres (float): Optimal threshold value.</p></li>
 <li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
-<li><p>opt_f1 (float): Optimal F1 score value.</p></li>
+<li><p>train_f1 (float): Training F1 score value.</p></li>
 </ul>
 </dd></dl>
 
