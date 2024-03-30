@@ -30,7 +30,7 @@ class FeatureCons:
         Deeply compute features based on the given seed vector.
 
         Args:
-        - seed_vec (numpy.ndarray): Seed vector.
+        - seed_vec (torch.Tensor): Seed vector.
 
         Returns:
         - numpy.ndarray: Feature matrix.
@@ -52,7 +52,7 @@ class FeatureCons:
         Call method to compute features based on the given seed vector.
 
         Args:
-        - seed_vec (numpy.ndarray): Seed vector.
+        - seed_vec (torch.Tensor): Seed vector.
 
         Returns:
         - numpy.ndarray: Feature matrix.
@@ -65,12 +65,14 @@ def get_dataloaders(idx, labels_np, batch_size=None):
     Get data loaders for training, validation, and testing.
 
     Args:
-    - idx (dict): Dictionary containing indices for different phases.
+    - idx (dict): Dictionary containing indices for different phases, training, early stopping, and validation/test.
+
     - labels_np (numpy.ndarray): Labels as numpy array.
+
     - batch_size (int): Batch size.
 
     Returns:
-    - dict: Dictionary containing data loaders for different phases.
+    - dataloaders (dict): Dictionary containing data loaders for different phases.
     """
     labels = torch.FloatTensor(labels_np)
     if batch_size is None:
@@ -173,9 +175,13 @@ def PIteration(prob_matrix, predictions, seed_idx, substitute=True, piter=10):
 
     Args:
     - prob_matrix (numpy.ndarray): Probability matrix.
+
     - predictions (numpy.ndarray): Predictions.
+
     - seed_idx (numpy.ndarray): Seed indices.
+
     - substitute (bool): Whether to substitute seed indices.
+
     - piter (int): Number of iterations.
 
     Returns:
@@ -213,22 +219,37 @@ def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: fl
 
     Args:
     - model (nn.Module): Model to be trained.
-    - fea_constructor: Feature constructor object.
-    - prob_matrix (numpy.ndarray): Probability matrix.
-    - diff_mat (numpy.ndarray): Difference matrix.
+
+    - fea_constructor (nn.Module): Feature constructor object.
+
+    - prob_matrix (torch.Tensor): Probability matrix.
+
+    - diff_mat (torch.utils.data.dataset.Subset): The diffusion matrix (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
+
     - learning_rate (float): Learning rate for optimizer.
+
     - λ: Lambda value.
+
     - γ: Gamma value.
-    - idx_split_args (dict): Index split arguments.
+
+    - idx_split_args (dict): Split of the dataset, ntraining is the number of training set, nstopping is the number of samples to determine the early stopping, and nval is the number of validation set.
+
     - stopping_args (dict): Stopping arguments.
+
     - test (bool): Whether to perform testing.
-    - device (str): Device for training.
+
+    - device (str): Device for training, cpu or cuda.
+
     - torch_seed (int): Seed for torch.
+
     - print_interval (int): Print interval.
-    - batch_size: Batch size.
+
+    - batch_size (int): Batch size.
 
     Returns:
-    - Tuple: Model and training result.
+    - model (nn.Module): Trained model.
+
+    - result (dict): Results of diffusion model,including predictions, train mean error, early_stopping mean error, val/test mean error, runtime, and runtime per epoch.
     """
     if torch_seed is None:
         torch_seed = gen_seeds()

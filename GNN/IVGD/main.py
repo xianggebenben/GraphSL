@@ -113,7 +113,9 @@ class IVGD_model(torch.nn.Module):
 
 class IVGD:
     """
-    Implementation of Invertible Validity-aware Graph Diffusion (IVGD) model.
+    Implement the Invertible Validity-aware Graph Diffusion (IVGD) model.
+
+    Wang, Junxiang, Junji Jiang, and Liang Zhao. "An invertible graph diffusion neural network for source localization." Proceedings of the ACM Web Conference 2022. 2022.
     """
 
     def __init__(self):
@@ -127,8 +129,8 @@ class IVGD:
 
         Args:
         - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
-        - train_dataset (list): List of training datasets.
-        - infect_prob (float): Probability of infection.
+
+        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
         Returns:
         - torch.nn.Module: Trained diffusion model.
@@ -173,12 +175,12 @@ class IVGD:
 
     def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9],lr =0.001, num_epoch=10):
         """
-        Trains the IVGD model.
+        Train the IVGD model.
 
         Args:
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - train_dataset (list): List of training datasets.
+        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
         - diffusion_model (torch.nn.Module): Trained diffusion model.
 
@@ -256,6 +258,7 @@ class IVGD:
             pred[:,i] = seed_correction
 
         opt_f1 = 0
+        opt_thres = 0
         # Find optimal threshold and F1 score
         for thres in thres_list:
             train_f1 = 0

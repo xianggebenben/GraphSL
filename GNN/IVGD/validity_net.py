@@ -10,7 +10,7 @@ class validity_net(torch.nn.Module):
     - number_layer (int): Number of layers.
     - alpha1, alpha2, alpha3, alpha4, alpha5 (float): Alpha values for each layer.
     - tau1, tau2, tau3, tau4, tau5 (float): Tau values for each layer.
-    - net1, net2, net3, net4, net5 (correction): Correction networks for each layer.
+    - net1, net2, net3, net4, net5 (correction): Correction  layer.
     - rho1, rho2, rho3, rho4, rho5 (float): Rho values for each layer.
     """
 

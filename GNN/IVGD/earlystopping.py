@@ -73,6 +73,7 @@ class EarlyStopping:
 
         Args:
         - values (List[np.floating]): List of evaluation metric values.
+
         - epoch (int): Current epoch number.
 
         Returns:

@@ -53,7 +53,9 @@ class DiffusionPropagate(nn.Module):
 
         Args:
         - preds (torch.Tensor): Input tensor of predictions.
+
         - seed_idx (torch.Tensor): Indices of seed nodes.
+
         - idx (torch.Tensor): Indices of nodes to propagate to.
 
         Returns:
