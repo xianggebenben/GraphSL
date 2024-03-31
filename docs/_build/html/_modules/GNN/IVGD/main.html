@@ -230,7 +230,26 @@
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - torch.nn.Module: Trained diffusion model.</span>
+<span class="sd">        - diffusion_model (torch.nn.Module): Trained diffusion model.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+
+<span class="sd">        from GNN.IVGD.main import IVGD</span>
+
+<span class="sd">        data_name = &#39;karate&#39;</span>
+
+<span class="sd">        graph = load_dataset(data_name)</span>
+
+<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
+
+<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
+
+<span class="sd">        ivgd = IVGD()</span>
+
+<span class="sd">        diffusion_model = ivgd.train_diffusion(adj, train_dataset)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -273,7 +292,7 @@
 
 <div class="viewcode-block" id="IVGD.train">
 <a class="viewcode-back" href="../../../GNN.IVGD.html#GNN.IVGD.main.IVGD.train">[docs]</a>
-    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">diffusion_model</span><span class="p">,</span> <span class="n">thres_list</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span><span class="n">lr</span> <span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">num_epoch</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">diffusion_model</span><span class="p">,</span> <span class="n">thres_list</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span><span class="n">lr</span> <span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">weight_decay</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="n">num_epoch</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the IVGD model.</span>
 
@@ -289,6 +308,8 @@
 
 <span class="sd">        - lr (float): Learning rate.</span>
 
+<span class="sd">        - weight_decay (float): Weight decay.</span>
+
 <span class="sd">        - num_epoch (int): Number of epochs for training.</span>
 
 <span class="sd">        Returns:</span>
@@ -302,16 +323,41 @@
 <span class="sd">        - opt_f1 (float): Optimal F1 score.</span>
 
 <span class="sd">        - pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+
+<span class="sd">        from GNN.IVGD.main import IVGD</span>
+
+<span class="sd">        data_name = &#39;karate&#39;</span>
+
+<span class="sd">        graph = load_dataset(data_name)</span>
+
+<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
+
+<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
+
+<span class="sd">        ivgd = IVGD()</span>
+
+<span class="sd">        diffusion_model = ivgd.train_diffusion(adj, train_dataset)</span>
+
+<span class="sd">        ivgd_model, thres, auc, f1, pred =ivgd.train(adj, train_dataset, diffusion_model)</span>
+
+<span class="sd">        print(&quot;IVGD:&quot;)</span>
+
+<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
-        <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+        <span class="c1">#train_num = len(train_dataset)</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">tau</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">rho</span> <span class="o">=</span> <span class="mf">1e-3</span>
         <span class="n">lamda</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">ivgd</span> <span class="o">=</span> <span class="n">IVGD_model</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="n">tau</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="n">rho</span><span class="p">)</span>
-        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">ivgd</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">)</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">ivgd</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span> <span class="o">=</span> <span class="n">lr</span><span class="p">,</span> <span class="n">weight_decay</span> <span class="o">=</span> <span class="n">weight_decay</span><span class="p">)</span>
         <span class="n">ivgd</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
         <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
@@ -395,6 +441,34 @@
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - metric (Metric): Object containing test metrics.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+
+<span class="sd">        from GNN.IVGD.main import IVGD</span>
+
+<span class="sd">        data_name = &#39;karate&#39;</span>
+
+<span class="sd">        graph = load_dataset(data_name)</span>
+
+<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
+
+<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
+
+<span class="sd">        ivgd = IVGD()</span>
+
+<span class="sd">        diffusion_model = ivgd.train_diffusion(adj, train_dataset)</span>
+
+<span class="sd">        ivgd_model, thres, auc, f1, pred =ivgd.train(adj, train_dataset, diffusion_model)</span>
+
+<span class="sd">        print(&quot;IVGD:&quot;)</span>
+
+<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
+
+<span class="sd">        metric = ivgd.test(test_dataset, diffusion_model, ivgd_model, thres)</span>
+
+<span class="sd">        print(f&quot;test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">test_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
         <span class="n">test_acc</span> <span class="o">=</span> <span class="mi">0</span>
@@ -424,9 +498,9 @@
 
             <span class="c1"># Compute metrics</span>
             <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_correction</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_correction</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_correction</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_correction</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_correction</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_correction</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_correction</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_correction</span><span class="p">)</span>
 
         <span class="c1"># Compute average metrics</span>

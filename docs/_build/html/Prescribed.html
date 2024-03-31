@@ -141,6 +141,19 @@
 <ul class="simple">
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from Prescribed import LPSI</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset = split_dataset(dataset)</p>
+<p>lpsi = LPSI()</p>
+<p>alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)</p>
+<p>print(“LPSI:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>metric=lpsi.test(adj, test_dataset, alpha, thres)</p>
+<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -164,6 +177,17 @@
 <li><p>opt_f1 (float): Optimal F1 score value.</p></li>
 <li><p>opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from Prescribed import LPSI</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>lpsi = LPSI()</p>
+<p>alpha, thres, auc, f1, pred =lpsi.train(adj, train_dataset)</p>
+<p>print(“LPSI:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
 </dd></dl>
 
 </dd></dl>
@@ -204,6 +228,19 @@
 <ul class="simple">
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from Prescribed import NetSleuth</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>netSleuth = NetSleuth()</p>
+<p>k, auc, f1=netSleuth.train(adj, train_dataset)</p>
+<p>print(“NetSleuth:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>metric = netSleuth.test(adj, test_dataset, k)</p>
+<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -222,6 +259,17 @@
 <li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
 <li><p>train_f1 (float): Training F1 score value.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from Prescribed import NetSleuth</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>netSleuth = NetSleuth()</p>
+<p>k, auc, f1=netSleuth.train(adj, train_dataset)</p>
+<p>print(“NetSleuth:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
 </dd></dl>
 
 </dd></dl>
@@ -301,6 +349,19 @@
 <ul class="simple">
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from Prescribed import OJC</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>ojc = OJC()</p>
+<p>Y, auc, f1 =ojc.train(adj, train_dataset)</p>
+<p>print(“OJC:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>metric=ojc.test(adj, test_dataset, Y)</p>
+<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -319,6 +380,17 @@
 <li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
 <li><p>train_f1 (float): Training F1 score value.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from Prescribed import OJC</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>ojc = OJC()</p>
+<p>Y, auc, f1 =ojc.train(adj, train_dataset)</p>
+<p>print(“OJC:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
 </dd></dl>
 
 </dd></dl>

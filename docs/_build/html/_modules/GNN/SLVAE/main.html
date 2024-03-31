@@ -83,7 +83,7 @@
 <a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE_model">[docs]</a>
 <span class="k">class</span> <span class="nc">SLVAE_model</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Source Localization Variational Autoencoder (SLVAE) model combining VAE, GNN, and propagation modules.</span>
+<span class="sd">    Source Localization Variational Autoencoder (SLVAE) model combining VAE, GNN, and propagation modules.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">    - vae (nn.Module): Variational Autoencoder module.</span>
@@ -149,6 +149,8 @@
             <span class="c1"># Pass seed_vec through GNN and perform propagation</span>
             <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gnn</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">)</span>
             <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Return reconstructed seed vector, mean, log variance, and predictions</span>
         <span class="k">return</span> <span class="n">seed_hat</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">log_var</span><span class="p">,</span> <span class="n">predictions</span></div>
@@ -235,7 +237,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implement the Source Localization Variational Autoencoder (SLVAE) model.</span>
 
-<span class="sd">Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via variational autoencoders for graph inverse problems[C]//Proceedings of the 28th ACM SIGKDD conference on knowledge discovery and data mining. 2022: 1010-1020.</span>
+<span class="sd">    Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via variational autoencoders for graph inverse problems[C]//Proceedings of the 28th ACM SIGKDD conference on knowledge discovery and data mining. 2022: 1010-1020.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -245,7 +247,7 @@
 
 <div class="viewcode-block" id="SLVAE.train">
 <a class="viewcode-back" href="../../../GNN.SLVAE.html#GNN.SLVAE.main.SLVAE.train">[docs]</a>
-    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">thres_list</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="n">lr</span> <span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">num_epoch</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span><span class="n">print_epoch</span> <span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">thres_list</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">weight_decay</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="n">num_epoch</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span><span class="n">print_epoch</span> <span class="o">=</span><span class="mi">10</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the SLVAE model.</span>
 
@@ -258,6 +260,8 @@
 <span class="sd">        - thres_list (list): List of threshold values to try.</span>
 
 <span class="sd">        - lr (float): Learning rate.</span>
+
+<span class="sd">        - weight_decay (float): Weight decay.</span>
 
 <span class="sd">        - num_epoch (int): Number of training epochs.</span>
 
@@ -276,6 +280,28 @@
 <span class="sd">        - opt_f1 (float): Optimal F1 score.</span>
 
 <span class="sd">        - pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+
+<span class="sd">        from GNN.SLVAE.main import SLVAE</span>
+
+<span class="sd">        data_name = &#39;karate&#39;</span>
+
+<span class="sd">        graph = load_dataset(data_name)</span>
+
+<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
+
+<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
+
+<span class="sd">        slave = SLVAE()</span>
+
+<span class="sd">        slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(adj, train_dataset)</span>
+
+<span class="sd">        print(&quot;SLVAE:&quot;)</span>
+
+<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -287,7 +313,7 @@
         <span class="n">v</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span>
 
-        <span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
+        <span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse_coo_tensor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
         <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
         <span class="n">vae</span> <span class="o">=</span> <span class="n">VAE</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="n">gnn</span> <span class="o">=</span> <span class="n">GNN</span><span class="p">(</span><span class="n">adj_matrix</span><span class="o">=</span><span class="n">adj_matrix</span><span class="p">)</span>
@@ -316,7 +342,7 @@
                 <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
                 <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
             <span class="n">average_loss</span> <span class="o">=</span> <span class="n">overall_loss</span><span class="o">/</span><span class="n">train_num</span>
-            <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch = </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">, loss = </span><span class="si">{</span><span class="n">average_loss</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Evaluation</span>
@@ -339,7 +365,7 @@
         <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seed_infer</span><span class="p">:</span>
             <span class="n">seed</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">seed_infer</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">)</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">seed_infer</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="n">lr</span><span class="p">,</span> <span class="n">weight_decay</span> <span class="o">=</span> <span class="n">weight_decay</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epoch</span><span class="p">):</span>
             <span class="n">overall_loss</span> <span class="o">=</span> <span class="mi">0</span>
@@ -357,8 +383,9 @@
             
             <span class="n">average_loss</span> <span class="o">=</span> <span class="n">overall_loss</span><span class="o">/</span><span class="n">train_num</span>
 
+
             <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch = </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch = </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">, obj = </span><span class="si">{</span><span class="n">average_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
@@ -376,7 +403,7 @@
                 <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
                 <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
                 <span class="n">seed_pred</span> <span class="o">=</span> <span class="n">seed_infer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-                <span class="n">train_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+                <span class="n">train_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">train_f1</span> <span class="o">=</span> <span class="n">train_f1</span> <span class="o">/</span> <span class="n">train_num</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;thres = </span><span class="si">{</span><span class="n">thres</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, train_f1 = </span><span class="si">{</span><span class="n">train_f1</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">train_f1</span> <span class="o">&gt;</span> <span class="n">opt_f1</span><span class="p">:</span>
@@ -449,11 +476,14 @@
 
                 <span class="n">overall_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 
+                <span class="n">average_loss</span> <span class="o">=</span> <span class="n">overall_loss</span> <span class="o">/</span> <span class="n">test_num</span>
+
                 <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
                 <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
             
-            <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch = </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch = </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">, obj = </span><span class="si">{</span><span class="n">average_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">test_acc</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">test_pr</span> <span class="o">=</span> <span class="mi">0</span>
@@ -466,9 +496,9 @@
             <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
             <span class="n">seed_pred</span> <span class="o">=</span> <span class="n">seed_infer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
             <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_pred</span><span class="p">)</span>
 
         <span class="n">test_acc</span> <span class="o">=</span> <span class="n">test_acc</span> <span class="o">/</span> <span class="n">test_num</span>

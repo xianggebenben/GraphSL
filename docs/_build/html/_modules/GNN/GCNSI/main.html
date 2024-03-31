@@ -130,6 +130,27 @@
 
 <span class="sd">        - opt_pred (numpy.ndarray): Predicted seed vector of the training set given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.</span>
 
+<span class="sd">        Example:</span>
+
+<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+
+<span class="sd">        from GNN.GCNSI.main import GCNSI</span>
+
+<span class="sd">        data_name = &#39;karate&#39;</span>
+
+<span class="sd">        graph = load_dataset(data_name)</span>
+
+<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
+
+<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
+
+<span class="sd">        gcnsi = GCNSI()</span>
+
+<span class="sd">        gcnsi_model, alpha, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)</span>
+
+<span class="sd">        print(&quot;GCNSI:&quot;)</span>
+
+<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Compute Laplacian matrix</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">csgraph</span><span class="o">.</span><span class="n">laplacian</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -227,6 +248,32 @@
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+
+<span class="sd">        from GNN.GCNSI.main import GCNSI</span>
+
+<span class="sd">        data_name = &#39;karate&#39;</span>
+
+<span class="sd">        graph = load_dataset(data_name)</span>
+
+<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
+
+<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
+
+<span class="sd">        gcnsi = GCNSI()</span>
+
+<span class="sd">        gcnsi_model, alpha, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)</span>
+
+<span class="sd">        print(&quot;GCNSI:&quot;)</span>
+
+<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
+
+<span class="sd">        metric = gcnsi.test(adj, test_dataset, gcnsi_model, alpha, thres)</span>
+
+<span class="sd">        print(f&quot;test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Compute Laplacian matrix</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">csgraph</span><span class="o">.</span><span class="n">laplacian</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -251,9 +298,9 @@
             <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">pred</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
             <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
 
         <span class="n">test_acc</span> <span class="o">=</span> <span class="n">test_acc</span> <span class="o">/</span> <span class="n">test_num</span>

@@ -375,11 +375,25 @@
 <ul class="simple">
 <li><p>metric (Metric): Object containing test metrics.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GNN.IVGD.main import IVGD</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>ivgd = IVGD()</p>
+<p>diffusion_model = ivgd.train_diffusion(adj, train_dataset)</p>
+<p>ivgd_model, thres, auc, f1, pred =ivgd.train(adj, train_dataset, diffusion_model)</p>
+<p>print(“IVGD:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>metric = ivgd.test(test_dataset, diffusion_model, ivgd_model, thres)</p>
+<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="GNN.IVGD.main.IVGD.train">
-<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD.train" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffusion_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GNN/IVGD/main.html#IVGD.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GNN.IVGD.main.IVGD.train" title="Link to this definition"></a></dt>
 <dd><p>Train the IVGD model.</p>
 <p>Args:</p>
 <ul class="simple">
@@ -388,6 +402,7 @@
 <li><p>diffusion_model (torch.nn.Module): Trained diffusion model.</p></li>
 <li><p>thres_list (list): List of threshold values.</p></li>
 <li><p>lr (float): Learning rate.</p></li>
+<li><p>weight_decay (float): Weight decay.</p></li>
 <li><p>num_epoch (int): Number of epochs for training.</p></li>
 </ul>
 <p>Returns:</p>
@@ -398,6 +413,18 @@
 <li><p>opt_f1 (float): Optimal F1 score.</p></li>
 <li><p>pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GNN.IVGD.main import IVGD</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>ivgd = IVGD()</p>
+<p>diffusion_model = ivgd.train_diffusion(adj, train_dataset)</p>
+<p>ivgd_model, thres, auc, f1, pred =ivgd.train(adj, train_dataset, diffusion_model)</p>
+<p>print(“IVGD:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -411,8 +438,17 @@
 </ul>
 <p>Returns:</p>
 <ul class="simple">
-<li><p>torch.nn.Module: Trained diffusion model.</p></li>
+<li><p>diffusion_model (torch.nn.Module): Trained diffusion model.</p></li>
 </ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GNN.IVGD.main import IVGD</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>ivgd = IVGD()</p>
+<p>diffusion_model = ivgd.train_diffusion(adj, train_dataset)</p>
 </dd></dl>
 
 </dd></dl>
