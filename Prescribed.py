@@ -64,6 +64,28 @@ class LPSI:
         - opt_f1 (float): Optimal F1 score value.
 
         - opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from Prescribed import LPSI
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        lpsi = LPSI()
+
+        alpha, thres, auc, f1, pred =lpsi.train(adj, train_dataset)
+
+        print("LPSI:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
         laplacian = csgraph.laplacian(adj, normed=True)
         laplacian = np.array(coo_matrix.todense(laplacian))
@@ -97,7 +119,7 @@ class LPSI:
             print(f"thres = {thres:.3f}")
             train_f1 = 0
             for i in range(train_num):
-                train_f1 += f1_score(seed_all[:,i], opt_pred[:,i] >= thres)
+                train_f1 += f1_score(seed_all[:,i], opt_pred[:,i] >= thres, zero_division = 1)
             train_f1 = train_f1 / train_num
             print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
@@ -122,6 +144,32 @@ class LPSI:
         Returns:
 
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from Prescribed import LPSI
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset = split_dataset(dataset)
+
+        lpsi = LPSI()
+
+        alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)
+
+        print("LPSI:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+        metric=lpsi.test(adj, test_dataset, alpha, thres)
+
+        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
         laplacian = csgraph.laplacian(adj, normed=True)
         laplacian = np.array(coo_matrix.todense(laplacian))
@@ -137,9 +185,9 @@ class LPSI:
             influ_vec = influ_mat[:, -1]
             x = self.predict(laplacian, num_node, alpha, influ_vec)
             test_acc += accuracy_score(seed_vec, x >= thres)
-            test_pr += precision_score(seed_vec, x >= thres)
-            test_re += recall_score(seed_vec, x >= thres)
-            test_f1 += f1_score(seed_vec, x >= thres)
+            test_pr += precision_score(seed_vec, x >= thres, zero_division = 1)
+            test_re += recall_score(seed_vec, x >= thres, zero_division = 1)
+            test_f1 += f1_score(seed_vec, x >= thres, zero_division = 1)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num
@@ -218,6 +266,28 @@ class NetSleuth:
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
         - train_f1 (float): Training F1 score value.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from Prescribed import NetSleuth
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        netSleuth = NetSleuth()
+
+        k, auc, f1=netSleuth.train(adj, train_dataset)
+
+        print("NetSleuth:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
         # Y should be no more than number of nodes
         num_node = adj.shape[0]
@@ -247,7 +317,7 @@ class NetSleuth:
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
             x = self.predict(G, opt_k, influ_vec)
-            train_f1 += f1_score(seed_vec, x)
+            train_f1 += f1_score(seed_vec, x, zero_division = 1)
         train_f1 = train_f1 / train_num
 
         return opt_k, opt_auc, train_f1
@@ -268,6 +338,32 @@ class NetSleuth:
         Returns:
 
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from Prescribed import NetSleuth
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        netSleuth = NetSleuth()
+
+        k, auc, f1=netSleuth.train(adj, train_dataset)
+
+        print("NetSleuth:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+        metric = netSleuth.test(adj, test_dataset, k)
+
+        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
         G = nx.from_numpy_array(adj)
         test_num = len(test_dataset)
@@ -281,9 +377,9 @@ class NetSleuth:
             influ_vec = influ_mat[:, -1]
             x = self.predict(G, k, influ_vec)
             test_acc += accuracy_score(seed_vec, x)
-            test_pr += precision_score(seed_vec, x)
-            test_re += recall_score(seed_vec, x)
-            test_f1 += f1_score(seed_vec, x)
+            test_pr += precision_score(seed_vec, x, zero_division = 1)
+            test_re += recall_score(seed_vec, x, zero_division = 1)
+            test_f1 += f1_score(seed_vec, x, zero_division = 1)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num
@@ -432,6 +528,28 @@ class OJC:
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
         - train_f1 (float): Training F1 score value.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from Prescribed import OJC
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        ojc = OJC()
+
+        Y, auc, f1 =ojc.train(adj, train_dataset)
+
+        print("OJC:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
         # Y should be no more than number of nodes
         num_node = adj.shape[0]
@@ -463,7 +581,7 @@ class OJC:
             num_source = len(influ_vec[influ_vec == 1])
             I = (influ_vec == 1).nonzero()[0].tolist()
             x = self.predict(G, opt_Y, I, influ_vec, num_source)
-            train_f1 += f1_score(seed_vec, x)
+            train_f1 += f1_score(seed_vec, x, zero_division = 1)
         train_f1 = train_f1 / train_num
 
         return opt_Y, opt_auc, train_f1
@@ -483,6 +601,32 @@ class OJC:
         Returns:
 
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from Prescribed import OJC
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        ojc = OJC()
+
+        Y, auc, f1 =ojc.train(adj, train_dataset)
+
+        print("OJC:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+        metric=ojc.test(adj, test_dataset, Y)
+
+        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
         G = nx.from_scipy_sparse_array(adj)
         test_num = len(test_dataset)
@@ -498,9 +642,9 @@ class OJC:
             I = (influ_vec == 1).nonzero()[0].tolist()
             x = self.predict(G, Y, I, influ_vec, num_source)
             test_acc += accuracy_score(seed_vec, x)
-            test_pr += precision_score(seed_vec, x)
-            test_re += recall_score(seed_vec, x)
-            test_f1 += f1_score(seed_vec, x)
+            test_pr += precision_score(seed_vec, x, zero_division = 1)
+            test_re += recall_score(seed_vec, x, zero_division = 1)
+            test_f1 += f1_score(seed_vec, x, zero_division = 1)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num

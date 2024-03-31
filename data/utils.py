@@ -13,7 +13,7 @@ def load_dataset(dataset, data_dir='data'):
 
     Args:
         
-    - dataset (str): The name of the dataset file.
+    - dataset (str): The name of the dataset file, 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid','meme8000', 'digg16000'.
         
     - data_dir (str): The directory where the dataset files are stored. Default is 'data'.
 

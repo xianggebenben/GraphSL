@@ -8,7 +8,7 @@ from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_scor
 from Evaluation import Metric
 class SLVAE_model(nn.Module):
     """
-        Source Localization Variational Autoencoder (SLVAE) model combining VAE, GNN, and propagation modules.
+    Source Localization Variational Autoencoder (SLVAE) model combining VAE, GNN, and propagation modules.
 
     Attributes:
     - vae (nn.Module): Variational Autoencoder module.
@@ -72,6 +72,8 @@ class SLVAE_model(nn.Module):
             # Pass seed_vec through GNN and perform propagation
             predictions = self.gnn(seed_vec)
             predictions = self.propagate(predictions)
+
+        predictions = torch.transpose(predictions, 0, 1)
 
         # Return reconstructed seed vector, mean, log variance, and predictions
         return seed_hat, mean, log_var, predictions
@@ -148,7 +150,7 @@ class SLVAE:
     """
     Implement the Source Localization Variational Autoencoder (SLVAE) model.
 
-Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via variational autoencoders for graph inverse problems[C]//Proceedings of the 28th ACM SIGKDD conference on knowledge discovery and data mining. 2022: 1010-1020.
+    Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via variational autoencoders for graph inverse problems[C]//Proceedings of the 28th ACM SIGKDD conference on knowledge discovery and data mining. 2022: 1010-1020.
     """
 
     def __init__(self):
@@ -156,7 +158,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         Initialize the SLVAE model.
         """
 
-    def train(self, adj, train_dataset, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], lr =0.001, num_epoch = 50,print_epoch =10):
+    def train(self, adj, train_dataset, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], lr = 1e-3, weight_decay = 1e-4, num_epoch = 50,print_epoch =10):
         """
         Train the SLVAE model.
 
@@ -169,6 +171,8 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         - thres_list (list): List of threshold values to try.
 
         - lr (float): Learning rate.
+
+        - weight_decay (float): Weight decay.
 
         - num_epoch (int): Number of training epochs.
 
@@ -187,6 +191,28 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         - opt_f1 (float): Optimal F1 score.
 
         - pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from GNN.SLVAE.main import SLVAE
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        slave = SLVAE()
+
+        slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(adj, train_dataset)
+
+        print("SLVAE:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         num_node = adj.shape[0]
@@ -198,7 +224,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         v = torch.FloatTensor(values)
         shape = adj.shape
 
-        adj_matrix = torch.sparse.FloatTensor(i, v, torch.Size(shape)).to_dense()
+        adj_matrix = torch.sparse_coo_tensor(i, v, torch.Size(shape)).to_dense()
         train_num = len(train_dataset)
         vae = VAE().to(device)
         gnn = GNN(adj_matrix=adj_matrix)
@@ -227,7 +253,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
                 loss.backward()
                 optimizer.step()
             average_loss = overall_loss/train_num
-            if epoch % print_epoch ==0:
+            if epoch % print_epoch == 0:
                 print(f"epoch = {epoch}, loss = {average_loss:.3f}")
 
         # Evaluation
@@ -250,7 +276,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
         for seed in seed_infer:
             seed.requires_grad = True
 
-        optimizer = Adam(seed_infer, lr=lr)
+        optimizer = Adam(seed_infer, lr = lr, weight_decay = weight_decay)
 
         for epoch in range(num_epoch):
             overall_loss = 0
@@ -268,8 +294,9 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
             
             average_loss = overall_loss/train_num
 
+
             if epoch % print_epoch ==0:
-                print(f"epoch = {epoch}")
+                print(f"epoch = {epoch}, obj = {average_loss:.4f}")
 
         train_auc = 0
         for i, influ_mat in enumerate(train_dataset):
@@ -287,7 +314,7 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
                 seed_vec = influ_mat[:, 0]
                 seed_vec = seed_vec.squeeze(-1).detach().numpy()
                 seed_pred = seed_infer[i].detach().numpy()
-                train_f1 += f1_score(seed_vec, seed_pred >= thres)
+                train_f1 += f1_score(seed_vec, seed_pred >= thres, zero_division = 1)
             train_f1 = train_f1 / train_num
             print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
@@ -357,11 +384,14 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
 
                 overall_loss += loss.item()
 
+                average_loss = overall_loss / test_num
+
                 loss.backward()
                 optimizer.step()
+
             
-            if epoch % print_epoch ==0:
-                print(f"epoch = {epoch}")
+            if epoch % print_epoch == 0:
+                print(f"epoch = {epoch}, obj = {average_loss:.4f}")
 
         test_acc = 0
         test_pr = 0
@@ -374,9 +404,9 @@ Ling C, Jiang J, Wang J, et al. Source localization of graph diffusion via varia
             seed_vec = seed_vec.squeeze(-1).detach().numpy()
             seed_pred = seed_infer[i].detach().numpy()
             test_acc += accuracy_score(seed_vec, seed_pred >= thres)
-            test_pr += precision_score(seed_vec, seed_pred >= thres)
-            test_re += recall_score(seed_vec, seed_pred >= thres)
-            test_f1 += f1_score(seed_vec, seed_pred >= thres)
+            test_pr += precision_score(seed_vec, seed_pred >= thres, zero_division = 1)
+            test_re += recall_score(seed_vec, seed_pred >= thres, zero_division = 1)
+            test_f1 += f1_score(seed_vec, seed_pred >= thres, zero_division = 1)
             test_auc += roc_auc_score(seed_vec, seed_pred)
 
         test_acc = test_acc / test_num

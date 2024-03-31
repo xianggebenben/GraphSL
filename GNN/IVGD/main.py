@@ -144,7 +144,26 @@ class IVGD:
 
         Returns:
 
-        - torch.nn.Module: Trained diffusion model.
+        - diffusion_model (torch.nn.Module): Trained diffusion model.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from GNN.IVGD.main import IVGD
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        ivgd = IVGD()
+
+        diffusion_model = ivgd.train_diffusion(adj, train_dataset)
+
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         num_node = adj.shape[0]
@@ -184,7 +203,7 @@ class IVGD:
         print(f"run time per epoch:{result['runtime_perepoch']:.3f} seconds")
         return diffusion_model
 
-    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9],lr =0.001, num_epoch = 10):
+    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9],lr =1e-3, weight_decay = 1e-4, num_epoch = 10):
         """
         Train the IVGD model.
 
@@ -200,6 +219,8 @@ class IVGD:
 
         - lr (float): Learning rate.
 
+        - weight_decay (float): Weight decay.
+
         - num_epoch (int): Number of epochs for training.
 
         Returns:
@@ -213,16 +234,41 @@ class IVGD:
         - opt_f1 (float): Optimal F1 score.
 
         - pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from GNN.IVGD.main import IVGD
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        ivgd = IVGD()
+
+        diffusion_model = ivgd.train_diffusion(adj, train_dataset)
+
+        ivgd_model, thres, auc, f1, pred =ivgd.train(adj, train_dataset, diffusion_model)
+
+        print("IVGD:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
         """
         criterion = nn.CrossEntropyLoss()
-        train_num = len(train_dataset)
+        #train_num = len(train_dataset)
         num_node = adj.shape[0]
         alpha = 1
         tau = 1
         rho = 1e-3
         lamda = 0
         ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho)
-        optimizer = optim.Adam(ivgd.parameters(), lr=lr)
+        optimizer = optim.Adam(ivgd.parameters(), lr = lr, weight_decay = weight_decay)
         ivgd.train()
         train_num = len(train_dataset)
         for i,influ_mat in enumerate(train_dataset):
@@ -303,6 +349,34 @@ class IVGD:
         Returns:
 
         - metric (Metric): Object containing test metrics.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from GNN.IVGD.main import IVGD
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        ivgd = IVGD()
+
+        diffusion_model = ivgd.train_diffusion(adj, train_dataset)
+
+        ivgd_model, thres, auc, f1, pred =ivgd.train(adj, train_dataset, diffusion_model)
+
+        print("IVGD:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+        metric = ivgd.test(test_dataset, diffusion_model, ivgd_model, thres)
+
+        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
         test_num = len(test_dataset)
         test_acc = 0
@@ -332,9 +406,9 @@ class IVGD:
 
             # Compute metrics
             test_acc += accuracy_score(seed_vec, seed_correction >= thres)
-            test_pr += precision_score(seed_vec, seed_correction >= thres)
-            test_re += recall_score(seed_vec, seed_correction >= thres)
-            test_f1 += f1_score(seed_vec, seed_correction >= thres)
+            test_pr += precision_score(seed_vec, seed_correction >= thres, zero_division = 1)
+            test_re += recall_score(seed_vec, seed_correction >= thres, zero_division = 1)
+            test_f1 += f1_score(seed_vec, seed_correction >= thres, zero_division = 1)
             test_auc += roc_auc_score(seed_vec, seed_correction)
 
         # Compute average metrics

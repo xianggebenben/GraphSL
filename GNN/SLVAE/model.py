@@ -320,7 +320,7 @@ class GNN(nn.Module):
                 mat = self.adj_matrix.T @ attr_mat[-1]
                 attr_mat = torch.cat((attr_mat, mat.unsqueeze(0)), 0)
 
-        layer_inner = self.act_fn(self.fcs[0](self.dropout(attr_mat.T)))
+        layer_inner = self.act_fn(self.fcs[0](self.dropout(attr_mat.permute(*torch.arange(attr_mat.ndim - 1, -1, -1)))))
         for fc in self.fcs[1:-1]:
             layer_inner = self.act_fn(fc(layer_inner))
         res = torch.sigmoid(self.fcs[-1](self.dropout(layer_inner)))

@@ -53,6 +53,27 @@ class GCNSI:
 
         - opt_pred (numpy.ndarray): Predicted seed vector of the training set given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.
 
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from GNN.GCNSI.main import GCNSI
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        gcnsi = GCNSI()
+
+        gcnsi_model, alpha, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)
+
+        print("GCNSI:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
         # Compute Laplacian matrix
         S = csgraph.laplacian(adj, normed=True)
@@ -147,6 +168,32 @@ class GCNSI:
         Returns:
 
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.
+
+        Example:
+
+        from data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from GNN.GCNSI.main import GCNSI
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        gcnsi = GCNSI()
+
+        gcnsi_model, alpha, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)
+
+        print("GCNSI:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+        metric = gcnsi.test(adj, test_dataset, gcnsi_model, alpha, thres)
+
+        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
         # Compute Laplacian matrix
         S = csgraph.laplacian(adj, normed=True)
@@ -171,9 +218,9 @@ class GCNSI:
             pred = torch.softmax(pred, dim=1)
             pred = pred[:, 1].squeeze(-1).detach().numpy()
             test_acc += accuracy_score(seed_vec, pred >= thres)
-            test_pr += precision_score(seed_vec, pred >= thres)
-            test_re += recall_score(seed_vec, pred >= thres)
-            test_f1 += f1_score(seed_vec, pred >= thres)
+            test_pr += precision_score(seed_vec, pred >= thres, zero_division = 1)
+            test_re += recall_score(seed_vec, pred >= thres, zero_division = 1)
+            test_f1 += f1_score(seed_vec, pred >= thres, zero_division = 1)
             test_auc += roc_auc_score(seed_vec, pred)
 
         test_acc = test_acc / test_num
