@@ -1,6 +1,5 @@
 import numpy as np
 import networkx as nx
-import pickle
 import random
 import ndlib.models.ModelConfig as mc
 import ndlib.models.epidemics as ep
@@ -12,12 +11,23 @@ def load_dataset(dataset, data_dir='data'):
     """
     Load a dataset from a pickle file.
 
-    Parameters:
-        dataset (str): The name of the dataset file.
-        data_dir (str): The directory where the dataset files are stored. Default is 'data'.
+    Args:
+        
+    - dataset (str): The name of the dataset file.
+        
+    - data_dir (str): The directory where the dataset files are stored. Default is 'data'.
 
     Returns:
-        dict: A dictionary containing the dataset.
+        
+    - graph (dict): A dictionary containing the dataset.
+
+    Example:
+
+    from data.utils import load_dataset
+
+    data_name = 'karate'
+
+    graph = load_dataset(data_name)
     """
     from pathlib import Path
     import pickle
@@ -37,13 +47,17 @@ def generate_seed_vector(top_nodes, seed_num, G):
     """
     Generate a seed vector for diffusion simulation.
 
-    Parameters:
-        top_nodes (list): List of top nodes based on node degree.
-        seed_num (int): Number of seed nodes.
-        G (networkx.Graph): The graph object.
+    Args:
+
+    - top_nodes (list): List of top nodes based on node degree.
+
+    - seed_num (int): Number of seed nodes.
+
+    - G (networkx.Graph): The graph object.
 
     Returns:
-        list: Seed vector for diffusion simulation.
+
+        seed_vector (list): Seed vector for diffusion simulation.
     """
     seed_nodes = random.sample(top_nodes, seed_num)
     seed_vector = [1 if node in seed_nodes else 0 for node in G.nodes()]
@@ -55,19 +69,39 @@ def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=100, repea
     """
     Generate diffusion matrices for a graph.
 
-    Parameters:
-        graph (dict): Dictionary containing the graph information.
-        sim_num (int): Number of simulations.
-        diff_type (str): Type of diffusion model (IC, LT, SIS, SIR, SI).
-        time_step (int): Number of time steps in the simulation.
-        repeat_step (int): Number of repetitions for each simulation.
-        seed_ratio (float): Ratio of seed nodes.
-        infect_prob (float): Infection probability.
-        recover_prob (float): Recovery probability.
-        threshold (float): Threshold parameter for diffusion models.
+    Args:
+
+    - graph (dict): Dictionary containing the graph information.
+
+    - sim_num (int): Number of simulations.
+
+    - diff_type (str): Type of diffusion model (IC, LT, SI, SIS, SIR). IC stands for Independent Cascade, LT stands for Linear Threshold, SI stands for Susceptible or Infective, SIS stands for Susceptible or Infective or Susceptible, SIR stands for Susceptible or Infective or Recovered.
+
+    - time_step (int): Number of time steps in the simulation.
+
+    - repeat_step (int): Number of repetitions for each simulation.
+
+    - seed_ratio (float): Ratio of seed nodes.
+
+    - infect_prob (float): Infection probability,  used in SIS, SIR or SI.
+
+    - recover_prob (float): Recovery probability, used in SIS or SIR.
+
+    - threshold (float): Threshold parameter for diffusion models, used in IC or LT.
 
     Returns:
-        dict: Dictionary containing ('adj_mat')adjacency matrix and ('diff_mat') diffusion matrices.
+
+    - dataset (dict): Dictionary containing ('adj_mat') adjacency matrix and ('diff_mat') diffusion matrices.
+
+    Example:
+
+    from data.utils import load_dataset, diffusion_generation
+
+    data_name = 'karate'
+
+    graph = load_dataset(data_name)
+
+    dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
     """
     adj_mat = graph['adj_mat']
     G = nx.from_scipy_sparse_array(adj_mat)
@@ -136,13 +170,33 @@ def split_dataset(dataset, train_ratio: float = 0.6, seed: int = 0):
     """
     Split the dataset into training and testing sets.
 
-    Parameters:
-        dataset (dict): Dictionary containing the dataset.
-        train_ratio (float): Ratio of training data. Default is 0.6.
-        seed (int): Random seed for reproducibility. Default is 0.
+    Args:
+
+    - dataset (dict): Dictionary containing the dataset.
+
+    - train_ratio (float): Ratio of training data. Default is 0.6.
+
+    - seed (int): Random seed for reproducibility. Default is 0.
 
     Returns:
-        tuple: Adjacency matrix, training diffusion matrices, testing diffusion matrices.
+
+    - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+
+    - train_dataset (torch.utils.data.dataset.Subset): The train dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
+
+    - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
+
+    Example:
+
+    from data.utils import load_dataset, diffusion_generation, split_dataset
+
+    data_name = 'karate'
+
+    graph = load_dataset(data_name)
+
+    dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+    adj, train_dataset, test_dataset =split_dataset(dataset)
     """
     adj = dataset['adj_mat']
     diff_mat = copy.deepcopy(dataset['diff_mat'])
