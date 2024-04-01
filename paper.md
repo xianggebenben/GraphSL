@@ -30,7 +30,7 @@ bibliography: paper.bib
 We present GraphSL, a novel library designed for investigating the graph source localization problem. Our library facilitates the exploration of various graph diffusion models for simulating information spread and enables the evaluation of cutting-edge source localization approaches on established benchmark datasets. The source code of GraphSL is made available at (https://github.com/xianggebenben/GraphSL). Bug reports and feedback can be directed to the Github issues page (https://github.com/xianggebenben/GraphSL/issues).
 
 
-# Statement of need
+# Statement of Need
 
 ![An example of graph source localization.\label{fig:example}](SL_example.png)
 
