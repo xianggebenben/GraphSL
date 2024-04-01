@@ -148,9 +148,9 @@ class IVGD:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from GNN.IVGD.main import IVGD
+        from GraphSL.GNN.IVGD.main import IVGD
 
         data_name = 'karate'
 
@@ -237,9 +237,9 @@ class IVGD:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from GNN.IVGD.main import IVGD
+        from GraphSL.GNN.IVGD.main import IVGD
 
         data_name = 'karate'
 
@@ -352,9 +352,9 @@ class IVGD:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from GNN.IVGD.main import IVGD
+        from GraphSL.GNN.IVGD.main import IVGD
 
         data_name = 'karate'
 

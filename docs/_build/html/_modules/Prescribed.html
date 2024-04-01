@@ -113,7 +113,7 @@
 
 <span class="sd">        - x (numpy.ndarray): Prediction of source nodes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">num_node</span><span class="p">)</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">laplacian</span><span class="p">),</span> <span class="n">diff_vec</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">num_node</span><span class="p">)</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">laplacian</span><span class="p">,</span><span class="n">hermitian</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">diff_vec</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">x</span></div>
 
 
@@ -147,9 +147,9 @@
 
 <span class="sd">        Example:</span>
 
-<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+<span class="sd">        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</span>
 
-<span class="sd">        from Prescribed import LPSI</span>
+<span class="sd">        from GraphSL.Prescribed import LPSI</span>
 
 <span class="sd">        data_name = &#39;karate&#39;</span>
 
@@ -230,9 +230,9 @@
 
 <span class="sd">        Example:</span>
 
-<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+<span class="sd">        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</span>
 
-<span class="sd">        from Prescribed import LPSI</span>
+<span class="sd">        from GraphSL.Prescribed import LPSI</span>
 
 <span class="sd">        data_name = &#39;karate&#39;</span>
 
@@ -361,9 +361,9 @@
 
 <span class="sd">        Example:</span>
 
-<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+<span class="sd">        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</span>
 
-<span class="sd">        from Prescribed import NetSleuth</span>
+<span class="sd">        from GraphSL.Prescribed import NetSleuth</span>
 
 <span class="sd">        data_name = &#39;karate&#39;</span>
 
@@ -436,9 +436,9 @@
 
 <span class="sd">        Example:</span>
 
-<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+<span class="sd">        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</span>
 
-<span class="sd">        from Prescribed import NetSleuth</span>
+<span class="sd">        from GraphSL.Prescribed import NetSleuth</span>
 
 <span class="sd">        data_name = &#39;karate&#39;</span>
 
@@ -641,9 +641,9 @@
 
 <span class="sd">        Example:</span>
 
-<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+<span class="sd">        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</span>
 
-<span class="sd">        from Prescribed import OJC</span>
+<span class="sd">        from GraphSL.Prescribed import OJC</span>
 
 <span class="sd">        data_name = &#39;karate&#39;</span>
 
@@ -717,9 +717,9 @@
 
 <span class="sd">        Example:</span>
 
-<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+<span class="sd">        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</span>
 
-<span class="sd">        from Prescribed import OJC</span>
+<span class="sd">        from GraphSL.Prescribed import OJC</span>
 
 <span class="sd">        data_name = &#39;karate&#39;</span>
 

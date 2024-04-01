@@ -194,9 +194,9 @@ class SLVAE:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from GNN.SLVAE.main import SLVAE
+        from GraphSL.GNN.SLVAE.main import SLVAE
 
         data_name = 'karate'
 
@@ -354,6 +354,32 @@ class SLVAE:
         Returns:
 
         - Metric: Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
+
+        Example:
+
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+
+        from GraphSL.GNN.SLVAE.main import SLVAE
+
+        data_name = 'karate'
+
+        graph = load_dataset(data_name)
+
+        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+
+        adj, train_dataset, test_dataset =split_dataset(dataset)
+
+        slave = SLVAE()
+
+        slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(adj, train_dataset)
+
+        print("SLVAE:")
+
+        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+        metric = slave.infer(test_dataset, slvae_model, seed_vae_train, thres)
+
+        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         test_num = len(test_dataset)

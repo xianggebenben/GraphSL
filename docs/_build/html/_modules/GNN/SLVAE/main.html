@@ -283,9 +283,9 @@
 
 <span class="sd">        Example:</span>
 
-<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
+<span class="sd">        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</span>
 
-<span class="sd">        from GNN.SLVAE.main import SLVAE</span>
+<span class="sd">        from GraphSL.GNN.SLVAE.main import SLVAE</span>
 
 <span class="sd">        data_name = &#39;karate&#39;</span>
 
@@ -446,6 +446,32 @@
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - Metric: Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</span>
+
+<span class="sd">        from GraphSL.GNN.SLVAE.main import SLVAE</span>
+
+<span class="sd">        data_name = &#39;karate&#39;</span>
+
+<span class="sd">        graph = load_dataset(data_name)</span>
+
+<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
+
+<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
+
+<span class="sd">        slave = SLVAE()</span>
+
+<span class="sd">        slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(adj, train_dataset)</span>
+
+<span class="sd">        print(&quot;SLVAE:&quot;)</span>
+
+<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
+
+<span class="sd">        metric = slave.infer(test_dataset, slvae_model, seed_vae_train, thres)</span>
+
+<span class="sd">        print(f&quot;test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
         <span class="n">test_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>

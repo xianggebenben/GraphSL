@@ -142,8 +142,8 @@
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from Prescribed import LPSI</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import LPSI</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
@@ -178,8 +178,8 @@
 <li><p>opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from Prescribed import LPSI</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import LPSI</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
@@ -229,8 +229,8 @@
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from Prescribed import NetSleuth</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import NetSleuth</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
@@ -260,8 +260,8 @@
 <li><p>train_f1 (float): Training F1 score value.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from Prescribed import NetSleuth</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import NetSleuth</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
@@ -350,8 +350,8 @@
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from Prescribed import OJC</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import OJC</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
@@ -381,8 +381,8 @@
 <li><p>train_f1 (float): Training F1 score value.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from Prescribed import OJC</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import OJC</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>

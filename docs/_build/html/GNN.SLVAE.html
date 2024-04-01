@@ -122,6 +122,19 @@ seed vector in the test set.</p></li>
 <ul class="simple">
 <li><p>Metric: Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
+<p>Example:</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.GNN.SLVAE.main import SLVAE</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>slave = SLVAE()</p>
+<p>slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(adj, train_dataset)</p>
+<p>print(“SLVAE:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>metric = slave.infer(test_dataset, slvae_model, seed_vae_train, thres)</p>
+<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -148,8 +161,8 @@ seed vector in the test set.</p></li>
 <li><p>pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from GNN.SLVAE.main import SLVAE</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.GNN.SLVAE.main import SLVAE</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>

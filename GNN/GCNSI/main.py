@@ -55,9 +55,9 @@ class GCNSI:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from GNN.GCNSI.main import GCNSI
+        from GraphSL.GNN.GCNSI.main import GCNSI
 
         data_name = 'karate'
 

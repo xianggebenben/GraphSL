@@ -376,8 +376,8 @@
 <li><p>metric (Metric): Object containing test metrics.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from GNN.IVGD.main import IVGD</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.GNN.IVGD.main import IVGD</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
@@ -414,8 +414,8 @@
 <li><p>pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from GNN.IVGD.main import IVGD</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.GNN.IVGD.main import IVGD</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
@@ -441,8 +441,8 @@
 <li><p>diffusion_model (torch.nn.Module): Trained diffusion model.</p></li>
 </ul>
 <p>Example:</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from GNN.IVGD.main import IVGD</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.GNN.IVGD.main import IVGD</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>

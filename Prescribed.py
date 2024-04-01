@@ -67,9 +67,9 @@ class LPSI:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from Prescribed import LPSI
+        from GraphSL.Prescribed import LPSI
 
         data_name = 'karate'
 
@@ -147,9 +147,9 @@ class LPSI:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from Prescribed import LPSI
+        from GraphSL.Prescribed import LPSI
 
         data_name = 'karate'
 
@@ -269,9 +269,9 @@ class NetSleuth:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from Prescribed import NetSleuth
+        from GraphSL.Prescribed import NetSleuth
 
         data_name = 'karate'
 
@@ -341,9 +341,9 @@ class NetSleuth:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from Prescribed import NetSleuth
+        from GraphSL.Prescribed import NetSleuth
 
         data_name = 'karate'
 
@@ -531,9 +531,9 @@ class OJC:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from Prescribed import OJC
+        from GraphSL.Prescribed import OJC
 
         data_name = 'karate'
 
@@ -604,9 +604,9 @@ class OJC:
 
         Example:
 
-        from data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
 
-        from Prescribed import OJC
+        from GraphSL.Prescribed import OJC
 
         data_name = 'karate'
 
