@@ -94,9 +94,9 @@ Table: \label{tab:statistics} The statistics of eight datasets.
 
  6. Power Grid [@watts1998collective]. Power Grid is a topology network of the Western States Power Grid of the United States.
 
- 7. Memetracker [@leskovec2009meme]. The Memetracker keeps track of frequently used phrases on news social media.
+ 7. Memetracker [@leskovec2009meme]. The Memetracker keeps track of frequently used phrases on news social media. Only a small subset of the Memetracker network is used here.
 
- 8. Digg [@hogg2012social]. Digg is a reply network of the social news.
+ 8. Digg [@hogg2012social]. Digg is a reply network of the social news. Only a small subset of the Memetracker network is used here.
 
 # Availability and Documentation
 
