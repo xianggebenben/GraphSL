@@ -1,23 +1,9 @@
 
 # GraphSL: Graph Source Localization Library
 
-This is an implementation of Invertible Validity-aware Graph Diffusion for the source localization problem, as described in our paper:
+This is the source code of the GraphSL library for the source localization problem.
 
 Feel free to Email Junxiang Wang (junxiang.wang@alumni.emory.edu) if you have any questions.
-
-## Requirement
-
-scipy==
-
-torch==
-
-ipdb==
-
-numpy==
-
-scikit_learn==
-
-copy==
 
 ## Implementation
 
