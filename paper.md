@@ -27,6 +27,8 @@ bibliography: paper.bib
 
 # Summary
 
+We present GraphSL, an extensible library designed for investigating the graph source localization problem. Our library facilitates the exploration of various graph diffusion models for simulating information spread and enables the evaluation of cutting-edge source localization approaches on established benchmark datasets. Ongoing development efforts are underway, and we enthusiastically invite contributions from both academic and industrial sectors to further enhance GraphSL's capabilities.
+
 
 # Statement of need
 
@@ -42,13 +44,7 @@ millions of computers, underscores the critical need for tracking their sources 
 rolling blackouts leading to substantial financial losses [@amin2007preventing], graph source localization plays a pivotal role. Hence, the graph source localization 
 problem demands attention and extensive investigations from machine learning researchers.
 
-Some open-source tools have been developed to support the research of graph source localization problem due to its importance. Two recent examples are cosasi [@McCabe2022joss] 
-and RPaSDT [@frkaszczak2022rpasdt]. 
-However, they missed real-world benchmark datasets and up-to-date state-of-the-art approaches. To fill this gap, we propose a new package GraphSL: 
-the first one to include  both real-world benchmark datasets and a number of recent source localization methods to our knowledge,
-which enables researchers and practitioners to easily evaluate novel techniques against appropriate baselines. These methods do not require prior knowledge 
-(e.g. single source or multiple sources), and can handle graph source localization based on various graph diffusion models such as 
-Independent Cascade (IC) and Linear Threshold (LT). 
+Some open-source tools have been developed to support the research of graph source localization problem due to its importance. Two recent examples are cosasi [@McCabe2022joss] and RPaSDT [@frkaszczak2022rpasdt]. However, they missed comprehsnive simulations of information diffusion, real-world benchmark datasets, and up-to-date state-of-the-art source localization approaches. To fill this gap, we propose a new library GraphSL: the first one to include  both real-world benchmark datasets and recent source localization methods to our knowledge, which enables researchers and practitioners to easily evaluate novel techniques against appropriate baselines. These methods do not require prior knowledge (e.g. single source or multiple sources), and can handle graph source localization based on various diffusion simulation models such as Independent Cascade (IC) and Linear Threshold (LT). Our GraphSL library is standardized:  for instance, tests of all source inference methods return a Evaluation object, which provides five metrics (accuracy, precision, recall, F-score, and area under ROC curve) for performance comparison.
 
 # Problem Definition
 Consider a graph $G=(V,E)$, where $V=\{v_1,\cdots,v_n\}$ and $E$ are the node set and the edge set respectively, $\vert V\vert=n$ is the number of nodes. 
@@ -66,9 +62,9 @@ graph source localization, is to infer $x$ from $Y_{T}$:
 
 The structure of our GraphSL library is depicted in \autoref{fig:overview]. Existing graph source localization methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
 
-Prescribed methods rely on hand-crafted rules and heuristics. For instance, LPSI propagated infection in networks and labels local peaks as source nodes [@wang2017multiple]. NetSleuth employed the Minimum Description Length principle to identify the optimal set of source nodes and virus propagation ripple [@prakash2012spotting]. OJC identified a set of nodes (Jordan cover) that cover all observed infected nodes with the minimum radius [@zhu2017catch]. GCNSI utilized LPSI to enhance input and then applies Graph Convolutional Networks (GCN) for source identification [@dong2019multiple].
+Prescribed methods rely on hand-crafted rules and heuristics. For instance, LPSI propagated infection in networks and labels local peaks as source nodes [@wang2017multiple]. NetSleuth employed the Minimum Description Length principle to identify the optimal set of source nodes and virus propagation ripple [@prakash2012spotting]. OJC identified a set of nodes (Jordan cover) that cover all observed infected nodes with the minimum radius [@zhu2017catch]. 
 
-GNN-based methods learn rules from graph data in an end-to-end manner by capturing graph topology and neighboring information. For example, IVGD introduced a graph residual scenario to make existing graph diffusion models invertible, and it devises a new set of validity-aware layers to project inferred sources to feasible regions [@IVGD_www22]. SLVAE used forward diffusion estimation and deep generative models to approximate source distribution, leveraging prior knowledge for generalization under arbitrary diffusion patterns [@ling2022source].
+GNN-based methods learn rules from graph data in an end-to-end manner by capturing graph topology and neighboring information. For example, GCNSI utilized LPSI to enhance input and then applies Graph Convolutional Networks (GCN) for source identification [@dong2019multiple]; IVGD introduced a graph residual scenario to make existing graph diffusion models invertible, and it devises a new set of validity-aware layers to project inferred sources to feasible regions [@IVGD_www22]. SLVAE used forward diffusion estimation and deep generative models to approximate source distribution, leveraging prior knowledge for generalization under arbitrary diffusion patterns [@ling2022source].
 
 |       Dataset      |  #Node |  #Edge | Average Degree | Has Source-Diffusion Pairs |
 |:------------------:|:------:|:------:|:--------------:|:--------------------------:|
@@ -84,7 +80,7 @@ GNN-based methods learn rules from graph data in an end-to-end manner by capturi
 Table: \label{tab:statistics} The statistics of eight datasets.
 
  Aside from methods, we also provide eight benchmark datasets to facilitate the  graph SL research, whose statistics are shown in \autoref{tab:statistics}.
- Memetracker and Digg provide Source-Diffusion pairs $(x,Y_{T})$, while other do not. All datasets are introduced as follows:
+ Memetracker and Digg provide Source-Diffusion pairs $(x,Y_{T})$, while others do not. All datasets are introduced as follows:
 
  1. Karate [@lusseau2003bottlenose]. Karate contains the social ties among the members of a university karate club.
 
@@ -104,7 +100,7 @@ Table: \label{tab:statistics} The statistics of eight datasets.
 
 # Availability and Documentation
 
-
+GraphSL is available under the MIT License. The library may be cloned from the GitHub repository or via PyPI: pip install GraphSL. Documentation is provided via Read the Docs, including a quickstart introducing major functionality and a detailed API reference. Extensive unit testing is employed throughout the library. The source code of GraphSL is made available at (https://github.com/xianggebenben/GraphSL). Bug reports and feedback can be directed to the Github issues page (https://github.com/xianggebenben/GraphSL/issues).
 
 # Acknowledgements
 
