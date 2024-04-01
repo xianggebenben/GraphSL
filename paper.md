@@ -59,7 +59,7 @@ Prescribed methods rely on hand-crafted rules and heuristics. For instance, LPSI
 
 GNN-based methods learn rules from graph data in an end-to-end manner by capturing graph topology and neighboring information. For example, GCNSI utilized LPSI to enhance input and then applies Graph Convolutional Networks (GCN) for source identification [@dong2019multiple]; IVGD introduced a graph residual scenario to make existing graph diffusion models invertible, and it devises a new set of validity-aware layers to project inferred sources to feasible regions [@IVGD_www22]. SLVAE used forward diffusion estimation and deep generative models to approximate source distribution, leveraging prior knowledge for generalization under arbitrary diffusion patterns [@ling2022source].
 
-|       Dataset      |  #Node |  #Edge | Average Degree | Has Seed-Diffusion Vector Pairs |
+|       Dataset      |  #Node |  #Edge | Average <br> Degree | Has Seed-Diffusion Vector Pairs |
 |:------------------:|:------:|:------:|:--------------:|:--------------------------:|
 |       Karate       |   34   |   78   |      4.588     |             No             |
 |      Dolphins      |   62   |   159  |      5.129     |             No             |
