@@ -36,7 +36,7 @@ class LPSI:
 
         - x (numpy.ndarray): Prediction of source nodes.
         """
-        x = (1 - alpha) * np.matmul(np.linalg.pinv(np.eye(N=num_node) - alpha * laplacian), diff_vec)
+        x = (1 - alpha) * np.matmul(np.linalg.pinv(np.eye(N=num_node) - alpha * laplacian,hermitian=True), diff_vec)
         return x
 
     def train(self, adj, train_dataset, alpha_list=[0.001, 0.01, 0.1], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):

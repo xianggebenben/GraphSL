@@ -17,7 +17,7 @@ class GCNSI:
         Initializes the GCNSI module.
         """
 
-    def train(self, adj, train_dataset, alpha_list=[0.001,0.01, 0.1], thres_list=[0.1,0.3,0.5,0.7,0.9],lr=0.001, num_epoch=50,print_epoch=10, weight=torch.tensor([1.0,3.0])):
+    def train(self, adj, train_dataset, alpha_list=[0.01, 0.1], thres_list=[0.1,0.3,0.5,0.7,0.9],lr=0.001, num_epoch=50,print_epoch=10, weight=torch.tensor([1.0,3.0])):
         """
         Train the GCNSI model.
 

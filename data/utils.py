@@ -64,7 +64,7 @@ def generate_seed_vector(top_nodes, seed_num, G):
     return seed_vector
 
 
-def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=100, repeat_step=10, seed_ratio=0.1,
+def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=10, repeat_step=10, seed_ratio=0.1,
                          infect_prob=0.1, recover_prob=0.005, threshold=0.5):
     """
     Generate diffusion matrices for a graph.
