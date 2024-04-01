@@ -9,9 +9,13 @@ class Metric:
 
         Args:
             acc (float): Accuracy metric value.
+            
             pr (float): Precision metric value.
+            
             re (float): Recall metric value.
+            
             f1 (float): F1-score metric value.
+            
             auc (float): Area Under the Curve metric value.
         """
         self.acc = acc
