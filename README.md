@@ -5,6 +5,21 @@ This is the source code of the GraphSL library for the source localization probl
 
 Feel free to Email Junxiang Wang (junxiang.wang@alumni.emory.edu) if you have any questions.
 
+## Installation
+
+#### Installation via PyPI
+```bash
+pip install GraphSL
+```
+
+#### Installation via GitHub
+Clone the repo from [here](https://github.com/xianggebenben/GraphSL) (this repo).
+
+Install requirements:
+```bash
+pip install -r requirements.txt
+```
+
 ## Implementation
 ``` python
 
