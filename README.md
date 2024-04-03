@@ -20,7 +20,7 @@ Install requirements:
 pip install -r requirements.txt
 ```
 
-## Implementation
+## Quickstart
 ``` python
 
    from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
