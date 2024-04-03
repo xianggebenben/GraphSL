@@ -1,7 +1,7 @@
 
 # GraphSL: Graph Source Localization Library
 
-This is the source code of the GraphSL(Graph Source Localization) library to support the research and development of the graph learning community.
+This is the source code of the GraphSL (Graph Source Localization) library to support the research and development of the graph learning community.
 
 # Introduction
 
