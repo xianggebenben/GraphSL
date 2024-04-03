@@ -1,8 +1,9 @@
 import torch
 from scipy.sparse import csgraph,coo_matrix
+import copy
 import numpy as np
 from GNN.GCNSI.model import GCNSI_model
-import copy
+from Prescribed import LPSI
 from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
 from Evaluation import Metric
 class GCNSI:
@@ -17,7 +18,7 @@ class GCNSI:
         Initializes the GCNSI module.
         """
 
-    def train(self, adj, train_dataset, alpha_list=[0.01, 0.1], thres_list=[0.1,0.3,0.5,0.7,0.9],lr=0.001, num_epoch=50,print_epoch=10, weight=torch.tensor([1.0,3.0])):
+    def train(self, adj, train_dataset, alpha=0.01, thres_list=[0.1,0.3,0.5,0.7,0.9],lr=0.001, num_epoch=50,print_epoch=10, weight=torch.tensor([1.0,3.0])):
         """
         Train the GCNSI model.
 
@@ -27,7 +28,7 @@ class GCNSI:
 
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
         
-        - alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
+        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
         
         - thres_list (list): List of threshold values to try.
 
@@ -41,17 +42,15 @@ class GCNSI:
 
         Returns:
 
-        - opt_gcnsi_model (GCNSI_model): Optimized GCNSI model.
-
-        - opt_alpha (float): Optimal alpha value.
+        - gcnsi_model (GCNSI_model): GCNSI model.
 
         - opt_thres (float): Optimal threshold value.
 
-        - opt_auc (float): Optimal AUC score.
+        - train_auc (float): Training AUC score.
 
         - opt_f1 (float): Optimal F1 score.
 
-        - opt_pred (numpy.ndarray): Predicted seed vector of the training set given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.
+        - opt_pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.
 
         Example:
 
@@ -69,7 +68,7 @@ class GCNSI:
 
         gcnsi = GCNSI()
 
-        gcnsi_model, alpha, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)
+        gcnsi_model, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)
 
         print("GCNSI:")
 
@@ -85,52 +84,64 @@ class GCNSI:
         row = torch.from_numpy(coo.row.astype(np.int64)).to(torch.long)
         col = torch.from_numpy(coo.col.astype(np.int64)).to(torch.long)
         edge_index = torch.stack([row, col], dim=0)
-        opt_auc = 0
         # Iterate over alpha values
-        for alpha in alpha_list:
-            print(f"alpha = {alpha:.3f}")
-            gcnsi_model = GCNSI_model()
-            optimizer = torch.optim.Adam(gcnsi_model.parameters(), lr=lr)
-            criterion = torch.nn.CrossEntropyLoss(weight=weight)
-            # Training loop
-            for epoch in range(num_epoch):
-                optimizer.zero_grad()
-                total_loss = 0
-                for influ_mat in train_dataset:
-                    seed_vec = influ_mat[:, 0].unsqueeze(-1)
-                    seed_vec_onehot =torch.concat((1-seed_vec,seed_vec),dim=1)
-                    diff_vec = influ_mat[:, -1]
-                    pred = gcnsi_model(alpha, S, num_node, diff_vec, edge_index)
-                    loss = criterion(pred, seed_vec_onehot)
-                    total_loss += loss
-                    loss.backward()
-                    optimizer.step()
-                average_loss =total_loss/train_num
-                if epoch%print_epoch==0:
-                    print(f"epoch = {epoch}, loss = {average_loss:.3f}")
-            train_auc = 0
-            # Compute AUC score on training data
-            for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
+        gcnsi_model = GCNSI_model()
+        optimizer = torch.optim.Adam(gcnsi_model.parameters(), lr=lr)
+        criterion = torch.nn.CrossEntropyLoss(weight=weight)
+        # Augmented features by LPSI
+
+        lpsi = LPSI()  # Initializing LPSI module
+        lpsi_input = np.zeros((train_num,num_node,4))
+
+        for i, influ_mat in enumerate(train_dataset):
+            diff_vec = influ_mat[:, -1]
+            V3 = copy.deepcopy(diff_vec)
+            V4 = copy.deepcopy(diff_vec)
+            V3[diff_vec < 0.5] = 0.5
+            V4[diff_vec >= 0.5] = 0.5
+            d1 = copy.deepcopy(diff_vec)
+            d1 = d1[:, np.newaxis]
+            d2 = lpsi.predict(S, num_node,alpha, diff_vec)
+            d2 = d2[:, np.newaxis]
+            d3 = lpsi.predict(S, num_node,alpha, V3)
+            d3 = d3[:, np.newaxis]
+            d4 = lpsi.predict(S, num_node,alpha, V4)
+            d4 = d4[:, np.newaxis]
+            lpsi_input[i,:,:] = np.concatenate((d1, d2, d3, d4), axis=1)
+        # Training loop
+        for epoch in range(num_epoch):
+            optimizer.zero_grad()
+            total_loss = 0
+            for i, influ_mat in enumerate(train_dataset):
+                seed_vec = influ_mat[:, 0].unsqueeze(-1)
+                seed_vec_onehot =torch.concat((1-seed_vec,seed_vec),dim=1)
                 diff_vec = influ_mat[:, -1]
-                seed_vec = seed_vec.squeeze(-1).long()
-                pred = gcnsi_model(alpha, S, num_node, diff_vec, edge_index)
-                pred = torch.softmax(pred,dim=1)
-                pred = pred[:, 1].squeeze(-1).detach().numpy()
-                train_auc += roc_auc_score(seed_vec, pred)
-            train_auc = train_auc / train_num
-            print(f"train_auc = {train_auc:.3f}")
-            if train_auc > opt_auc:
-                opt_auc = train_auc
-                opt_alpha = alpha
-                opt_gcnsi_model = copy.deepcopy(gcnsi_model)
+                pred = gcnsi_model(lpsi_input[i,:,:], edge_index)
+                loss = criterion(pred, seed_vec_onehot)
+                total_loss += loss
+                loss.backward()
+                optimizer.step()
+            average_loss =total_loss/train_num
+            if epoch%print_epoch==0:
+                print(f"epoch = {epoch}, loss = {average_loss:.3f}")
+        train_auc = 0
+        # Compute AUC score on training data
+        for i,influ_mat in enumerate(train_dataset):
+            seed_vec = influ_mat[:, 0]
+            seed_vec = seed_vec.squeeze(-1).long()
+            pred = gcnsi_model(lpsi_input[i,:,:], edge_index)
+            pred = torch.softmax(pred,dim=1)
+            pred = pred[:, 1].squeeze(-1).detach().numpy()
+            train_auc += roc_auc_score(seed_vec, pred)
+        train_auc = train_auc / train_num
+        print(f"train_auc = {train_auc:.3f}")
         
         opt_pred = np.zeros((num_node,train_num))
         seed_all = np.zeros((num_node,train_num))
         for i,influ_mat in enumerate(train_dataset):
                 seed_all[:,i] = influ_mat[:, 0]
                 diff_vec = influ_mat[:, -1]
-                pred = opt_gcnsi_model(opt_alpha, S, num_node, diff_vec, edge_index)
+                pred = gcnsi_model(lpsi_input[i,:,:], edge_index)
                 pred = torch.softmax(pred, dim=1)
                 pred = pred[:, 1].squeeze(-1).detach().numpy()
                 opt_pred[:,i] = pred
@@ -147,9 +158,9 @@ class GCNSI:
                 opt_f1 = train_f1
                 opt_thres = thres
 
-        return opt_gcnsi_model, opt_alpha, opt_thres, opt_auc, opt_f1, opt_pred
+        return gcnsi_model, opt_thres, train_auc, opt_f1, opt_pred
 
-    def test(self, adj, test_dataset, gcnsi_model, alpha, thres):
+    def test(self, adj, test_dataset, gcnsi_model, thres, alpha = 0.01):
         """
         Test the GCNSI model.
 
@@ -161,9 +172,10 @@ class GCNSI:
 
         - gcnsi_model (GCNSI_model): Trained GCNSI model.
 
-        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
-
         - thres (float): Threshold value.
+
+        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).
+
 
         Returns:
 
@@ -185,13 +197,13 @@ class GCNSI:
 
         gcnsi = GCNSI()
 
-        gcnsi_model, alpha, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)
+        gcnsi_model, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)
 
         print("GCNSI:")
 
         print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
-        metric = gcnsi.test(adj, test_dataset, gcnsi_model, alpha, thres)
+        metric = gcnsi.test(adj, test_dataset, gcnsi_model, thres)
 
         print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
@@ -205,6 +217,25 @@ class GCNSI:
         row = torch.from_numpy(coo.row.astype(np.int64)).to(torch.long)
         col = torch.from_numpy(coo.col.astype(np.int64)).to(torch.long)
         edge_index = torch.stack([row, col], dim=0)
+
+        lpsi = LPSI()  # Initializing LPSI module
+        lpsi_input = np.zeros((test_num,num_node,4))
+
+        for i, influ_mat in enumerate(test_dataset):
+            diff_vec = influ_mat[:, -1]
+            V3 = copy.deepcopy(diff_vec)
+            V4 = copy.deepcopy(diff_vec)
+            V3[diff_vec < 0.5] = 0.5
+            V4[diff_vec >= 0.5] = 0.5
+            d1 = copy.deepcopy(diff_vec)
+            d1 = d1[:, np.newaxis]
+            d2 = lpsi.predict(S, num_node,alpha, diff_vec)
+            d2 = d2[:, np.newaxis]
+            d3 = lpsi.predict(S, num_node,alpha, V3)
+            d3 = d3[:, np.newaxis]
+            d4 = lpsi.predict(S, num_node,alpha, V4)
+            d4 = d4[:, np.newaxis]
+            lpsi_input[i,:,:] = np.concatenate((d1, d2, d3, d4), axis=1)
         test_acc = 0
         test_pr = 0
         test_re = 0
@@ -214,7 +245,7 @@ class GCNSI:
         for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
             diff_vec = influ_mat[:, -1]
-            pred = gcnsi_model(alpha, S, num_node, diff_vec, edge_index)
+            pred = gcnsi_model(lpsi_input[i,:,:], edge_index)
             pred = torch.softmax(pred, dim=1)
             pred = pred[:, 1].squeeze(-1).detach().numpy()
             test_acc += accuracy_score(seed_vec, pred >= thres)

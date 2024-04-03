@@ -247,7 +247,7 @@ class NetSleuth:
         seed_vec[seed] = 1
         return seed_vec
 
-    def train(self, adj, train_dataset, k_list=[5, 10, 50, 100]):
+    def train(self, adj, train_dataset, k_list=[5, 10, 50]):
         """
         Train the NetSleuth algorithm.
 
@@ -508,7 +508,7 @@ class OJC:
         x[index] = 1
         return x
 
-    def train(self, adj, train_dataset, Y_list=[5, 10, 20, 50]):
+    def train(self, adj, train_dataset, Y_list=[5, 10, 50]):
         """
         Train the OJC algorithm.
 
