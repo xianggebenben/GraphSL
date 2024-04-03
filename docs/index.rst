@@ -25,6 +25,15 @@ First, install GraphSL using pip:
 
     pip install GraphSL
 
+Or, clone the repo from https://github.com/xianggebenben/GraphSL.
+
+Install requirements:
+
+.. code-block:: bash
+
+    pip install -r requirements.txt
+
+
 Usage
 -----
 
@@ -63,10 +72,10 @@ Now, you can import and use GraphSL in your Python code:
    metric=ojc.test(adj, test_dataset, Y)
    print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
    gcnsi = GCNSI()
-   gcnsi_model, alpha, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)
+   gcnsi_model, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)
    print("GCNSI:")
    print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
-   metric = gcnsi.test(adj, test_dataset, gcnsi_model, alpha, thres)
+   metric = gcnsi.test(adj, test_dataset, gcnsi_model, thres)
    print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
    ivgd = IVGD()
    diffusion_model = ivgd.train_diffusion(adj, train_dataset)
