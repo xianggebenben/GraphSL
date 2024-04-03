@@ -3,7 +3,7 @@ from Prescribed import LPSI, NetSleuth, OJC
 from GNN.GCNSI.main import GCNSI
 from GNN.IVGD.main import IVGD
 from GNN.SLVAE.main import SLVAE
-data_name = 'power_grid'  # 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid', , 'meme8000', 'digg16000'
+data_name = 'digg16000'  # 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid', , 'meme8000', 'digg16000'
 graph = load_dataset(data_name)
 if data_name not in ['meme8000', 'digg16000']:
     dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.3)
