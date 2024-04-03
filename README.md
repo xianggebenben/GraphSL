@@ -3,8 +3,6 @@
 
 This is the source code of the GraphSL(Graph Source Localization) library to support the research and development of the graph learning community.
 
-Feel free to Email Junxiang Wang (junxiang.wang@alumni.emory.edu) if you have any questions.
-
 # Introduction
 
 ## Problem Definition
@@ -132,3 +130,7 @@ pip install -r requirements.txt
 # Documentation
 
 Official documentation, including a detailed [API reference](https://graphsl.readthedocs.io/en/latest/modules.html), is available on [Read the Docs](https://graphsl.readthedocs.io/en/latest/#).
+
+# Contact
+
+Feel free to Email Junxiang Wang (junxiang.wang@alumni.emory.edu) if you have any questions.
