@@ -10,7 +10,7 @@ setup(
   author = 'Junxiang Wang',                   # Type in your name
   author_email = 'junxiang.wang@alumni.emory.edu',      # Type in your E-Mail
   url = 'https://xianggebenben.github.io/Junxiang_Wang.github.io/',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/xianggebenben/GraphSL/archive/refs/tags/v_01.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/xianggebenben/GraphSL/archive/refs/tags/v_011.tar.gz',    # I explain this later on
   keywords = ['Graph Diffusion', 'Graph Source Localization', 'Prescribed Methods', 'GNN Methods','Benchmark'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'numpy',
