@@ -2,8 +2,6 @@ import torch
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 import torch.nn.functional as F
-import copy
-import numpy as np
 class GCNConv(MessagePassing):
     """
     Define a Graph Convolutional Network (GCN) layer.

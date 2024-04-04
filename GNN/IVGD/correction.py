@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 class correction(torch.nn.Module):
     """
-    Define a error correction module.
+    Define an error correction module.
     """
 
     def __init__(self):

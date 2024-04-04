@@ -2,7 +2,6 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import scipy.sparse as sp
-from typing import List
 class Encoder(nn.Module):
     """
     Encoder module for a variational autoencoder (VAE).
