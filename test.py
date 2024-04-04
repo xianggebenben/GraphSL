@@ -1,8 +1,8 @@
-from data.utils import load_dataset, diffusion_generation, split_dataset
-from Prescribed import LPSI, NetSleuth, OJC
-from GNN.GCNSI.main import GCNSI
-from GNN.IVGD.main import IVGD
-from GNN.SLVAE.main import SLVAE
+from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+from GraphSL.Prescribed import LPSI, NetSleuth, OJC
+from GraphSL.GNN.GCNSI.main import GCNSI
+from GraphSL.GNN.IVGD.main import IVGD
+from GraphSL.GNN.SLVAE.main import SLVAE
 data_name = 'karate'  # 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid', , 'meme8000', 'digg16000'
 graph = load_dataset(data_name)
 if data_name not in ['meme8000', 'digg16000']:
