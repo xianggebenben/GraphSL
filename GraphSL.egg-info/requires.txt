@@ -2,12 +2,6 @@ numpy
 networkx
 ndlib
 torch
-copy
-sklearn
+scikit-learn
 scipy
 torch_geometric
-warnings
-operator
-enum
-typing
-sys

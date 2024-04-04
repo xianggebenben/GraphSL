@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: GraphSL
-Version: 0.1.1
+Version: 0.5
 Summary: Graph Source Localization Approaches and Benchmark Datasets
 Home-page: https://xianggebenben.github.io/Junxiang_Wang.github.io/
 Author: Junxiang Wang
 Author-email: junxiang.wang@alumni.emory.edu
 License: MIT
-Download-URL: https://github.com/xianggebenben/GraphSL/archive/refs/tags/v_01.tar.gz
+Download-URL: https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.3.tar.gz
 Keywords: Graph Diffusion,Graph Source Localization,Prescribed Methods,GNN Methods,Benchmark
 Platform: UNKNOWN
 Classifier: Development Status :: 3 - Alpha
