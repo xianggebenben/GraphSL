@@ -1,6 +1,5 @@
 numpy
 networkx
-random
 ndlib
 torch
 copy
