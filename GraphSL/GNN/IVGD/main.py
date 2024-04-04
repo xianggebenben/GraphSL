@@ -2,13 +2,13 @@ import torch.nn.functional as F
 import numpy as np
 import torch
 import torch.nn as nn
-from GNN.IVGD.correction import correction
-from GNN.IVGD.i_deepis import i_DeepIS, DiffusionPropagate
-from GNN.IVGD.training import FeatureCons, get_idx_new_seeds
-from GNN.IVGD.model.MLP import MLPTransform
-from GNN.IVGD.training import train_model
+from GraphSL.GNN.IVGD.correction import correction
+from GraphSL.GNN.IVGD.i_deepis import i_DeepIS, DiffusionPropagate
+from GraphSL.GNN.IVGD.training import FeatureCons, get_idx_new_seeds
+from GraphSL.GNN.IVGD.model.MLP import MLPTransform
+from GraphSL.GNN.IVGD.training import train_model
 from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
-from Evaluation import Metric
+from GraphSL.Evaluation import Metric
 import torch.optim as optim
 import warnings
 warnings.filterwarnings("ignore")

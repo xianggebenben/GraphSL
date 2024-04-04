@@ -2,10 +2,10 @@ import torch
 from scipy.sparse import csgraph,coo_matrix
 import copy
 import numpy as np
-from GNN.GCNSI.model import GCNSI_model
-from Prescribed import LPSI
+from GraphSL.GNN.GCNSI.model import GCNSI_model
+from GraphSL.Prescribed import LPSI
 from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
-from Evaluation import Metric
+from GraphSL.Evaluation import Metric
 class GCNSI:
     """
     Implement the Graph Convolutional Networks based Source Identification (GCNSI).

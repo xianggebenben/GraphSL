@@ -2,10 +2,10 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import numpy as np
-from GNN.SLVAE.model import VAE,GNN,DiffusionPropagate
+from GraphSL.GNN.SLVAE.model import VAE,GNN,DiffusionPropagate
 from torch.optim import Adam
 from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
-from Evaluation import Metric
+from GraphSL.Evaluation import Metric
 class SLVAE_model(nn.Module):
     """
     Source Localization Variational Autoencoder (SLVAE) model combining VAE, GNN, and propagation modules.

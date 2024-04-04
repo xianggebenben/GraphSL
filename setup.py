@@ -1,15 +1,15 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
   name = 'GraphSL',         # How you named your package folder (MyLib)
-  packages = ['GraphSL','GraphSL.data','GraphSL.Evaluation','GraphSL.GNN','GraphSL.Prescribed'],   # Chose the same as "name"
-  version = '0.6',      # Start with a small number and increase it with every change you make
+  packages = find_packages(),   # Chose the same as "name"
+  version = '0.7',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'Graph Source Localization Approaches and Benchmark Datasets',   # Give a short description about your library
   author = 'Junxiang Wang',                   # Type in your name
   author_email = 'junxiang.wang@alumni.emory.edu',      # Type in your E-Mail
   url = 'https://xianggebenben.github.io/Junxiang_Wang.github.io/',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.6.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.7.tar.gz',    # I explain this later on
   keywords = ['Graph Diffusion', 'Graph Source Localization', 'Prescribed Methods', 'GNN Methods','Benchmark'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'numpy',
@@ -26,4 +26,5 @@ setup(
     'Programming Language :: Python :: 3',      #Specify which pyhton versions that you want to support
     'Programming Language :: Python :: 3.10'
   ],
+python_requires=">=3.9",
 )

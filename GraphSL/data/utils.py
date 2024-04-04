@@ -7,7 +7,7 @@ import torch
 import copy
 
 
-def load_dataset(dataset, data_dir='data'):
+def load_dataset(dataset, data_dir='GraphSL\data'):
     """
     Load a dataset from a pickle file.
 

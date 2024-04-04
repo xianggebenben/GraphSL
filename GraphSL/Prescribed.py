@@ -4,7 +4,7 @@ import copy
 import torch
 from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
 from scipy.sparse import csgraph,coo_matrix
-from Evaluation import Metric
+from GraphSL.Evaluation import Metric
 
 class LPSI:
     """

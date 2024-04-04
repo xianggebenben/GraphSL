@@ -1,22 +1,20 @@
 Metadata-Version: 2.1
 Name: GraphSL
-Version: 0.6
+Version: 0.7
 Summary: Graph Source Localization Approaches and Benchmark Datasets
 Home-page: https://xianggebenben.github.io/Junxiang_Wang.github.io/
-Download-URL: https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.6.tar.gz
 Author: Junxiang Wang
 Author-email: junxiang.wang@alumni.emory.edu
 License: MIT
+Download-URL: https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.6.tar.gz
 Keywords: Graph Diffusion,Graph Source Localization,Prescribed Methods,GNN Methods,Benchmark
+Platform: UNKNOWN
 Classifier: Development Status :: 3 - Alpha
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.9
 License-File: LICENSE
-Requires-Dist: numpy
-Requires-Dist: networkx
-Requires-Dist: ndlib
-Requires-Dist: torch
-Requires-Dist: scikit-learn
-Requires-Dist: scipy
-Requires-Dist: torch_geometric
+
+UNKNOWN
+
