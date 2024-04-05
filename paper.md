@@ -92,7 +92,7 @@ Aside from methods, we also provide eight benchmark datasets to facilitate the r
 
 # Availability and Documentation
 
-GraphSL is available under the MIT License. The library may be cloned from the [GitHub repository](https://github.com/xianggebenben/GraphSL), orcan be installed by pipy: pip install GraphSL. Documentation is provided via [Read the Docs](https://graphsl.readthedocs.io/en/latest/index.html), including a quickstart introducing major functionality and a detailed API reference. Extensive unit testing is employed throughout the library. 
+GraphSL is available under the MIT License. The library may be cloned from the [GitHub repository](https://github.com/xianggebenben/GraphSL), or can be installed by pipy: pip install GraphSL. Documentation is provided via [Read the Docs](https://graphsl.readthedocs.io/en/latest/index.html), including a quickstart introducing major functionality and a detailed API reference. Extensive unit testing is employed throughout the library. 
 
 # Acknowledgements
 
