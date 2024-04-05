@@ -34,9 +34,9 @@ We present GraphSL, a novel library designed for investigating the graph source 
 
 ![An example of graph source localization.\label{fig:example}](SL_example.png)
 
-Graph diffusion is a fundamental task in graph learning, which aims to predict future graph cascade patterns given source nodes. Conversely, its inverse problem, graph source localization, though rarely explored, stands as an extremely important topic: it focuses on detection of source nodes given their future graph cascade patterns. As illustrated in \autoref{fig:example}, graph diffusion seeks to predict the cascade pattern $\{b,c,d,e\}$ from a source node $b$, whereas graph source localization aims to identify source nodes $b$ from the cascade pattern $\{b,c,d,e\}$. Graph source localization spans a broad spectrum of promising research and real-world applications. For instance, online social media platforms like Twitter and Facebook have been instrumental in disseminating rumors and misinformation with significant repercussions [@evanega2020coronavirus]. Additionally, the rapid propagation of computer viruses across the Internet, infecting millions of computers, underscores the critical need for tracking their sources [@kephart1993measuring]. Moreover, in smart grids, where isolated failures can trigger rolling blackouts leading to substantial financial losses [@amin2007preventing], graph source localization plays a pivotal role. Hence, the graph source localization problem demands attention and extensive investigations from machine learning researchers.
+Graph diffusion is a fundamental task in graph learning, which aims to predict future graph cascade patterns given source nodes. Conversely, its inverse problem, graph source localization, though rarely explored, stands as an extremely important topic: it focuses on the detection of source nodes given their future graph cascade patterns. As illustrated in \autoref{fig:example}, graph diffusion seeks to predict the cascade pattern $\{b,c,d,e\}$ from a source node $b$, whereas graph source localization aims to identify source nodes $b$ from the cascade pattern $\{b,c,d,e\}$. Graph source localization spans a broad spectrum of promising research and real-world applications. For instance, online social media platforms like Twitter and Facebook have been instrumental in disseminating rumors and misinformation with significant repercussions [@evanega2020coronavirus]. Additionally, the rapid propagation of computer viruses across the Internet, infecting millions of computers, underscores the critical need for tracking their sources [@kephart1993measuring]. Moreover, in smart grids, where isolated failures can trigger rolling blackouts leading to substantial financial losses [@amin2007preventing], graph source localization plays a pivotal role. Hence, the graph source localization problem demands attention and extensive investigations from machine learning researchers.
 
-Some open-source tools have been developed to support the research of graph source localization problem due to its importance. Two recent examples are cosasi [@McCabe2022joss] and RPaSDT [@frkaszczak2022rpasdt]. However, they missed comprehensive simulations of information diffusion, real-world benchmark datasets, and up-to-date state-of-the-art source localization approaches. To fill this gap, we propose a new library GraphSL: the first one to include both real-world benchmark datasets and recent source localization methods to our knowledge, which enables researchers and practitioners to easily evaluate novel techniques against appropriate baselines. These methods do not require prior knowledge (e.g. single source or multiple sources), and can handle graph source localization based on various diffusion simulation models such as Independent Cascade (IC) and Linear Threshold (LT). Our GraphSL library is standardized: for instance, tests of all source inference methods return a Metric object, which provides five performance metrics (accuracy, precision, recall, F-score, and area under ROC curve) for performance evaluation.
+Some open-source tools have been developed to support the research of the graph source localization problem due to its importance. Two recent examples are cosasi [@McCabe2022joss] and RPaSDT [@frkaszczak2022rpasdt]. However, they missed comprehensive simulations of information diffusion, real-world benchmark datasets, and up-to-date state-of-the-art source localization approaches. To fill this gap, we propose a new library GraphSL: the first one to include both real-world benchmark datasets and recent source localization methods to our knowledge, which enables researchers and practitioners to easily evaluate novel techniques against appropriate baselines. These methods do not require prior knowledge (e.g. single source or multiple sources), and can handle graph source localization based on various diffusion simulation models such as Independent Cascade (IC) and Linear Threshold (LT). Our GraphSL library is standardized: for instance, tests of all source inference methods return a Metric object, which provides five performance metrics (accuracy, precision, recall, F-score, and area under ROC curve) for performance evaluation.
 
 
 # Problem Definition
@@ -72,23 +72,7 @@ GNN-based methods learn rules from graph data in an end-to-end manner by capturi
 
 Table: \label{tab:statistics} The statistics of eight datasets.
 
-Aside from methods, we also provide eight benchmark datasets to facilitate the research of graph source localization, whose statistics are shown in \autoref{tab:statistics}. Memetracker and Digg provide Seed-Diffusion vector pairs $(x,Y_{T})$. While others do not have such pairs, they can be generated by information diffusion simulations. All datasets are introduced as follows:
-
-1. Karate [@lusseau2003bottlenose]: Karate depicts the social ties among members of a university karate club.
-
-2. Dolphins [@lusseau2003bottlenose]: Dolphins represents a social network of bottlenose dolphins, with edges indicating frequent associations between dolphins.
-
-3. Jazz [@gleiser2003community]: Jazz illustrates a collaboration network among Jazz musicians, where edges signify instances of playing together in a band.
-
-4. Network Science [@newman2006finding]: Network Science portrays a coauthorship network of scientists engaged in network theory and experimentation, with each edge representing the co-authorship of a paper.
-
-5. Cora-ML [@mccallum2000automating]: Cora-ML is a portal network of computer science research papers obtained through machine learning techniques.
-
-6. Power Grid [@watts1998collective]: Power Grid delineates the topology network of the Western States Power Grid in the United States.
-
-7. Memetracker [@leskovec2009meme]: Memetracker tracks frequently used phrases on news social media and a small subset of the whole Memetracker network was retrieved here.
-
-8. Digg [@hogg2012social]: Digg showcases a reply network within social news, and a small subset of the whole Digg network was retrieved here.
+Aside from methods, we also provide eight benchmark datasets to facilitate the research of graph source localization, whose statistics are shown in \autoref{tab:statistics}. Memetracker and Digg provide Seed-Diffusion vector pairs $(x,Y_{T})$. While others do not have such pairs, they can be generated by information diffusion simulations.
 
 # Availability and Documentation
 
@@ -96,6 +80,6 @@ GraphSL is available under the MIT License. The library may be cloned from the [
 
 # Acknowledgements
 
-We knowledge the support from Junji Jiang during the development of the GraphSL library.
+We acknowledge the support from Junji Jiang during the development of the GraphSL library.
 
 # References
