@@ -9,7 +9,7 @@
 project = 'GraphSL'
 copyright = '2024, Junxiang Wang'
 author = 'Junxiang Wang'
-release = '0.1'
+release = '0.8'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

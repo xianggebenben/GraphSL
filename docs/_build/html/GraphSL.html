@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GraphSL package &mdash; GraphSL 0.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=a0e24af7"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="GraphSL.GNN package" href="GraphSL.GNN.html" />
+    <link rel="prev" title="GraphSL" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            GraphSL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">GraphSL</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GraphSL package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.html">GraphSL.GNN package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.data.html">GraphSL.data package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-GraphSL.Evaluation">GraphSL.Evaluation module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.Evaluation.Metric"><code class="docutils literal notranslate"><span class="pre">Metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-GraphSL.Prescribed">GraphSL.Prescribed module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.Prescribed.LPSI"><code class="docutils literal notranslate"><span class="pre">LPSI</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.Prescribed.NetSleuth"><code class="docutils literal notranslate"><span class="pre">NetSleuth</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.Prescribed.OJC"><code class="docutils literal notranslate"><span class="pre">OJC</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-GraphSL">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">GraphSL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">GraphSL</a></li>
+      <li class="breadcrumb-item active">GraphSL package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/GraphSL.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="graphsl-package">
+<h1>GraphSL package<a class="headerlink" href="#graphsl-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GraphSL.GNN.html">GraphSL.GNN package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.GNN.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.GNN.GCNSI.html">GraphSL.GNN.GCNSI package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#module-GraphSL.GNN.GCNSI.main">GraphSL.GNN.GCNSI.main module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#module-GraphSL.GNN.GCNSI.model">GraphSL.GNN.GCNSI.model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#module-GraphSL.GNN.GCNSI">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.GNN.IVGD.html">GraphSL.GNN.IVGD package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#module-GraphSL.GNN.IVGD.correction">GraphSL.GNN.IVGD.correction module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#module-GraphSL.GNN.IVGD.earlystopping">GraphSL.GNN.IVGD.earlystopping module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#module-GraphSL.GNN.IVGD.i_deepis">GraphSL.GNN.IVGD.i_deepis module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#module-GraphSL.GNN.IVGD.main">GraphSL.GNN.IVGD.main module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#module-GraphSL.GNN.IVGD.preprocessing">GraphSL.GNN.IVGD.preprocessing module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#module-GraphSL.GNN.IVGD.training">GraphSL.GNN.IVGD.training module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#module-GraphSL.GNN.IVGD.validity_net">GraphSL.GNN.IVGD.validity_net module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.IVGD.html#module-GraphSL.GNN.IVGD">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.GNN.SLVAE.html">GraphSL.GNN.SLVAE package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.SLVAE.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.SLVAE.html#module-GraphSL.GNN.SLVAE.main">GraphSL.GNN.SLVAE.main module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.SLVAE.html#module-GraphSL.GNN.SLVAE.model">GraphSL.GNN.SLVAE.model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.SLVAE.html#module-GraphSL.GNN.SLVAE">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.GNN.html#module-GraphSL.GNN">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="GraphSL.data.html">GraphSL.data package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.data.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.data.html#module-GraphSL.data.utils">GraphSL.data.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html#GraphSL.data.utils.diffusion_generation"><code class="docutils literal notranslate"><span class="pre">diffusion_generation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html#GraphSL.data.utils.generate_seed_vector"><code class="docutils literal notranslate"><span class="pre">generate_seed_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html#GraphSL.data.utils.load_dataset"><code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html#GraphSL.data.utils.split_dataset"><code class="docutils literal notranslate"><span class="pre">split_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.data.html#module-GraphSL.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-GraphSL.Evaluation">
+<span id="graphsl-evaluation-module"></span><h2>GraphSL.Evaluation module<a class="headerlink" href="#module-GraphSL.Evaluation" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="GraphSL.Evaluation.Metric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphSL.Evaluation.</span></span><span class="sig-name descname"><span class="pre">Metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">re</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Evaluation.html#Metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Evaluation.Metric" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-GraphSL.Prescribed">
+<span id="graphsl-prescribed-module"></span><h2>GraphSL.Prescribed module<a class="headerlink" href="#module-GraphSL.Prescribed" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.LPSI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphSL.Prescribed.</span></span><span class="sig-name descname"><span class="pre">LPSI</span></span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#LPSI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.LPSI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implement the Label Propagation based Source Identification (LPSI) algorithm.</p>
+<p>Wang, Zheng, et al. “Multiple source detection without knowing the underlying propagation model.” Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 31. No. 1. 2017.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.LPSI.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">laplacian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#LPSI.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.LPSI.predict" title="Link to this definition"></a></dt>
+<dd><p>Prediction of the LPSI algorithm.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>laplacian (numpy.ndarray): The Laplacian matrix of the graph.</p></li>
+<li><p>num_node (int): Number of nodes in the graph.</p></li>
+<li><p>alpha (float): the fraction of label information that a node gets from its neighbors (between 0 and 1).</p></li>
+<li><p>diff_vec (numpy.ndarray): The diffusion vector.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>x (numpy.ndarray): Prediction of source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.LPSI.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#LPSI.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.LPSI.test" title="Link to this definition"></a></dt>
+<dd><p>Test the LPSI algorithm.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).</p></li>
+<li><p>thres (float): Threshold value.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
+</ul>
+<p>Example:</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import LPSI</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset = split_dataset(dataset)</p>
+<p>lpsi = LPSI()</p>
+<p>alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)</p>
+<p>print(“LPSI:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>metric=lpsi.test(adj, test_dataset, alpha, thres)</p>
+<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.LPSI.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.001,</span> <span class="pre">0.01,</span> <span class="pre">0.1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thres_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">0.3,</span> <span class="pre">0.5,</span> <span class="pre">0.7,</span> <span class="pre">0.9]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#LPSI.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.LPSI.train" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Train the LPSI algorithm.</p>
+</div></blockquote>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.</p></li>
+<li><p>thres_list (list): List of threshold values to try.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>opt_alpha (float): Optimal fraction of label information that a node gets from its neighbors, between 0 and 1.</p></li>
+<li><p>opt_thres (float): Optimal threshold value.</p></li>
+<li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
+<li><p>opt_f1 (float): Optimal F1 score value.</p></li>
+<li><p>opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
+</ul>
+<p>Example:</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import LPSI</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>lpsi = LPSI()</p>
+<p>alpha, thres, auc, f1, pred =lpsi.train(adj, train_dataset)</p>
+<p>print(“LPSI:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.NetSleuth">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphSL.Prescribed.</span></span><span class="sig-name descname"><span class="pre">NetSleuth</span></span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#NetSleuth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.NetSleuth" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implement the NetSleuth algorithm.</p>
+<p>Prakash, B. Aditya, Jilles Vreeken, and Christos Faloutsos. “Spotting culprits in epidemics: How many and which ones?.” 2012 IEEE 12th international conference on data mining. IEEE, 2012.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.NetSleuth.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#NetSleuth.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.NetSleuth.predict" title="Link to this definition"></a></dt>
+<dd><p>Prediction of the NetSleuth algorithm.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>G (networkx.Graph): The input graph.</p></li>
+<li><p>k (int): Number of source nodes to identify.</p></li>
+<li><p>diff_vec (torch.Tensor): The diffusion vector.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>seed_vec (torch.Tensor): A binary tensor representing identified source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.NetSleuth.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#NetSleuth.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.NetSleuth.test" title="Link to this definition"></a></dt>
+<dd><p>Test the NetSleuth algorithm.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>k (int): Number of source nodes.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
+</ul>
+<p>Example:</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import NetSleuth</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>netSleuth = NetSleuth()</p>
+<p>k, auc, f1=netSleuth.train(adj, train_dataset)</p>
+<p>print(“NetSleuth:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>metric = netSleuth.test(adj, test_dataset, k)</p>
+<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.NetSleuth.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[5,</span> <span class="pre">10,</span> <span class="pre">50]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#NetSleuth.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.NetSleuth.train" title="Link to this definition"></a></dt>
+<dd><p>Train the NetSleuth algorithm.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (torch.utils.data.dataset.Subset): The training dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>k_list (list): List of the numbers of source nodes to try.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>opt_k (int): Optimal number of source nodes.</p></li>
+<li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
+<li><p>train_f1 (float): Training F1 score value.</p></li>
+</ul>
+<p>Example:</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import NetSleuth</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>netSleuth = NetSleuth()</p>
+<p>k, auc, f1=netSleuth.train(adj, train_dataset)</p>
+<p>print(“NetSleuth:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.OJC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphSL.Prescribed.</span></span><span class="sig-name descname"><span class="pre">OJC</span></span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#OJC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.OJC" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implement the Optimal-Jordan-Cover (OJC) algorithm.</p>
+<p>Zhu, Kai, Zhen Chen, and Lei Ying. “Catch’em all: Locating multiple diffusion sources in networks with partial observations.” Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 31. No. 1. 2017.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.OJC.Candidate">
+<span class="sig-name descname"><span class="pre">Candidate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#OJC.Candidate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.OJC.Candidate" title="Link to this definition"></a></dt>
+<dd><p>Identify potential source nodes based on the given criteria.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>G (networkx.Graph): The input graph.</p></li>
+<li><p>Y (int): Number of desired source nodes.</p></li>
+<li><p>I (list): List of diffused nodes.</p></li>
+<li><p>target (torch.Tensor): Target vector.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>K (list): List of potential source nodes.</p></li>
+<li><p>G_bar (networkx.Graph): Subgraph containing potential source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.OJC.get_K_list">
+<span class="sig-name descname"><span class="pre">get_K_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#OJC.get_K_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.OJC.get_K_list" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Get the list of potential source nodes.</p>
+</div></blockquote>
+<p>Args:</p>
+<ul class="simple">
+<li><p>G (networkx.Graph): The input graph.</p></li>
+<li><p>Y (int): Number of desired source nodes.</p></li>
+<li><p>I (list): list of diffused nodes.</p></li>
+<li><p>target (numpy.ndarray): Target vector.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>K (list): List of potential source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.OJC.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#OJC.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.OJC.predict" title="Link to this definition"></a></dt>
+<dd><p>Prediction of the OJC algorithm.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>G (networkx.Graph): The input graph.</p></li>
+<li><p>Y (int): Number of source nodes.</p></li>
+<li><p>I (list): List of diffused nodes.</p></li>
+<li><p>target (numpy.ndarray): Target vector.</p></li>
+<li><p>num_source (int): Maximal number of source nodes.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>x (numpy.ndarray): A binary vector representing identified potential source nodes.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.OJC.test">
+<span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#OJC.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.OJC.test" title="Link to this definition"></a></dt>
+<dd><p>Test the OJC algorithm.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>Y (int): Number of source nodes.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
+</ul>
+<p>Example:</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import OJC</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>ojc = OJC()</p>
+<p>Y, auc, f1 =ojc.train(adj, train_dataset)</p>
+<p>print(“OJC:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>metric=ojc.test(adj, test_dataset, Y)</p>
+<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="GraphSL.Prescribed.OJC.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[5,</span> <span class="pre">10,</span> <span class="pre">50]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/Prescribed.html#OJC.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.Prescribed.OJC.train" title="Link to this definition"></a></dt>
+<dd><p>Train the OJC algorithm.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (torch.utils.data.dataset.Subset): The train dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>Y_list (list): List of numbers of source nodes to try.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>opt_Y (int): Optimal number of source nodes.</p></li>
+<li><p>opt_auc (float): Optimal Area Under the Curve (AUC) value.</p></li>
+<li><p>train_f1 (float): Training F1 score value.</p></li>
+</ul>
+<p>Example:</p>
+<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.Prescribed import OJC</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+<p>ojc = OJC()</p>
+<p>Y, auc, f1 =ojc.train(adj, train_dataset)</p>
+<p>print(“OJC:”)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-GraphSL">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-GraphSL" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="GraphSL" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="GraphSL.GNN.html" class="btn btn-neutral float-right" title="GraphSL.GNN package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Junxiang Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

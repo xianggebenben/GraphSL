@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GraphSL &mdash; GraphSL 0.1 documentation</title>
+  <title>GraphSL &mdash; GraphSL 0.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,13 +15,13 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/documentation_options.js?v=a0e24af7"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="data package" href="data.html" />
+    <link rel="next" title="GraphSL package" href="GraphSL.html" />
     <link rel="prev" title="Welcome to GraphSL’s documentation!" href="index.html" /> 
 </head>
 
@@ -47,10 +47,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">GraphSL</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="data.html">data package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Evaluation.html">Evaluation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="GNN.html">GNN package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Prescribed.html">Prescribed module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.html">GraphSL package</a></li>
 </ul>
 </li>
 </ul>
@@ -83,79 +80,50 @@
 <h1>GraphSL<a class="headerlink" href="#graphsl" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="data.html">data package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="data.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="data.utils.html">data.utils module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="data.utils.html#data.utils.diffusion_generation"><code class="docutils literal notranslate"><span class="pre">diffusion_generation()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="data.utils.html#data.utils.generate_seed_vector"><code class="docutils literal notranslate"><span class="pre">generate_seed_vector()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="data.utils.html#data.utils.load_dataset"><code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="data.utils.html#data.utils.split_dataset"><code class="docutils literal notranslate"><span class="pre">split_dataset()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="GraphSL.html">GraphSL package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.GNN.html">GraphSL.GNN package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.html#module-GraphSL.GNN">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html">GraphSL.data package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.data.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.data.html#module-GraphSL.data.utils">GraphSL.data.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.data.html#module-GraphSL.data">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="data.html#module-data">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.html#module-GraphSL.Evaluation">GraphSL.Evaluation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.html#GraphSL.Evaluation.Metric"><code class="docutils literal notranslate"><span class="pre">Metric</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Evaluation.html">Evaluation module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Evaluation.html#Evaluation.Metric"><code class="docutils literal notranslate"><span class="pre">Metric</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.html#module-GraphSL.Prescribed">GraphSL.Prescribed module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.LPSI"><code class="docutils literal notranslate"><span class="pre">LPSI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.LPSI.predict"><code class="docutils literal notranslate"><span class="pre">LPSI.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.LPSI.test"><code class="docutils literal notranslate"><span class="pre">LPSI.test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.LPSI.train"><code class="docutils literal notranslate"><span class="pre">LPSI.train()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="GNN.html">GNN package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="GNN.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="GNN.GCNSI.html">GNN.GCNSI package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="GNN.GCNSI.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.GCNSI.html#module-GNN.GCNSI.main">GNN.GCNSI.main module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.GCNSI.html#module-GNN.GCNSI.model">GNN.GCNSI.model module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.GCNSI.html#module-GNN.GCNSI">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.NetSleuth"><code class="docutils literal notranslate"><span class="pre">NetSleuth</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.NetSleuth.predict"><code class="docutils literal notranslate"><span class="pre">NetSleuth.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.NetSleuth.test"><code class="docutils literal notranslate"><span class="pre">NetSleuth.test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.NetSleuth.train"><code class="docutils literal notranslate"><span class="pre">NetSleuth.train()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="GNN.IVGD.html">GNN.IVGD package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#module-GNN.IVGD.correction">GNN.IVGD.correction module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#module-GNN.IVGD.earlystopping">GNN.IVGD.earlystopping module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#module-GNN.IVGD.i_deepis">GNN.IVGD.i_deepis module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#module-GNN.IVGD.main">GNN.IVGD.main module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#module-GNN.IVGD.preprocessing">GNN.IVGD.preprocessing module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#module-GNN.IVGD.training">GNN.IVGD.training module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#module-GNN.IVGD.validity_net">GNN.IVGD.validity_net module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.IVGD.html#module-GNN.IVGD">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="GNN.SLVAE.html">GNN.SLVAE package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="GNN.SLVAE.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.SLVAE.html#module-GNN.SLVAE.main">GNN.SLVAE.main module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.SLVAE.html#module-GNN.SLVAE.model">GNN.SLVAE.model module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GNN.SLVAE.html#module-GNN.SLVAE">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.OJC"><code class="docutils literal notranslate"><span class="pre">OJC</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.OJC.Candidate"><code class="docutils literal notranslate"><span class="pre">OJC.Candidate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.OJC.get_K_list"><code class="docutils literal notranslate"><span class="pre">OJC.get_K_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.OJC.predict"><code class="docutils literal notranslate"><span class="pre">OJC.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.OJC.test"><code class="docutils literal notranslate"><span class="pre">OJC.test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.html#GraphSL.Prescribed.OJC.train"><code class="docutils literal notranslate"><span class="pre">OJC.train()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="GNN.html#module-GNN">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Prescribed.html">Prescribed module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Prescribed.html#Prescribed.LPSI"><code class="docutils literal notranslate"><span class="pre">LPSI</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.LPSI.predict"><code class="docutils literal notranslate"><span class="pre">LPSI.predict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.LPSI.test"><code class="docutils literal notranslate"><span class="pre">LPSI.test()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.LPSI.train"><code class="docutils literal notranslate"><span class="pre">LPSI.train()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Prescribed.html#Prescribed.NetSleuth"><code class="docutils literal notranslate"><span class="pre">NetSleuth</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.NetSleuth.predict"><code class="docutils literal notranslate"><span class="pre">NetSleuth.predict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.NetSleuth.test"><code class="docutils literal notranslate"><span class="pre">NetSleuth.test()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.NetSleuth.train"><code class="docutils literal notranslate"><span class="pre">NetSleuth.train()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Prescribed.html#Prescribed.OJC"><code class="docutils literal notranslate"><span class="pre">OJC</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.OJC.Candidate"><code class="docutils literal notranslate"><span class="pre">OJC.Candidate()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.OJC.get_K_list"><code class="docutils literal notranslate"><span class="pre">OJC.get_K_list()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.OJC.predict"><code class="docutils literal notranslate"><span class="pre">OJC.predict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.OJC.test"><code class="docutils literal notranslate"><span class="pre">OJC.test()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Prescribed.html#Prescribed.OJC.train"><code class="docutils literal notranslate"><span class="pre">OJC.train()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="GraphSL.html#module-GraphSL">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -167,7 +135,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to GraphSL’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="data.html" class="btn btn-neutral float-right" title="data package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="GraphSL.html" class="btn btn-neutral float-right" title="GraphSL package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

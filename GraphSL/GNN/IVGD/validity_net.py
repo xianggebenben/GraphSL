@@ -1,5 +1,5 @@
 import torch
-from GNN.IVGD.correction import correction
+from GraphSL.GNN.IVGD.correction import correction
 
 
 class validity_net(torch.nn.Module):
