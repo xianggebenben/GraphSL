@@ -2,7 +2,7 @@
 title: 'GraphSL: A Open-Source Library for Graph Source Localization Approaches and Benchmark Datasets'
 tags:
   - Python
-  - graph diffusion
+  - Graph Diffusion
   - Graph Source Localization
   - Prescribed Methods
   - GNN Methods
