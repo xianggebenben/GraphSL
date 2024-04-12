@@ -19,7 +19,7 @@ filelock==3.13.3
 frozenlist==1.4.1
 fsspec==2024.3.1
 future==1.0.0
-idna==3.6
+idna==3.7
 igraph==0.11.4
 ipdb==0.13.13
 ipython==8.12.3
