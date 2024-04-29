@@ -142,7 +142,7 @@ If you use this package in your research, please consider citing our work as fol
 @article{wang2024joss,
   year = {2024},
   author = {Wang Junxiang, Zhao Liang},
-  title = {}, journal = {preprint}
+  title = {GraphSL: A Open-Source Library for Graph Source Localization Approaches and Benchmark Datasets}, journal = {preprint}
 }
 ```
 # Contact
