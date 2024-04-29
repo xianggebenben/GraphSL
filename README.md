@@ -136,6 +136,15 @@ pip install -r requirements.txt
 
 Official documentation, including a detailed [API reference](https://graphsl.readthedocs.io/en/latest/modules.html), is available on [Read the Docs](https://graphsl.readthedocs.io/en/latest/#).
 
+# Citation
+If you use this package in your research, please consider citing our work as follows:
+```bibtex
+@article{wang2024joss,
+  year = {2024},
+  author = {Wang Junxiang, Zhao Liang},
+  title = {}, journal = {preprint}
+}
+```
 # Contact
 
 Feel free to Email Junxiang Wang (junxiang.wang@alumni.emory.edu) if you have any questions.
