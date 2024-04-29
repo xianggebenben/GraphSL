@@ -173,6 +173,10 @@ class VAE(nn.Module):
 
         - logvar (torch.Tensor):   Log variance of latent space.
         """
+        self.encoder.to(x.device)
+        self.mean_layer.to(x.device)
+        self.logvar_layer.to(x.device)
+
         x = self.encoder(x)
         mean, logvar = self.mean_layer(x), self.logvar_layer(x)
         return mean, logvar
@@ -209,6 +213,7 @@ class VAE(nn.Module):
 
         - torch.Tensor: Decoded output tensor.
         """
+        self.decoder.to(x.device)
         return self.decoder(x)
 
     def forward(self, x):

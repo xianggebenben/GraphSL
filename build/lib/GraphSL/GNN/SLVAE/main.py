@@ -126,12 +126,14 @@ class SLVAE_model(nn.Module):
         """
         device = y_true.device
         BN = nn.BatchNorm1d(1, affine=False).to(device)
+        y_hat = y_hat.to(device)
         forward_loss = F.mse_loss(y_hat, y_true)
         log_pmf = []
         for pred in train_pred:
             log_lh = torch.zeros(1).to(device)
             for i, x_i in enumerate(x_hat[0]):
                 temp = x_i * torch.log(pred[i]) + (1 - x_i) * torch.log(1 - pred[i]).to(torch.double)
+                temp = temp.to(device)
                 log_lh += temp
             log_pmf.append(log_lh)
 
@@ -244,8 +246,8 @@ class SLVAE:
         for epoch in range(num_epoch):
             overall_loss = 0
             for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
+                seed_vec = influ_mat[:, 0].to(device)
+                influ_vec = influ_mat[:, -1].to(device)
                 influ_vec = influ_vec.unsqueeze(-1).float()
                 seed_vec = seed_vec.unsqueeze(-1).float()
                 optimizer.zero_grad()
@@ -305,8 +307,8 @@ class SLVAE:
         train_auc = 0
         for i, influ_mat in enumerate(train_dataset):
             seed_vec = influ_mat[:, 0]
-            seed_vec = seed_vec.squeeze(-1).detach().numpy()
-            seed_pred = seed_infer[i].detach().numpy()
+            seed_vec = seed_vec.squeeze(-1).cpu().detach().numpy()
+            seed_pred = seed_infer[i].cpu().cpu().detach().numpy()
             train_auc += roc_auc_score(seed_vec, seed_pred)
         train_auc = train_auc / train_num
 
@@ -316,8 +318,8 @@ class SLVAE:
             train_f1 = 0
             for i, influ_mat in enumerate(train_dataset):
                 seed_vec = influ_mat[:, 0]
-                seed_vec = seed_vec.squeeze(-1).detach().numpy()
-                seed_pred = seed_infer[i].detach().numpy()
+                seed_vec = seed_vec.squeeze(-1).cpu().detach().numpy()
+                seed_pred = seed_infer[i].cpu().detach().numpy()
                 train_f1 += f1_score(seed_vec, seed_pred >= thres, zero_division = 1)
             train_f1 = train_f1 / train_num
             print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
@@ -328,7 +330,7 @@ class SLVAE:
         pred = np.zeros((num_node,train_num))
 
         for i in range(train_num):
-            pred[:,i] = seed_infer[i].squeeze(-1).detach().numpy()
+            pred[:,i] = seed_infer[i].squeeze(-1).cpu().detach().numpy()
 
 
         return slvae_model, seed_vae_train, opt_thres, train_auc, opt_f1, pred
@@ -435,8 +437,8 @@ class SLVAE:
 
         for i, influ_mat in enumerate(test_dataset):
             seed_vec = influ_mat[:, 0]
-            seed_vec = seed_vec.squeeze(-1).detach().numpy()
-            seed_pred = seed_infer[i].detach().numpy()
+            seed_vec = seed_vec.squeeze(-1).cpu().detach().numpy()
+            seed_pred = seed_infer[i].cpu().detach().numpy()
             test_acc += accuracy_score(seed_vec, seed_pred >= thres)
             test_pr += precision_score(seed_vec, seed_pred >= thres, zero_division = 1)
             test_re += recall_score(seed_vec, seed_pred >= thres, zero_division = 1)

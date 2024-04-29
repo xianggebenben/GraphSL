@@ -74,6 +74,11 @@ class IVGD_model(torch.nn.Module):
 
         - x (torch.Tensor): Output tensor after forward pass.
         """
+        self.net1.to(x.device)
+        self.net2.to(x.device)
+        self.net3.to(x.device)
+        self.net4.to(x.device)
+        self.net5.to(x.device)
         sum = torch.sum(label)
         label = torch.cat((1 - label, label), dim=1)
         x = torch.cat((1 - x, x), dim=1)
@@ -268,6 +273,7 @@ class IVGD:
         print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
         """
+        device =torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         criterion = nn.CrossEntropyLoss()
         #train_num = len(train_dataset)
         num_node = adj.shape[0]
@@ -280,8 +286,8 @@ class IVGD:
         ivgd.train()
         train_num = len(train_dataset)
         for i,influ_mat in enumerate(train_dataset):
-            seed_vec = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
+            seed_vec = influ_mat[:, 0].to(device)
+            influ_vec = influ_mat[:, -1].to(device)
             seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
             seed_preds = seed_preds.unsqueeze(-1).float()
             seed_vec = seed_vec.unsqueeze(-1).float()
@@ -305,7 +311,7 @@ class IVGD:
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
             seed_correction = self.normalize(seed_correction)
-            seed_correction = seed_correction.squeeze(-1).detach().numpy()
+            seed_correction = seed_correction.cpu().squeeze(-1).detach().numpy()
             seed_vec = seed_vec.detach().numpy()
             train_auc += roc_auc_score(seed_vec, seed_correction)
         train_auc = train_auc / train_num
@@ -321,7 +327,7 @@ class IVGD:
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
             seed_correction = self.normalize(seed_correction)
-            seed_correction = seed_correction.squeeze(-1).detach().numpy()
+            seed_correction = seed_correction.squeeze(-1).cpu().detach().numpy()
             pred[:,i] = seed_correction
 
         opt_f1 = 0
@@ -413,8 +419,8 @@ class IVGD:
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
             seed_correction = self.normalize(seed_correction)
-            seed_correction = seed_correction.squeeze(-1).detach().numpy()
-            seed_vec = seed_vec.squeeze(-1).detach().numpy()
+            seed_correction = seed_correction.squeeze(-1).cpu().detach().numpy()
+            seed_vec = seed_vec.squeeze(-1).detach().cpu().numpy()
 
             # Compute metrics
             test_acc += accuracy_score(seed_vec, seed_correction >= thres)

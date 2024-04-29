@@ -24,7 +24,7 @@ def load_dataset(dataset, data_dir):
     """
     import pickle
 
-    data_dir = data_dir+"\\data\\"+dataset
+    data_dir = data_dir+"/data/"+dataset
     with open(data_dir, 'rb') as f:
         graph = pickle.load(f)
     return graph
