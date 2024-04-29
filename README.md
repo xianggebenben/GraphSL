@@ -65,20 +65,25 @@ Aside from methods, we also provide eight benchmark datasets to facilitate the r
 
 # Installation
 
-#### Installation via PyPI
-```bash
-pip install GraphSL
-```
+First, install GraphSL using pip:
 
-#### Installation via GitHub
-Clone the repo from [here](https://github.com/xianggebenben/GraphSL) (this repo).
+.. code-block:: bash
+
+    pip install GraphSL
+
+Or, clone the repo from https://github.com/xianggebenben/GraphSL.
 
 Install requirements:
-```bash
-pip install -r requirements.txt
+
+.. code-block:: bash
+
+    pip install -r requirements.txt
+
+Second, download the data folder of the repo from https://github.com/xianggebenben/GraphSL, which contains eight datasets.
 ```
 
 # Quickstart
+
 ``` python
 from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 from GraphSL.Prescribed import LPSI, NetSleuth, OJC

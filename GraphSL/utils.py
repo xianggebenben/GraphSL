@@ -82,11 +82,15 @@ def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=10, repeat
 
     Example:
 
+    import os
+
+    curr_dir = os.getcwd()
+
     from data.utils import load_dataset, diffusion_generation
 
     data_name = 'karate'
 
-    graph = load_dataset(data_name)
+    graph = load_dataset(data_name, data_dir=curr_dir)
 
     dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
     """
@@ -175,11 +179,15 @@ def split_dataset(dataset, train_ratio: float = 0.6, seed: int = 0):
 
     Example:
 
+    import os
+
+    curr_dir = os.getcwd()
+
     from data.utils import load_dataset, diffusion_generation, split_dataset
 
     data_name = 'karate'
 
-    graph = load_dataset(data_name)
+    graph = load_dataset(data_name, data_dir = curr_dir)
 
     dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
 

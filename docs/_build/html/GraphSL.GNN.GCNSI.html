@@ -16,7 +16,7 @@
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="_static/documentation_options.js?v=a0e24af7"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -120,10 +120,12 @@
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.</p></li>
 </ul>
 <p>Example:</p>
+<p>import os</p>
+<p>curr_dir = os.getcwd()</p>
 <p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GNN.GCNSI.main import GCNSI</p>
 <p>data_name = ‘karate’</p>
-<p>graph = load_dataset(data_name)</p>
+<p>graph = load_dataset(data_name, data_dir=curr_dir)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
 <p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
 <p>gcnsi = GCNSI()</p>
@@ -158,10 +160,12 @@
 <li><p>opt_pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
 <p>Example:</p>
+<p>import os</p>
+<p>curr_dir = os.getcwd()</p>
 <p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.GNN.GCNSI.main import GCNSI</p>
 <p>data_name = ‘karate’</p>
-<p>graph = load_dataset(data_name)</p>
+<p>graph = load_dataset(data_name, data_dir=curr_dir)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
 <p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
 <p>gcnsi = GCNSI()</p>
@@ -216,11 +220,6 @@
 <li><p>x (torch.Tensor): A tensor representing identified source nodes.</p></li>
 </ul>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="GraphSL.GNN.GCNSI.model.GCNSI_model.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#GraphSL.GNN.GCNSI.model.GCNSI_model.training" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

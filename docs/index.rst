@@ -33,11 +33,13 @@ Install requirements:
 
     pip install -r requirements.txt
 
+Second, download the data folder of the repo from https://github.com/xianggebenben/GraphSL, which contains eight datasets.
+
 
 Usage
 -----
 
-Now, you can import and use GraphSL in your Python code:
+Now, you can import and use GraphSL in your Python code. Please make sure your Python code and the data folder are in the same directory:
 
 .. code-block:: python
 

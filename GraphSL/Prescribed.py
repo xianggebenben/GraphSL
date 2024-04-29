@@ -67,13 +67,17 @@ class LPSI:
 
         Example:
 
+        import os
+
+        curr_dir = os.getcwd()
+
         from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import LPSI
 
         data_name = 'karate'
 
-        graph = load_dataset(data_name)
+        graph = load_dataset(data_name,data_dir=curr_dir)
 
         dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
 
@@ -147,13 +151,17 @@ class LPSI:
 
         Example:
 
+        import os
+
+        curr_dir = os.getcwd()
+
         from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import LPSI
 
         data_name = 'karate'
 
-        graph = load_dataset(data_name)
+        graph = load_dataset(data_name, data_dir=curr_dir)
 
         dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
 
@@ -269,13 +277,17 @@ class NetSleuth:
 
         Example:
 
+        import os
+
+        curr_dir = os.getcwd()
+
         from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import NetSleuth
 
         data_name = 'karate'
 
-        graph = load_dataset(data_name)
+        graph = load_dataset(data_name, data_dir=curr_dir)
 
         dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
 
@@ -341,13 +353,17 @@ class NetSleuth:
 
         Example:
 
+        import os
+
+        curr_dir = os.getcwd()
+
         from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import NetSleuth
 
         data_name = 'karate'
 
-        graph = load_dataset(data_name)
+        graph = load_dataset(data_name, data_dir=curr_dir)
 
         dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
 
@@ -531,13 +547,17 @@ class OJC:
 
         Example:
 
+        import os
+
+        curr_dir = os.getcwd()
+
         from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import OJC
 
         data_name = 'karate'
 
-        graph = load_dataset(data_name)
+        graph = load_dataset(data_name, data_dir=curr_dir)
 
         dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
 
@@ -604,13 +624,17 @@ class OJC:
 
         Example:
 
+        import os
+
+        curr_dir = os.getcwd()
+
         from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import OJC
 
         data_name = 'karate'
 
-        graph = load_dataset(data_name)
+        graph = load_dataset(data_name, data_dir=curr_dir)
 
         dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
 

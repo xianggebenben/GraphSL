@@ -1,5 +1,5 @@
 ---
-title: 'GraphSL: A Open-Source Library for Graph Source Localization Approaches and Benchmark Datasets'
+title: 'GraphSL: An Open-Source Library for Graph Source Localization Approaches and Benchmark Datasets'
 tags:
   - Python
   - Graph Diffusion
