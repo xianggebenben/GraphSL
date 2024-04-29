@@ -1,10 +1,12 @@
-from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+import os
+curr_dir = os.getcwd()
+from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 from GraphSL.Prescribed import LPSI, NetSleuth, OJC
 from GraphSL.GNN.GCNSI.main import GCNSI
 from GraphSL.GNN.IVGD.main import IVGD
 from GraphSL.GNN.SLVAE.main import SLVAE
 data_name = 'karate'  # 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid', , 'meme8000', 'digg16000'
-graph = load_dataset(data_name)
+graph = load_dataset(data_name,data_dir=curr_dir)
 if data_name not in ['meme8000', 'digg16000']:
     dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.3)
 else:

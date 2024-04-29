@@ -21,7 +21,6 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="GraphSL.data package" href="GraphSL.data.html" />
     <link rel="prev" title="GraphSL.GNN.IVGD.model package" href="GraphSL.GNN.IVGD.model.html" /> 
 </head>
 
@@ -50,10 +49,10 @@
 <li class="toctree-l2 current"><a class="reference internal" href="GraphSL.html">GraphSL package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="GraphSL.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="GraphSL.GNN.html">GraphSL.GNN package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GraphSL.data.html">GraphSL.data package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.utils">GraphSL.utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.Evaluation">GraphSL.Evaluation module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.Prescribed">GraphSL.Prescribed module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL">Module contents</a></li>
@@ -123,7 +122,7 @@ seed vector in the test set.</p></li>
 <li><p>Metric: Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
 <p>Example:</p>
-<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.GNN.SLVAE.main import SLVAE</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
@@ -161,7 +160,7 @@ seed vector in the test set.</p></li>
 <li><p>pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
 <p>Example:</p>
-<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.GNN.SLVAE.main import SLVAE</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
@@ -523,7 +522,6 @@ seed vector in the test set.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="GraphSL.GNN.IVGD.model.html" class="btn btn-neutral float-left" title="GraphSL.GNN.IVGD.model package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="GraphSL.data.html" class="btn btn-neutral float-right" title="GraphSL.data package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

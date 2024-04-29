@@ -101,13 +101,15 @@
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
 <p>Now, you can import and use GraphSL in your Python code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">GraphSL.data.utils</span> <span class="kn">import</span> <span class="n">load_dataset</span><span class="p">,</span> <span class="n">diffusion_generation</span><span class="p">,</span> <span class="n">split_dataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">curr_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">GraphSL.utils</span> <span class="kn">import</span> <span class="n">load_dataset</span><span class="p">,</span> <span class="n">diffusion_generation</span><span class="p">,</span> <span class="n">split_dataset</span>
 <span class="kn">from</span> <span class="nn">GraphSL.Prescribed</span> <span class="kn">import</span> <span class="n">LPSI</span><span class="p">,</span> <span class="n">NetSleuth</span><span class="p">,</span> <span class="n">OJC</span>
 <span class="kn">from</span> <span class="nn">GraphSL.GNN.GCNSI.main</span> <span class="kn">import</span> <span class="n">GCNSI</span>
 <span class="kn">from</span> <span class="nn">GraphSL.GNN.IVGD.main</span> <span class="kn">import</span> <span class="n">IVGD</span>
 <span class="kn">from</span> <span class="nn">GraphSL.GNN.SLVAE.main</span> <span class="kn">import</span> <span class="n">SLVAE</span>
 <span class="n">data_name</span> <span class="o">=</span> <span class="s1">&#39;karate&#39;</span>  <span class="c1"># &#39;karate&#39;, &#39;dolphins&#39;, &#39;jazz&#39;, &#39;netscience&#39;, &#39;cora_ml&#39;, &#39;power_grid&#39;, , &#39;meme8000&#39;, &#39;digg16000&#39;</span>
-<span class="n">graph</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">data_name</span><span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">data_name</span><span class="p">,</span><span class="n">curr_dir</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">data_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;meme8000&#39;</span><span class="p">,</span> <span class="s1">&#39;digg16000&#39;</span><span class="p">]:</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">diffusion_generation</span><span class="p">(</span><span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span> <span class="n">infect_prob</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">diff_type</span><span class="o">=</span><span class="s1">&#39;IC&#39;</span><span class="p">,</span> <span class="n">sim_num</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">seed_ratio</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>

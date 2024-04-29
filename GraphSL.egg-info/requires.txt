@@ -1,7 +1,0 @@
-numpy
-networkx
-ndlib
-torch
-scikit-learn
-scipy
-torch_geometric

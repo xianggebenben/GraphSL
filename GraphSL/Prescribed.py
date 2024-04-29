@@ -67,7 +67,7 @@ class LPSI:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import LPSI
 
@@ -147,7 +147,7 @@ class LPSI:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import LPSI
 
@@ -269,7 +269,7 @@ class NetSleuth:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import NetSleuth
 
@@ -341,7 +341,7 @@ class NetSleuth:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import NetSleuth
 
@@ -531,7 +531,7 @@ class OJC:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import OJC
 
@@ -604,7 +604,7 @@ class OJC:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.Prescribed import OJC
 

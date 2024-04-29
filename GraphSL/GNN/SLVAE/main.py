@@ -194,7 +194,7 @@ class SLVAE:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.GNN.SLVAE.main import SLVAE
 
@@ -357,7 +357,7 @@ class SLVAE:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.GNN.SLVAE.main import SLVAE
 

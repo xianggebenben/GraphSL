@@ -80,7 +80,7 @@ pip install -r requirements.txt
 
 # Quickstart
 ``` python
-from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 from GraphSL.Prescribed import LPSI, NetSleuth, OJC
 from GraphSL.GNN.GCNSI.main import GCNSI
 from GraphSL.GNN.IVGD.main import IVGD

@@ -50,10 +50,16 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">GraphSL package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.html">GraphSL.GNN package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GraphSL.data.html">GraphSL.data package</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-GraphSL.utils">GraphSL.utils module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.diffusion_generation"><code class="docutils literal notranslate"><span class="pre">diffusion_generation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.generate_seed_vector"><code class="docutils literal notranslate"><span class="pre">generate_seed_vector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.load_dataset"><code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.split_dataset"><code class="docutils literal notranslate"><span class="pre">split_dataset()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#module-GraphSL.Evaluation">GraphSL.Evaluation module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#GraphSL.Evaluation.Metric"><code class="docutils literal notranslate"><span class="pre">Metric</span></code></a></li>
 </ul>
@@ -136,23 +142,96 @@
 <li class="toctree-l2"><a class="reference internal" href="GraphSL.GNN.html#module-GraphSL.GNN">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="GraphSL.data.html">GraphSL.data package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="GraphSL.data.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="GraphSL.data.html#module-GraphSL.data.utils">GraphSL.data.utils module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html#GraphSL.data.utils.diffusion_generation"><code class="docutils literal notranslate"><span class="pre">diffusion_generation()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html#GraphSL.data.utils.generate_seed_vector"><code class="docutils literal notranslate"><span class="pre">generate_seed_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html#GraphSL.data.utils.load_dataset"><code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="GraphSL.data.html#GraphSL.data.utils.split_dataset"><code class="docutils literal notranslate"><span class="pre">split_dataset()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="GraphSL.data.html#module-GraphSL.data">Module contents</a></li>
-</ul>
-</li>
 </ul>
 </div>
 </section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-GraphSL.utils">
+<span id="graphsl-utils-module"></span><h2>GraphSL.utils module<a class="headerlink" href="#module-GraphSL.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="GraphSL.utils.diffusion_generation">
+<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">diffusion_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'IC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infect_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recover_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#diffusion_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.diffusion_generation" title="Link to this definition"></a></dt>
+<dd><p>Generate diffusion matrices for a graph.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>graph (dict): Dictionary containing the graph information.</p></li>
+<li><p>sim_num (int): Number of simulations.</p></li>
+<li><p>diff_type (str): Type of diffusion model (IC, LT, SI, SIS, SIR). IC stands for Independent Cascade, LT stands for Linear Threshold, SI stands for Susceptible or Infective, SIS stands for Susceptible or Infective or Susceptible, SIR stands for Susceptible or Infective or Recovered.</p></li>
+<li><p>time_step (int): Number of time steps in the simulation.</p></li>
+<li><p>repeat_step (int): Number of repetitions for each simulation.</p></li>
+<li><p>seed_ratio (float): Ratio of seed nodes.</p></li>
+<li><p>infect_prob (float): Infection probability,  used in SIS, SIR or SI.</p></li>
+<li><p>recover_prob (float): Recovery probability, used in SIS or SIR.</p></li>
+<li><p>threshold (float): Threshold parameter for diffusion models, used in IC or LT.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>dataset (dict): Dictionary containing (‘adj_mat’) adjacency matrix and (‘diff_mat’) diffusion matrices.</p></li>
+</ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="GraphSL.utils.generate_seed_vector">
+<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">generate_seed_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#generate_seed_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.generate_seed_vector" title="Link to this definition"></a></dt>
+<dd><p>Generate a seed vector for diffusion simulation.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>top_nodes (list): List of top nodes based on node degree.</p></li>
+<li><p>seed_num (int): Number of seed nodes.</p></li>
+<li><p>G (networkx.Graph): The graph object.</p></li>
+</ul>
+<p>Returns:</p>
+<blockquote>
+<div><p>seed_vector (list): Seed vector for diffusion simulation.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="GraphSL.utils.load_dataset">
+<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#load_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.load_dataset" title="Link to this definition"></a></dt>
+<dd><p>Load a dataset from a pickle file.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>dataset (str): The name of the dataset file, ‘karate’, ‘dolphins’, ‘jazz’, ‘netscience’, ‘cora_ml’, ‘power_grid’,’meme8000’, ‘digg16000’.</p></li>
+<li><p>data_dir (str): The directory where the dataset files are stored.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>graph (dict): A dictionary containing the dataset.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="GraphSL.utils.split_dataset">
+<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">split_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#split_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.split_dataset" title="Link to this definition"></a></dt>
+<dd><p>Split the dataset into training and testing sets.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>dataset (dict): Dictionary containing the dataset.</p></li>
+<li><p>train_ratio (float): Ratio of training data. Default is 0.6.</p></li>
+<li><p>seed (int): Random seed for reproducibility. Default is 0.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p>adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</p></li>
+<li><p>train_dataset (torch.utils.data.dataset.Subset): The train dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</p></li>
+</ul>
+<p>Example:</p>
+<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+</dd></dl>
+
 </section>
 <section id="module-GraphSL.Evaluation">
 <span id="graphsl-evaluation-module"></span><h2>GraphSL.Evaluation module<a class="headerlink" href="#module-GraphSL.Evaluation" title="Link to this heading"></a></h2>
@@ -204,7 +283,7 @@
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
 <p>Example:</p>
-<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.Prescribed import LPSI</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
@@ -240,7 +319,7 @@
 <li><p>opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
 <p>Example:</p>
-<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.Prescribed import LPSI</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
@@ -291,7 +370,7 @@
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
 <p>Example:</p>
-<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.Prescribed import NetSleuth</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
@@ -322,7 +401,7 @@
 <li><p>train_f1 (float): Training F1 score value.</p></li>
 </ul>
 <p>Example:</p>
-<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.Prescribed import NetSleuth</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
@@ -412,7 +491,7 @@
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</p></li>
 </ul>
 <p>Example:</p>
-<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.Prescribed import OJC</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>
@@ -443,7 +522,7 @@
 <li><p>train_f1 (float): Training F1 score value.</p></li>
 </ul>
 <p>Example:</p>
-<p>from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
 <p>from GraphSL.Prescribed import OJC</p>
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name)</p>

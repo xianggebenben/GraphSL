@@ -7,7 +7,7 @@ import torch
 import copy
 
 
-def load_dataset(dataset, data_dir='GraphSL\data'):
+def load_dataset(dataset, data_dir):
     """
     Load a dataset from a pickle file.
 
@@ -15,30 +15,17 @@ def load_dataset(dataset, data_dir='GraphSL\data'):
         
     - dataset (str): The name of the dataset file, 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid','meme8000', 'digg16000'.
         
-    - data_dir (str): The directory where the dataset files are stored. Default is 'data'.
+    - data_dir (str): The directory where the dataset files are stored.
 
     Returns:
         
     - graph (dict): A dictionary containing the dataset.
 
-    Example:
-
-    from data.utils import load_dataset
-
-    data_name = 'karate'
-
-    graph = load_dataset(data_name)
     """
-    from pathlib import Path
     import pickle
-    import sys
 
-    sys.path.append(data_dir)  # for pickle.load
-
-    data_dir = Path(data_dir)
-    graph_name = dataset
-    path_to_file = data_dir / graph_name
-    with open(path_to_file, 'rb') as f:
+    data_dir = data_dir+"\\data\\"+dataset
+    with open(data_dir, 'rb') as f:
         graph = pickle.load(f)
     return graph
 

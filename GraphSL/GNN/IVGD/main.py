@@ -148,7 +148,7 @@ class IVGD:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.GNN.IVGD.main import IVGD
 
@@ -237,7 +237,7 @@ class IVGD:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.GNN.IVGD.main import IVGD
 
@@ -352,7 +352,7 @@ class IVGD:
 
         Example:
 
-        from GraphSL.data.utils import load_dataset, diffusion_generation, split_dataset
+        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 
         from GraphSL.GNN.IVGD.main import IVGD
 

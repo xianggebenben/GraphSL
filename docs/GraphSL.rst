@@ -8,10 +8,17 @@ Subpackages
    :maxdepth: 4
 
    GraphSL.GNN
-   GraphSL.data
 
 Submodules
 ----------
+
+GraphSL.utils module
+-------------------------
+
+.. automodule:: GraphSL.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 GraphSL.Evaluation module
 -------------------------
