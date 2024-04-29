@@ -67,7 +67,6 @@ Aside from methods, we also provide eight benchmark datasets to facilitate the r
 
 First, install GraphSL using pip:
 
-.. code-block:: bash
 
     pip install GraphSL
 
@@ -75,14 +74,14 @@ Or, clone the repo from https://github.com/xianggebenben/GraphSL.
 
 Install requirements:
 
-.. code-block:: bash
-
     pip install -r requirements.txt
 
 Second, download the data folder of the repo from https://github.com/xianggebenben/GraphSL, which contains eight datasets.
-```
+
 
 # Quickstart
+
+Now, you can import and use GraphSL in your Python code. Please make sure your Python code and the data folder are in the same directory:
 
 ``` python
 from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
