@@ -70,9 +70,7 @@ First, install GraphSL using pip:
 
     pip install GraphSL
 
-Or, clone the repo from https://github.com/xianggebenben/GraphSL.
-
-Install requirements:
+Or, clone the repo from https://github.com/xianggebenben/GraphSL and install requirements:
 
     pip install -r requirements.txt
 
