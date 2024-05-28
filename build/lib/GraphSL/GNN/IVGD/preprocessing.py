@@ -63,8 +63,10 @@ def gen_splits_(array, train_size, stopping_size, val_size):
     """
     assert train_size + stopping_size + val_size <= len(array), 'length error'
     from sklearn.model_selection import train_test_split
-    train_idx, tmp = train_test_split(array, train_size=train_size, test_size=stopping_size + val_size)
-    stopping_idx, val_idx = train_test_split(tmp, train_size=stopping_size, test_size=val_size)
+    train_idx, tmp = train_test_split(
+        array, train_size=train_size, test_size=stopping_size + val_size)
+    stopping_idx, val_idx = train_test_split(
+        tmp, train_size=stopping_size, test_size=val_size)
 
     return train_idx, stopping_idx, val_idx
 
@@ -91,4 +93,3 @@ def normalize_attributes(attr_matrix):
         attr_invnorms = 1 / np.maximum(attr_norms, epsilon)
         attr_mat_norm = attr_matrix * attr_invnorms[:, np.newaxis]
     return attr_mat_norm
-

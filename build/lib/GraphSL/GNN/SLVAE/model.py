@@ -2,6 +2,8 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import scipy.sparse as sp
+
+
 class Encoder(nn.Module):
     """
     Encoder module for a variational autoencoder (VAE).
@@ -107,7 +109,6 @@ class Decoder(nn.Module):
 
         x_hat = torch.sigmoid(self.output(x))
         return x_hat
-
 
 
 class VAE(nn.Module):
@@ -285,7 +286,8 @@ class GNN(nn.Module):
         if sp.isspmatrix(adj_matrix):
             adj_matrix = adj_matrix.toarray()
 
-        self.adj_matrix = nn.Parameter(torch.FloatTensor(adj_matrix), requires_grad=False)
+        self.adj_matrix = nn.Parameter(
+            torch.FloatTensor(adj_matrix), requires_grad=False)
 
         # Define fully connected layers
         fcs = [nn.Linear(input_dim, hiddenunits[0], bias=bias)]
@@ -319,12 +321,14 @@ class GNN(nn.Module):
         for i in range(self.input_dim - 1):
             if i == 0:
                 mat = self.adj_matrix.T @ seed_vec
-                attr_mat = torch.cat((seed_vec.unsqueeze(0), mat.unsqueeze(0)), 0)
+                attr_mat = torch.cat(
+                    (seed_vec.unsqueeze(0), mat.unsqueeze(0)), 0)
             else:
                 mat = self.adj_matrix.T @ attr_mat[-1]
                 attr_mat = torch.cat((attr_mat, mat.unsqueeze(0)), 0)
 
-        layer_inner = self.act_fn(self.fcs[0](self.dropout(attr_mat.permute(*torch.arange(attr_mat.ndim - 1, -1, -1)))))
+        layer_inner = self.act_fn(self.fcs[0](self.dropout(
+            attr_mat.permute(*torch.arange(attr_mat.ndim - 1, -1, -1)))))
         for fc in self.fcs[1:-1]:
             layer_inner = self.act_fn(fc(layer_inner))
         res = torch.sigmoid(self.fcs[-1](self.dropout(layer_inner)))
@@ -396,9 +400,11 @@ class DiffusionPropagate(nn.Module):
         for i in range(preds.shape[0]):
             prop_pred = preds[i]
             for j in range(self.niter):
-                P2 = self.adj_matrix.T * prop_pred.view((1, -1)).expand(self.adj_matrix.shape)
+                P2 = self.adj_matrix.T * \
+                    prop_pred.view((1, -1)).expand(self.adj_matrix.shape)
                 P3 = torch.ones(self.adj_matrix.shape).to(device) - P2
-                prop_pred = torch.ones((self.adj_matrix.shape[0],)).to(device) - torch.prod(P3, dim=1)
+                prop_pred = torch.ones((self.adj_matrix.shape[0],)).to(
+                    device) - torch.prod(P3, dim=1)
                 prop_pred = prop_pred.unsqueeze(0)
             if i == 0:
                 prop_preds = prop_pred
@@ -408,16 +414,15 @@ class DiffusionPropagate(nn.Module):
         return prop_preds
 
 
-
 class ForwardModel(nn.Module):
     def __init__(self, gnn_model: nn.Module, propagate: nn.Module):
         """
         Constructor for ForwardModel class.
 
         Args:
-            
+
             gnn_model (nn.Module): Graph Neural Network model used as feature extractor.
-            
+
             propagate (nn.Module): Module to perform additional computation on GNN outputs.
         """
         super(ForwardModel, self).__init__()
@@ -426,18 +431,19 @@ class ForwardModel(nn.Module):
         self.relu = nn.ReLU(inplace=True)  # ReLU activation function
 
         # Extracting parameters requiring gradients from gnn_model for optimization
-        self.reg_params = list(filter(lambda x: x.requires_grad, self.gnn_model.parameters()))
+        self.reg_params = list(
+            filter(lambda x: x.requires_grad, self.gnn_model.parameters()))
 
     def forward(self, seed_vec):
         """
         Forward pass of the ForwardModel.
 
         Args:
-            
+
             seed_vec (torch.Tensor): Input tensor for the forward pass.
 
         Returns:
-            
+
            predictions (torch.Tensor): Predictions after the forward pass.
         """
         # Extracting indices where seed_vec equals 1
@@ -460,7 +466,7 @@ class ForwardModel(nn.Module):
 
         Args:
             y (torch.Tensor): Actual values.
-            
+
             y_hat (torch.Tensor): Predicted values.
 
         Returns:

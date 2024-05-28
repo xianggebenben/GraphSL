@@ -1,4 +1,6 @@
-from typing import  Tuple
+from .earlystopping import EarlyStopping, stopping_args
+from .preprocessing import gen_seeds, gen_splits_
+from typing import Tuple
 import time
 import numpy as np
 import torch
@@ -7,8 +9,7 @@ from torch.utils.data import TensorDataset, DataLoader
 import scipy.sparse as sp
 import sys
 sys.path.append('../../')
-from .preprocessing import gen_seeds, gen_splits_
-from .earlystopping import EarlyStopping, stopping_args
+
 
 class FeatureCons:
     """
@@ -84,7 +85,8 @@ def get_dataloaders(idx, labels_np, batch_size=None):
     labels = torch.FloatTensor(labels_np)
     if batch_size is None:
         batch_size = max((val.numel() for val in idx.values()))
-    datasets = {phase: TensorDataset(torch.LongTensor(ind), labels[ind]) for phase, ind in idx.items()}
+    datasets = {phase: TensorDataset(torch.LongTensor(
+        ind), labels[ind]) for phase, ind in idx.items()}
     dataloaders = {phase: DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True) for phase, dataset in
                    datasets.items()}
     return dataloaders
@@ -143,7 +145,8 @@ def lanczos_algo(prob_matrix, seed_vec, order=5, epsilon=0.001):
     seed_vec = seed_vec.flatten()
     beta = np.zeros((order + 1,))
     gamma = np.zeros((order + 1,))
-    q = [np.zeros((len(seed_vec),)), seed_vec / np.linalg.norm(seed_vec, ord=2)]
+    q = [np.zeros((len(seed_vec),)), seed_vec /
+         np.linalg.norm(seed_vec, ord=2)]
     for j in range(1, order + 1):
         z = S @ q[j]
         gamma[j] = q[j].reshape((1, -1)) @ z
@@ -172,16 +175,20 @@ def update_embedding(model, feature_mat):
 
     - torch.nn.Module: Updated model.
     """
-    assert getattr(model, 'gnn_model', None) is not None, 'Object model should have a submodule `gnn_model` '
+    assert getattr(model, 'gnn_model',
+                   None) is not None, 'Object model should have a submodule `gnn_model` '
     device = next(model.parameters()).device
     if model.gnn_model.features is None:
-        new_embedding_layer = nn.Embedding(feature_mat.shape[0], feature_mat.shape[1])
-        new_embedding_layer.weight = nn.Parameter(torch.FloatTensor(feature_mat), requires_grad=False)
+        new_embedding_layer = nn.Embedding(
+            feature_mat.shape[0], feature_mat.shape[1])
+        new_embedding_layer.weight = nn.Parameter(
+            torch.FloatTensor(feature_mat), requires_grad=False)
         model.gnn_model.features = new_embedding_layer
     else:
         assert feature_mat.shape[1] == model.gnn_model.features.weight.shape[1], \
             'New dimension of new embedding weights is not consistent with the old dimension'
-        model.gnn_model.features.weight = nn.Parameter(torch.FloatTensor(feature_mat), requires_grad=False)
+        model.gnn_model.features.weight = nn.Parameter(
+            torch.FloatTensor(feature_mat), requires_grad=False)
         model.gnn_model.features.num_embeddings = feature_mat.shape[0]
         model.gnn_model.features.embedding_dim = feature_mat.shape[1]
     model = model.to(device)
@@ -210,9 +217,11 @@ def PIteration(prob_matrix, predictions, seed_idx, substitute=True, piter=10):
     """
 
     def one_iter(prob_matrix, predictions):
-        P2 = np.multiply(prob_matrix.T, np.broadcast_to(predictions.reshape((1, -1)), prob_matrix.shape))
+        P2 = np.multiply(prob_matrix.T, np.broadcast_to(
+            predictions.reshape((1, -1)), prob_matrix.shape))
         P3 = np.ones(prob_matrix.shape) - P2
-        one_iter_preds = np.ones((prob_matrix.shape[0],)) - np.prod(P3, axis=1).flatten()
+        one_iter_preds = np.ones(
+            (prob_matrix.shape[0],)) - np.prod(P3, axis=1).flatten()
         return one_iter_preds
 
     # predictions = predictions.flatten()
@@ -232,7 +241,8 @@ def PIteration(prob_matrix, predictions, seed_idx, substitute=True, piter=10):
 
 
 def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: float, λ, γ,
-                idx_split_args: dict = {'ntraining': 200, 'nstopping': 400, 'nval': 10},
+                idx_split_args: dict = {
+                    'ntraining': 200, 'nstopping': 400, 'nval': 10},
                 stopping_args: dict = stopping_args, test: bool = False, device: str = 'cuda', torch_seed: int = None,
                 print_interval: int = 10, batch_size=None) -> Tuple[(nn.Module, dict)]:
     """
@@ -277,7 +287,7 @@ def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: fl
     if torch_seed is None:
         torch_seed = gen_seeds()
     torch.manual_seed(seed=torch_seed)
-    #logging.log(22, f"PyTorch seed: {torch_seed}")
+    # logging.log(22, f"PyTorch seed: {torch_seed}")
     γ = torch.tensor(γ, device=device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     early_stopping = EarlyStopping(model, **stopping_args)
@@ -314,7 +324,8 @@ def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: fl
             model = model.to(device)
             influ_vec = influ_mat[:, -1]
             labels_all = influ_vec.numpy()
-            dataloaders = get_dataloaders(idx_all, labels_all, batch_size=batch_size)
+            dataloaders = get_dataloaders(
+                idx_all, labels_all, batch_size=batch_size)
 
             # Iterate through training and validation/test phases
             for phase in epoch_stats.keys():
@@ -331,7 +342,8 @@ def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: fl
                     with torch.set_grad_enabled(phase == 'train'):
                         preds = model(idx)
                         loss = model.loss(preds, labels, λ, γ)
-                        error = np.mean(np.abs(preds.cpu().detach().numpy() - labels.cpu().detach().numpy()))
+                        error = np.mean(
+                            np.abs(preds.cpu().detach().numpy() - labels.cpu().detach().numpy()))
                         if phase == 'train':
                             loss.backward()
                             optimizer.step()
@@ -347,19 +359,21 @@ def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: fl
         if epoch % print_interval == 0:
             duration = time.time() - last_time
             last_time = time.time()
-            #logging.info(
-            print(f"Epoch {epoch}: Train loss = {epoch_stats['train']['loss']:.4f}, Train error = {epoch_stats['train']['error']:.4f}, early stopping loss = {epoch_stats['stopping']['loss']:.4f}, early stopping error = {epoch_stats['stopping']['error']:.4f}, ({duration:.3f} sec)")
+            # logging.info(
+            print(f"Epoch {epoch}: Train loss = {epoch_stats['train']['loss']:.4f}, Train error = {epoch_stats['train']['error']:.4f}, early stopping loss = {
+                  epoch_stats['stopping']['loss']:.4f}, early stopping error = {epoch_stats['stopping']['error']:.4f}, ({duration:.3f} sec)")
 
         # Check early stopping
         if len(early_stopping.stop_vars) > 0:
-            stop_vars = [epoch_stats['stopping'][key] for key in early_stopping.stop_vars]
+            stop_vars = [epoch_stats['stopping'][key]
+                         for key in early_stopping.stop_vars]
             if early_stopping.check(stop_vars, epoch):
                 break
 
     # Calculate runtime statistics
     runtime = time.time() - start_time
     runtime_perepoch = runtime / (epoch + 1)
-    #logging.log(22, f"Last epoch: {epoch}, best epoch: {early_stopping.best_epoch} ({runtime:.3f} sec)")
+    # logging.log(22, f"Last epoch: {epoch}, best epoch: {early_stopping.best_epoch} ({runtime:.3f} sec)")
 
     # Load best model state
     model.load_state_dict(early_stopping.best_state)
@@ -368,16 +382,19 @@ def train_model(model, fea_constructor, prob_matrix, diff_mat, learning_rate: fl
     train_preds = get_predictions(model, idx_all['train'])
     train_error = np.abs(train_preds - labels_all[idx_all['train']]).mean()
     stopping_preds = get_predictions(model, idx_all['stopping'])
-    stopping_error = np.abs(stopping_preds - labels_all[idx_all['stopping']]).mean()
-    #logging.log(21, f"Early stopping error: {stopping_error}")
+    stopping_error = np.abs(
+        stopping_preds - labels_all[idx_all['stopping']]).mean()
+    # logging.log(21, f"Early stopping error: {stopping_error}")
     valtest_preds = get_predictions(model, idx_all['valtest'])
-    valtest_error = np.abs(valtest_preds - labels_all[idx_all['valtest']]).mean()
+    valtest_error = np.abs(
+        valtest_preds - labels_all[idx_all['valtest']]).mean()
     valtest_name = 'Test' if test else 'Validation'
-    #logging.log(22, f"{valtest_name} mean error: {valtest_error}")
+    # logging.log(22, f"{valtest_name} mean error: {valtest_error}")
 
     # Prepare results
     result = {}
-    result['predictions'] = get_predictions(model, torch.arange(len(labels_all)))
+    result['predictions'] = get_predictions(
+        model, torch.arange(len(labels_all)))
     result['train'] = {'mean error': train_error}
     result['early_stopping'] = {'mean error': stopping_error}
     result['valtest'] = {'mean error': valtest_error}
@@ -406,7 +423,8 @@ def get_predictions(model, idx, batch_size=None):
     if batch_size is None:
         batch_size = idx.numel()
     dataset = TensorDataset(idx)
-    dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False)
+    dataloader = DataLoader(
+        dataset=dataset, batch_size=batch_size, shuffle=False)
     preds = []
     for idx, in dataloader:
         with torch.set_grad_enabled(False):
@@ -444,7 +462,8 @@ class GetPrediction:
         Returns:
         - numpy.ndarray: Predictions.
         """
-        assert len(seed_vec) == prob_matrix.shape[0], 'Illegal seed vector or prob_matrix'
+        assert len(
+            seed_vec) == prob_matrix.shape[0], 'Illegal seed vector or prob_matrix'
         if sp.isspmatrix(prob_matrix):
             prob_matrix = prob_matrix.toarray()
 
@@ -458,7 +477,6 @@ class GetPrediction:
         seed_idx = np.argwhere(seed_vec == 1)
         preds = PIteration(prob_matrix, preds, seed_idx=seed_idx, piter=iter)
         return preds
-
 
 
 def get_idx_new_seeds(model, prediction):

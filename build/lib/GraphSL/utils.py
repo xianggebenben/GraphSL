@@ -12,13 +12,13 @@ def load_dataset(dataset, data_dir):
     Load a dataset from a pickle file.
 
     Args:
-        
+
     - dataset (str): The name of the dataset file, 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid','meme8000', 'digg16000'.
-        
+
     - data_dir (str): The directory where the dataset files are stored.
 
     Returns:
-        
+
     - graph (dict): A dictionary containing the dataset.
 
     """

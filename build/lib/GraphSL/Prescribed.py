@@ -2,9 +2,10 @@ import numpy as np
 import networkx as nx
 import copy
 import torch
-from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
-from scipy.sparse import csgraph,coo_matrix
+from sklearn.metrics import roc_auc_score, f1_score, accuracy_score, precision_score, recall_score
+from scipy.sparse import csgraph, coo_matrix
 from GraphSL.Evaluation import Metric
+
 
 class LPSI:
     """
@@ -36,7 +37,8 @@ class LPSI:
 
         - x (numpy.ndarray): Prediction of source nodes.
         """
-        x = (1 - alpha) * np.matmul(np.linalg.pinv(np.eye(N=num_node) - alpha * laplacian,hermitian=True), diff_vec)
+        x = (1 - alpha) * np.matmul(np.linalg.pinv(np.eye(N=num_node) -
+                                                   alpha * laplacian, hermitian=True), diff_vec)
         return x
 
     def train(self, adj, train_dataset, alpha_list=[0.001, 0.01, 0.1], thres_list=[0.1, 0.3, 0.5, 0.7, 0.9]):
@@ -109,13 +111,14 @@ class LPSI:
             if train_auc > opt_auc:
                 opt_auc = train_auc
                 opt_alpha = alpha
-        
-        opt_pred =np.zeros((num_node,train_num))
-        seed_all = np.zeros((num_node,train_num))
-        for i,influ_mat in enumerate(train_dataset):
-                seed_all[:,i] = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
-                opt_pred[:,i] = self.predict(laplacian, num_node, opt_alpha, influ_vec)
+
+        opt_pred = np.zeros((num_node, train_num))
+        seed_all = np.zeros((num_node, train_num))
+        for i, influ_mat in enumerate(train_dataset):
+            seed_all[:, i] = influ_mat[:, 0]
+            influ_vec = influ_mat[:, -1]
+            opt_pred[:, i] = self.predict(
+                laplacian, num_node, opt_alpha, influ_vec)
 
         opt_f1 = 0
         opt_thres = 0
@@ -123,7 +126,8 @@ class LPSI:
             print(f"thres = {thres:.3f}")
             train_f1 = 0
             for i in range(train_num):
-                train_f1 += f1_score(seed_all[:,i], opt_pred[:,i] >= thres, zero_division = 1)
+                train_f1 += f1_score(seed_all[:, i],
+                                     opt_pred[:, i] >= thres, zero_division=1)
             train_f1 = train_f1 / train_num
             print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
@@ -193,9 +197,9 @@ class LPSI:
             influ_vec = influ_mat[:, -1]
             x = self.predict(laplacian, num_node, alpha, influ_vec)
             test_acc += accuracy_score(seed_vec, x >= thres)
-            test_pr += precision_score(seed_vec, x >= thres, zero_division = 1)
-            test_re += recall_score(seed_vec, x >= thres, zero_division = 1)
-            test_f1 += f1_score(seed_vec, x >= thres, zero_division = 1)
+            test_pr += precision_score(seed_vec, x >= thres, zero_division=1)
+            test_re += recall_score(seed_vec, x >= thres, zero_division=1)
+            test_f1 += f1_score(seed_vec, x >= thres, zero_division=1)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num
@@ -206,6 +210,7 @@ class LPSI:
         metric = Metric(test_acc, test_pr, test_re, test_f1, test_auc)
         return metric
 
+
 class NetSleuth:
     """
     Implement the NetSleuth algorithm.
@@ -214,7 +219,6 @@ class NetSleuth:
     """
 
     def __init__(self):
-
         """
         Initialize the NetSleuth.
         """
@@ -237,8 +241,10 @@ class NetSleuth:
 
         """
         g = copy.deepcopy(G)  # Creating a deep copy of the input graph
-        g.remove_nodes_from([n for n in g if n not in np.where(diff_vec == 1)[0]])  # Removing non-relevant nodes
-        lap = nx.laplacian_matrix(g).toarray()  # Computing the Laplacian matrix of the modified graph
+        g.remove_nodes_from([n for n in g if n not in np.where(
+            diff_vec == 1)[0]])  # Removing non-relevant nodes
+        # Computing the Laplacian matrix of the modified graph
+        lap = nx.laplacian_matrix(g).toarray()
 
         seed = []
         while len(seed) < k:
@@ -303,7 +309,7 @@ class NetSleuth:
         """
         # Y should be no more than number of nodes
         num_node = adj.shape[0]
-        condition = lambda k: k <= num_node
+        def condition(k): return k <= num_node
         k_list = list(filter(condition, k_list))
 
         G = nx.from_numpy_array(adj)
@@ -329,7 +335,7 @@ class NetSleuth:
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
             x = self.predict(G, opt_k, influ_vec)
-            train_f1 += f1_score(seed_vec, x, zero_division = 1)
+            train_f1 += f1_score(seed_vec, x, zero_division=1)
         train_f1 = train_f1 / train_num
 
         return opt_k, opt_auc, train_f1
@@ -393,9 +399,9 @@ class NetSleuth:
             influ_vec = influ_mat[:, -1]
             x = self.predict(G, k, influ_vec)
             test_acc += accuracy_score(seed_vec, x)
-            test_pr += precision_score(seed_vec, x, zero_division = 1)
-            test_re += recall_score(seed_vec, x, zero_division = 1)
-            test_f1 += f1_score(seed_vec, x, zero_division = 1)
+            test_pr += precision_score(seed_vec, x, zero_division=1)
+            test_re += recall_score(seed_vec, x, zero_division=1)
+            test_f1 += f1_score(seed_vec, x, zero_division=1)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num
@@ -405,7 +411,6 @@ class NetSleuth:
         test_auc = test_auc / test_num
         metric = Metric(test_acc, test_pr, test_re, test_f1, test_auc)
         return metric
-
 
 
 class OJC:
@@ -573,7 +578,7 @@ class OJC:
         """
         # Y should be no more than number of nodes
         num_node = adj.shape[0]
-        condition = lambda k: k <= num_node
+        def condition(k): return k <= num_node
         Y_list = list(filter(condition, Y_list))
         G = nx.from_scipy_sparse_array(adj)
         train_num = len(train_dataset)
@@ -601,7 +606,7 @@ class OJC:
             num_source = len(influ_vec[influ_vec == 1])
             I = (influ_vec == 1).nonzero()[0].tolist()
             x = self.predict(G, opt_Y, I, influ_vec, num_source)
-            train_f1 += f1_score(seed_vec, x, zero_division = 1)
+            train_f1 += f1_score(seed_vec, x, zero_division=1)
         train_f1 = train_f1 / train_num
 
         return opt_Y, opt_auc, train_f1
@@ -666,9 +671,9 @@ class OJC:
             I = (influ_vec == 1).nonzero()[0].tolist()
             x = self.predict(G, Y, I, influ_vec, num_source)
             test_acc += accuracy_score(seed_vec, x)
-            test_pr += precision_score(seed_vec, x, zero_division = 1)
-            test_re += recall_score(seed_vec, x, zero_division = 1)
-            test_f1 += f1_score(seed_vec, x, zero_division = 1)
+            test_pr += precision_score(seed_vec, x, zero_division=1)
+            test_re += recall_score(seed_vec, x, zero_division=1)
+            test_f1 += f1_score(seed_vec, x, zero_division=1)
             test_auc += roc_auc_score(seed_vec, x)
 
         test_acc = test_acc / test_num

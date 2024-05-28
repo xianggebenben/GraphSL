@@ -7,12 +7,11 @@ from GraphSL.GNN.IVGD.i_deepis import i_DeepIS, DiffusionPropagate
 from GraphSL.GNN.IVGD.training import FeatureCons, get_idx_new_seeds
 from GraphSL.GNN.IVGD.model.MLP import MLPTransform
 from GraphSL.GNN.IVGD.training import train_model
-from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
+from sklearn.metrics import roc_auc_score, f1_score, accuracy_score, precision_score, recall_score
 from GraphSL.Evaluation import Metric
 import torch.optim as optim
 import warnings
 warnings.filterwarnings("ignore")
-
 
 
 class IVGD_model(torch.nn.Module):
@@ -85,27 +84,27 @@ class IVGD_model(torch.nn.Module):
         prob = x[:, 1].unsqueeze(-1)
         x = (self.tau1 * self.net1(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho1 * (torch.sum(x) - sum) + self.alpha1 * x) / (
-                    self.tau1 + self.alpha1)
+            self.tau1 + self.alpha1)
         prob = x[:, 1].unsqueeze(-1)
         lamda = lamda + self.rho1 * (torch.sum(prob) - sum)
         x = (self.tau2 * self.net2(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho2 * (torch.sum(x) - sum) + self.alpha2 * x) / (
-                    self.tau2 + self.alpha2)
+            self.tau2 + self.alpha2)
         prob = x[:, 1].unsqueeze(-1)
         lamda = lamda + self.rho2 * (torch.sum(prob) - sum)
         x = (self.tau3 * self.net3(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho3 * (torch.sum(x) - sum) + self.alpha3 * x) / (
-                    self.tau3 + self.alpha3)
+            self.tau3 + self.alpha3)
         prob = x[:, 1].unsqueeze(-1)
         lamda = lamda + self.rho3 * (torch.sum(prob) - sum)
         x = (self.tau4 * self.net4(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho4 * (torch.sum(x) - sum) + self.alpha4 * x) / (
-                    self.tau4 + self.alpha4)
+            self.tau4 + self.alpha4)
         prob = x[:, 1].unsqueeze(-1)
         lamda = lamda + self.rho4 * (torch.sum(prob) - sum)
         x = (self.tau5 * self.net5(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho5 * (torch.sum(x) - sum) + self.alpha5 * x) / (
-                    self.tau5 + self.alpha5)
+            self.tau5 + self.alpha5)
         return x
 
     def correction(self, pred):
@@ -184,9 +183,10 @@ class IVGD:
         v = torch.FloatTensor(values)
         shape = adj.shape
 
-        prob_matrix = torch.sparse.FloatTensor(i, v, torch.Size(shape)).to_dense()
+        prob_matrix = torch.sparse.FloatTensor(
+            i, v, torch.Size(shape)).to_dense()
         prob_matrix = prob_matrix + torch.eye(n=prob_matrix.shape[0])
-        prob_matrix = prob_matrix/prob_matrix.sum(dim = 1,keepdims=True)
+        prob_matrix = prob_matrix/prob_matrix.sum(dim=1, keepdims=True)
         ndim = 5
         niter = 2
         propagate_model = DiffusionPropagate(prob_matrix, niter=niter)
@@ -202,17 +202,21 @@ class IVGD:
             'device': device,
             'print_interval': 10
         }
-        gnn_model = MLPTransform(input_dim=ndim, hiddenunits=[ndim, ndim], num_classes=1, device=device)
-        diffusion_model = i_DeepIS(gnn_model=gnn_model, propagate=propagate_model)
-        diffusion_model, result = train_model(diffusion_model, fea_constructor, prob_matrix, train_dataset, **args_dict)
+        gnn_model = MLPTransform(input_dim=ndim, hiddenunits=[
+                                 ndim, ndim], num_classes=1, device=device)
+        diffusion_model = i_DeepIS(
+            gnn_model=gnn_model, propagate=propagate_model)
+        diffusion_model, result = train_model(
+            diffusion_model, fea_constructor, prob_matrix, train_dataset, **args_dict)
         print(f"train mean error:{result['train']['mean error']:.3f}")
-        print(f"early_stopping mean error:{result['early_stopping']['mean error']:.3f}")
+        print(f"early_stopping mean error:{
+              result['early_stopping']['mean error']:.3f}")
         print(f"validation mean error:{result['valtest']['mean error']:.3f}")
         print(f"run time:{result['runtime']:.3f} seconds")
         print(f"run time per epoch:{result['runtime_perepoch']:.3f} seconds")
         return diffusion_model
 
-    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9],lr =1e-3, weight_decay = 1e-4, num_epoch = 10):
+    def train(self, adj, train_dataset, diffusion_model, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], lr=1e-3, weight_decay=1e-4, num_epoch=10):
         """
         Train the IVGD model.
 
@@ -273,19 +277,20 @@ class IVGD:
         print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
         """
-        device =torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         criterion = nn.CrossEntropyLoss()
-        #train_num = len(train_dataset)
+        # train_num = len(train_dataset)
         num_node = adj.shape[0]
         alpha = 1
         tau = 1
         rho = 1e-3
         lamda = 0
         ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho)
-        optimizer = optim.Adam(ivgd.parameters(), lr = lr, weight_decay = weight_decay)
+        optimizer = optim.Adam(ivgd.parameters(), lr=lr,
+                               weight_decay=weight_decay)
         ivgd.train()
         train_num = len(train_dataset)
-        for i,influ_mat in enumerate(train_dataset):
+        for i, influ_mat in enumerate(train_dataset):
             seed_vec = influ_mat[:, 0].to(device)
             influ_vec = influ_mat[:, -1].to(device)
             seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
@@ -298,7 +303,7 @@ class IVGD:
                 loss.backward(retain_graph=True)
                 optimizer.step()
             print(f"optimize simulation {i+1}: loss = {loss:.3f}")
-        
+
         ivgd.eval()
         train_auc = 0
         for influ_mat in train_dataset:
@@ -316,10 +321,10 @@ class IVGD:
             train_auc += roc_auc_score(seed_vec, seed_correction)
         train_auc = train_auc / train_num
 
-        pred = np.zeros((num_node,train_num))
-        seed_all = np.zeros((num_node,train_num))
-        for i,influ_mat in enumerate(train_dataset):
-            seed_all[:,i] = influ_mat[:, 0]
+        pred = np.zeros((num_node, train_num))
+        seed_all = np.zeros((num_node, train_num))
+        for i, influ_mat in enumerate(train_dataset):
+            seed_all[:, i] = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
             seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
             seed_preds = torch.tensor(seed_preds).unsqueeze(-1).float()
@@ -327,8 +332,9 @@ class IVGD:
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
             seed_correction = self.normalize(seed_correction)
-            seed_correction = seed_correction.squeeze(-1).cpu().detach().numpy()
-            pred[:,i] = seed_correction
+            seed_correction = seed_correction.squeeze(
+                -1).cpu().detach().numpy()
+            pred[:, i] = seed_correction
 
         opt_f1 = 0
         opt_thres = 0
@@ -336,13 +342,12 @@ class IVGD:
         for thres in thres_list:
             train_f1 = 0
             for i in range(train_num):
-                train_f1 += f1_score(seed_all[:,i], pred[:,i] >= thres)
+                train_f1 += f1_score(seed_all[:, i], pred[:, i] >= thres)
             train_f1 = train_f1 / train_num
             print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
-
 
         return ivgd, opt_thres, train_auc, opt_f1, pred
 
@@ -419,14 +424,18 @@ class IVGD:
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
             seed_correction = self.normalize(seed_correction)
-            seed_correction = seed_correction.squeeze(-1).cpu().detach().numpy()
+            seed_correction = seed_correction.squeeze(
+                -1).cpu().detach().numpy()
             seed_vec = seed_vec.squeeze(-1).detach().cpu().numpy()
 
             # Compute metrics
             test_acc += accuracy_score(seed_vec, seed_correction >= thres)
-            test_pr += precision_score(seed_vec, seed_correction >= thres, zero_division = 1)
-            test_re += recall_score(seed_vec, seed_correction >= thres, zero_division = 1)
-            test_f1 += f1_score(seed_vec, seed_correction >= thres, zero_division = 1)
+            test_pr += precision_score(seed_vec,
+                                       seed_correction >= thres, zero_division=1)
+            test_re += recall_score(seed_vec,
+                                    seed_correction >= thres, zero_division=1)
+            test_f1 += f1_score(seed_vec, seed_correction >=
+                                thres, zero_division=1)
             test_auc += roc_auc_score(seed_vec, seed_correction)
 
         # Compute average metrics

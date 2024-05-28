@@ -7,15 +7,15 @@ class validity_net(torch.nn.Module):
     Validity-aware layers.
 
     Attributes:
-        
+
     - number_layer (int): Number of layers.
-    
+
     - alpha1, alpha2, alpha3, alpha4, alpha5 (float): Alpha values for each layer.
-    
+
     - tau1, tau2, tau3, tau4, tau5 (float): Tau values for each layer.
-    
+
     - net1, net2, net3, net4, net5 (correction): Correction layer.
-    
+
     - rho1, rho2, rho3, rho4, rho5 (float): Rho values for each layer.
     """
 
@@ -24,11 +24,11 @@ class validity_net(torch.nn.Module):
         Initialize the validity_net model.
 
         Args:
-            
+
         - alpha (float): Alpha value.
-        
+
         - tau (float): Tau value.
-        
+
         - rho (float): Rho value.
         """
         super(validity_net, self).__init__()
@@ -80,27 +80,27 @@ class validity_net(torch.nn.Module):
         prob = x[:, 1].unsqueeze(-1)
         x = (self.tau1 * self.net1(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho1 * (torch.sum(x) - sum) + self.alpha1 * x) / (
-                    self.tau1 + self.alpha1)
+            self.tau1 + self.alpha1)
         prob = x[:, 1].unsqueeze(-1)
         lamda = lamda + self.rho1 * (torch.sum(prob) - sum)
         x = (self.tau2 * self.net2(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho2 * (torch.sum(x) - sum) + self.alpha2 * x) / (
-                    self.tau2 + self.alpha2)
+            self.tau2 + self.alpha2)
         prob = x[:, 1].unsqueeze(-1)
         lamda = lamda + self.rho2 * (torch.sum(prob) - sum)
         x = (self.tau3 * self.net3(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho3 * (torch.sum(x) - sum) + self.alpha3 * x) / (
-                    self.tau3 + self.alpha3)
+            self.tau3 + self.alpha3)
         prob = x[:, 1].unsqueeze(-1)
         lamda = lamda + self.rho3 * (torch.sum(prob) - sum)
         x = (self.tau4 * self.net4(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho4 * (torch.sum(x) - sum) + self.alpha4 * x) / (
-                    self.tau4 + self.alpha4)
+            self.tau4 + self.alpha4)
         prob = x[:, 1].unsqueeze(-1)
         lamda = lamda + self.rho4 * (torch.sum(prob) - sum)
         x = (self.tau5 * self.net5(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho5 * (torch.sum(x) - sum) + self.alpha5 * x) / (
-                    self.tau5 + self.alpha5)
+            self.tau5 + self.alpha5)
         return x
 
     def correction(self, pred):
