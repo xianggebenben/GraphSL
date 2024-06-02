@@ -74,6 +74,7 @@
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
 
+
 <div class="viewcode-block" id="correction">
 <a class="viewcode-back" href="../../../../GraphSL.GNN.IVGD.html#GraphSL.GNN.IVGD.correction.correction">[docs]</a>
 <span class="k">class</span> <span class="nc">correction</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -106,7 +107,8 @@
 
 <span class="sd">        - temp (torch.Tensor): Corrected prediction of the seed vector.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Concatenate the input tensor with its complement along the second dimension</span>
+        <span class="c1"># Concatenate the input tensor with its complement along the second</span>
+        <span class="c1"># dimension</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Apply the first fully connected layer followed by ReLU activation</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
@@ -117,7 +119,15 @@
         <span class="c1"># Add the input tensor to the output tensor</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
         <span class="c1"># Clip the values of the output tensor between 0 and 1</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> <span class="n">temp</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">))</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                    <span class="n">temp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">),</span>
+                <span class="n">temp</span><span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span>
+                <span class="n">temp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">temp</span></div>
 </div>
 

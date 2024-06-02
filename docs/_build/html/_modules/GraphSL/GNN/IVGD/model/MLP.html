@@ -76,15 +76,21 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">torch.nn.functional</span> <span class="kn">import</span> <span class="n">normalize</span>
 
+
 <div class="viewcode-block" id="MLPTransform">
 <a class="viewcode-back" href="../../../../../GraphSL.GNN.IVGD.model.html#GraphSL.GNN.IVGD.model.MLP.MLPTransform">[docs]</a>
 <span class="k">class</span> <span class="nc">MLPTransform</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
-                <span class="n">input_dim</span><span class="p">,</span>
-                <span class="n">hiddenunits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-                <span class="n">num_classes</span><span class="p">,</span>
-                <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">drop_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">n_power_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">eps</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span><span class="n">coeff</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">input_dim</span><span class="p">,</span>
+            <span class="n">hiddenunits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+            <span class="n">num_classes</span><span class="p">,</span>
+            <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">drop_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">n_power_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">eps</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+            <span class="n">coeff</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MLPTransform</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1"># Here features is just a placeholder, each time before forward, we will substutute the embedding layer with desired node feature matrix</span>
         <span class="c1"># and when saving model params, we will first pop self.features.weight</span>
@@ -92,33 +98,37 @@
 
         <span class="n">fcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="n">hiddenunits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">)]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">)):</span>
-            <span class="n">fcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">hiddenunits</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">fcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">hiddenunits</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
         <span class="n">fcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_classes</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fcs</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span><span class="n">fcs</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">drop_prob</span> <span class="ow">is</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">drop_prob</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">drop_prob</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_power_iterations</span> <span class="o">=</span><span class="n">n_power_iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_power_iterations</span> <span class="o">=</span> <span class="n">n_power_iterations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span> <span class="o">=</span> <span class="n">coeff</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">=</span><span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
 
 <div class="viewcode-block" id="MLPTransform.forward">
 <a class="viewcode-back" href="../../../../../GraphSL.GNN.IVGD.model.html#GraphSL.GNN.IVGD.model.MLP.MLPTransform.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">):</span>
         <span class="c1"># ipdb.set_trace()</span>
-        <span class="n">layer_inner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fcs</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">(</span><span class="n">nodes</span><span class="p">))))</span>
+        <span class="n">layer_inner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fcs</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">(</span><span class="n">nodes</span><span class="p">))))</span>
         <span class="k">for</span> <span class="n">fc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcs</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="n">weight</span> <span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_weight</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_weight</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span>
             <span class="n">fc</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
             <span class="n">layer_inner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span><span class="p">(</span><span class="n">fc</span><span class="p">(</span><span class="n">layer_inner</span><span class="p">))</span>
 
-        <span class="n">res</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">layer_inner</span><span class="p">))</span> <span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fcs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">layer_inner</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">res</span></div>
+
 
 <div class="viewcode-block" id="MLPTransform.compute_weight">
 <a class="viewcode-back" href="../../../../../GraphSL.GNN.IVGD.model.html#GraphSL.GNN.IVGD.model.MLP.MLPTransform.compute_weight">[docs]</a>
@@ -153,14 +163,20 @@
         <span class="c1">#    complain that variables needed to do backward for the first forward</span>
         <span class="c1">#    (i.e., the `u` and `v` vectors) are changed in the second forward.</span>
         <span class="n">weight</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_power_iterations</span><span class="p">):</span>
                 <span class="c1"># Spectral norm of weight equals to `u^T W v`, where `u` and `v`</span>
                 <span class="c1"># are the first left and right singular vectors.</span>
                 <span class="c1"># This power iteration produces approximations of `u` and `v`.</span>
-                <span class="n">v</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">t</span><span class="p">(),</span> <span class="n">u</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span>
+                        <span class="n">weight</span><span class="o">.</span><span class="n">t</span><span class="p">(),</span>
+                        <span class="n">u</span><span class="p">),</span>
+                    <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span>
+                    <span class="n">out</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
                 <span class="n">u</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">u</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_power_iterations</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># See above on why we need to clone</span>
@@ -174,8 +190,6 @@
 
         <span class="k">return</span> <span class="n">weight</span></div>
 </div>
-
-
 
 </pre></div>
 

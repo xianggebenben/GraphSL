@@ -168,7 +168,7 @@
 </ul>
 <p>Returns:</p>
 <ul class="simple">
-<li><p>dataset (dict): Dictionary containing (‘adj_mat’) adjacency matrix and (‘diff_mat’) diffusion matrices.</p></li>
+<li><p>dataset (dict): Dictionary containing (‘adj_mat’) adjacency matrix (the dimensionality is number of nodes * number of nodes) and (‘diff_mat’) diffusion matrices (the dimensionality is number of simulations * number of nodes * 2(the first column is the source vector, and the second column is the diffusion vector)).</p></li>
 </ul>
 <p>Example:</p>
 <p>import os</p>

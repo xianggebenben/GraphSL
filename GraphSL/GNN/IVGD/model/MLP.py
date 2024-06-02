@@ -28,7 +28,7 @@ class MLPTransform(nn.Module):
 
         self.fcs = nn.ModuleList(fcs)
 
-        if drop_prob is 0:
+        if drop_prob == 0:
             self.dropout = lambda x: x
         else:
             self.dropout = nn.Dropout(drop_prob)
