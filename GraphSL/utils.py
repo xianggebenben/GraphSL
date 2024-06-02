@@ -12,19 +12,19 @@ def load_dataset(dataset, data_dir):
     Load a dataset from a pickle file.
 
     Args:
-        
+
     - dataset (str): The name of the dataset file, 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid','meme8000', 'digg16000'.
-        
+
     - data_dir (str): The directory where the dataset files are stored.
 
     Returns:
-        
+
     - graph (dict): A dictionary containing the dataset.
 
     """
     import pickle
 
-    data_dir = data_dir+"/data/"+dataset
+    data_dir = data_dir + "/data/" + dataset
     with open(data_dir, 'rb') as f:
         graph = pickle.load(f)
     return graph
@@ -51,8 +51,16 @@ def generate_seed_vector(top_nodes, seed_num, G):
     return seed_vector
 
 
-def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=10, repeat_step=10, seed_ratio=0.1,
-                         infect_prob=0.1, recover_prob=0.005, threshold=0.5):
+def diffusion_generation(
+        graph,
+        sim_num=10,
+        diff_type='IC',
+        time_step=10,
+        repeat_step=10,
+        seed_ratio=0.1,
+        infect_prob=0.1,
+        recover_prob=0.005,
+        threshold=0.5):
     """
     Generate diffusion matrices for a graph.
 
@@ -198,7 +206,7 @@ def split_dataset(dataset, train_ratio: float = 0.6, seed: int = 0):
     all_num = len(diff_mat)
     train_num = int(all_num * train_ratio)
     test_num = all_num - train_num
-    train_diff_mat, test_diff_mat = torch.utils.data.random_split(diff_mat, [train_num, test_num],
-                                                                  generator=torch.Generator().manual_seed(seed))
+    train_diff_mat, test_diff_mat = torch.utils.data.random_split(
+        diff_mat, [train_num, test_num], generator=torch.Generator().manual_seed(seed))
 
     return adj, train_diff_mat, test_diff_mat
