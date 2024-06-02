@@ -78,7 +78,7 @@ def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=10, repeat
 
     Returns:
 
-    - dataset (dict): Dictionary containing ('adj_mat') adjacency matrix and ('diff_mat') diffusion matrices.
+    - dataset (dict): Dictionary containing ('adj_mat') adjacency matrix (number of nodes * number of nodes) and ('diff_mat') diffusion matrices (number of simulations * number of nodes * 2(the first column is the source vector, and the second column is the diffusion vector)).
 
     Example:
 
