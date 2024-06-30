@@ -96,6 +96,18 @@ Now, you can import and use GraphSL in your Python code. Please make sure your P
 
 That's it! You're ready to start using GraphSL.
 
+If you use this package in your research, please consider citing our work as follows:
+
+.. code-block:: bash
+
+   @article{wang2024joss,
+  year = {2024},
+  author = {Wang Junxiang, Zhao Liang},
+  title = {GraphSL: A Open-Source Library for Graph Source Localization Approaches and Benchmark Datasets},
+  journal = {preprint, 	arXiv:2405.03724}
+   }
+
+
 Indices and tables
 ==================
 
