@@ -50,14 +50,14 @@ GNN-based methods learn rules from graph data in an end-to-end manner by capturi
 
 |       Dataset      |  #Node |  #Edge | Average Degree | Seed-Diffusion Pairs |
 |:------------------:|:------:|:------:|:--------------:|:--------------------------:|
-|       Karate       |   34   |   78   |      4.588     |             No             |
-|      Dolphins      |   62   |   159  |      5.129     |             No             |
-|         Jazz       |   198  |  2,742 |     27.697     |             No             |
-| Network   Science  |  1,589 |  2,742 |      3.451     |             No             |
-|       Cora-ML      |  2,810 |  7,981 |      5.68      |             No             |
-|    Power   Grid    |  4,941 |  6,594 |      2.669     |             No             |
-|     Memetracker    |  7,884 | 47,911 |     12.154     |            Yes             |
-|        Digg        | 15,912 | 78,649 |      9.885     |            Yes             |
+|       Karate [@lusseau2003bottlenose]       |   34   |   78   |      4.588     |             No             |
+|      Dolphins [@lusseau2003bottlenose]     |   62   |   159  |      5.129     |             No             |
+|         Jazz [@gleiser2003community]       |   198  |  2,742 |     27.697     |             No             |
+| Network   Science [@newman2006finding] |  1,589 |  2,742 |      3.451     |             No             |
+|       Cora-ML [@mccallum2000automating]     |  2,810 |  7,981 |      5.68      |             No             |
+|    Power   Grid [@watts1998collective]    |  4,941 |  6,594 |      2.669     |             No             |
+|     Memetracker [@rozemberczki2019gemsec]    |  7,884 | 47,911 |     12.154     |            Yes             |
+|        Digg [@hogg2012social]       | 15,912 | 78,649 |      9.885     |            Yes             |
 
 Table: \label{tab:statistics} The statistics of eight datasets.
 
