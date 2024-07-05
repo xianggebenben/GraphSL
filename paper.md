@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 # Summary
 
-We introduce GraphSL, a new library for studying the graph source localization problem. Graph diffusion predicts information spread from a source, while graph source localization predicts the source from the spread. GraphSL allows users to explore different graph diffusion models and evaluate localization methods using benchmark datasets. The source code of GraphSL is made available at (https://github.com/xianggebenben/GraphSL). Bug reports and feedback can be directed to the Github issues page (https://github.com/xianggebenben/GraphSL/issues).
+We introduce GraphSL, a new library for studying the graph source localization problem. Graph diffusion predicts information spread from a source, while graph source localization predicts the source from the spread. GraphSL facilitates the exploration of various graph diffusion models for simulating information spread and enables the evaluation of cutting-edge source localization approaches on established benchmark datasets. The source code of GraphSL is made available at (https://github.com/xianggebenben/GraphSL). Bug reports and feedback can be directed to the Github issues page (https://github.com/xianggebenben/GraphSL/issues).
 
 
 # Statement of Need
