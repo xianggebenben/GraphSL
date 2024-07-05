@@ -48,16 +48,16 @@ Prescribed methods rely on hand-crafted rules and heuristics. For instance, LPSI
 
 GNN-based methods learn rules from graph data in an end-to-end manner by capturing graph topology and neighboring information. For example, GCNSI utilizes LPSI to enhance input and then applies Graph Convolutional Networks (GCN) for source identification [@dong2019multiple]; IVGD introduces a graph residual scenario to make existing graph diffusion models invertible, and it devises a new set of validity-aware layers to project inferred sources to feasible regions [@IVGD_www22]. SLVAE uses forward diffusion estimation and deep generative models to approximate source distribution, leveraging prior knowledge for generalization under arbitrary diffusion patterns [@ling2022source].
 
-|       Dataset      |  #Node |  #Edge | Average Degree | Seed-Diffusion Pairs |
-|:------------------:|:------:|:------:|:--------------:|:--------------------------:|
-|       Karate [@lusseau2003bottlenose]       |   34   |   78   |      4.588     |             No             |
-|      Dolphins [@lusseau2003bottlenose]     |   62   |   159  |      5.129     |             No             |
-|         Jazz [@gleiser2003community]       |   198  |  2,742 |     27.697     |             No             |
-| Network   Science [@newman2006finding] |  1,589 |  2,742 |      3.451     |             No             |
-|       Cora-ML [@mccallum2000automating]     |  2,810 |  7,981 |      5.68      |             No             |
-|    Power   Grid [@watts1998collective]    |  4,941 |  6,594 |      2.669     |             No             |
-|     Memetracker [@rozemberczki2019gemsec]    |  7,884 | 47,911 |     12.154     |            Yes             |
-|        Digg [@hogg2012social]       | 15,912 | 78,649 |      9.885     |            Yes             |
+|       Dataset      |  #Node |  #Edge
+|:------------------:|:------:|:------:|
+|       Karate [@lusseau2003bottlenose]       |   34   |   78
+|      Dolphins [@lusseau2003bottlenose]     |   62   |   159
+|         Jazz [@gleiser2003community]       |   198  |  2,742 
+| Network   Science [@newman2006finding] |  1,589 |  2,742 |
+|       Cora-ML [@mccallum2000automating]     |  2,810 |  7,981 |
+|    Power   Grid [@watts1998collective]    |  4,941 |  6,594 |
+|     Memetracker [@rozemberczki2019gemsec]    |  7,884 | 47,911 |
+|        Digg [@hogg2012social]       | 15,912 | 78,649 |
 
 Table: \label{tab:statistics} The statistics of eight datasets.
 
