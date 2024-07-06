@@ -27,14 +27,14 @@ bibliography: paper.bib
 
 # Summary
 
-We introduce GraphSL, a new library for studying the graph source localization problem. graph diffusion and graph source localization are inverse problems in nature: graph diffusion predicts information spreads from information sources, while graph source localization predicts information sources from information spreads. GraphSL facilitates the exploration of various graph diffusion models for simulating information spread and enables the evaluation of cutting-edge source localization approaches on established benchmark datasets. The source code of GraphSL is made available at [Github Repository](https://github.com/xianggebenben/GraphSL). Bug reports and feedback can be directed to the [Github issues page](https://github.com/xianggebenben/GraphSL/issues).
+We introduce GraphSL, a new library for studying the graph source localization problem. graph diffusion and graph source localization are inverse problems in nature: graph diffusion predicts information diffusions from information sources, while graph source localization predicts information sources from information diffusions. GraphSL facilitates the exploration of various graph diffusion models for simulating information diffusions and enables the evaluation of cutting-edge source localization approaches on established benchmark datasets. The source code of GraphSL is made available at [Github Repository](https://github.com/xianggebenben/GraphSL). Bug reports and feedback can be directed to the [Github issues page](https://github.com/xianggebenben/GraphSL/issues).
 
 
 # Statement of Need
 
 ![An example of graph source localization.\label{fig:example}](SL_example.png)
 
-Graph diffusion is a fundamental task in graph learning, which aims to predict future information spreads given information sources. Conversely, its inverse problem, graph source localization, though rarely explored, stands as an extremely important topic: it focuses on the detection of information sources given their future information spreads. As illustrated in \autoref{fig:example}, graph diffusion seeks to predict the information spread $\{b,c,d,e\}$ from a source node $b$, whereas graph source localization aims to identify the source node $b$ from the information spread $\{b,c,d,e\}$. Graph source localization spans a broad spectrum of promising research and real-world applications such as rumor detection [@evanega2020coronavirus], tracking of sources for computer viruses, [@kephart1993measuring], and failures detection in smart grids [@amin2007preventing]. Please refer to the survey paper [@jiang2016identifying] for more information. Hence, the graph source localization problem demands attention and extensive investigations from machine learning researchers.
+Graph diffusion is a fundamental task in graph learning, which aims to predict future information diffusions given information sources. Conversely, its inverse problem, graph source localization, though rarely explored, stands as an extremely important topic: it focuses on the detection of information sources given their future information diffusions. As illustrated in \autoref{fig:example}, graph diffusion seeks to predict the information diffusion $\{b,c,d,e\}$ from a source node $b$, whereas graph source localization aims to identify the source node $b$ from the information diffusion $\{b,c,d,e\}$. Graph source localization spans a broad spectrum of promising research and real-world applications such as rumor detection [@evanega2020coronavirus], tracking of sources for computer viruses, [@kephart1993measuring], and failures detection in smart grids [@amin2007preventing]. Please refer to the survey paper [@jiang2016identifying] for more information. Hence, the graph source localization problem demands attention and extensive investigations from machine learning researchers.
 
 Some open-source tools have been developed to support the research of the graph source localization problem due to its importance. Two recent examples are cosasi [@McCabe2022joss] and RPaSDT [@frkaszczak2022rpasdt]. However, they missed comprehensive simulations of information diffusion, real-world benchmark datasets, and source localization approaches. To fill this gap, we propose a new library GraphSL: the first one to include both real-world benchmark datasets and recent source localization methods to our knowledge, which enables researchers and practitioners to easily evaluate novel techniques against appropriate baselines. These methods do not require prior knowledge (e.g. single source or multiple sources), and can handle graph source localization based on various diffusion simulation models such as Independent Cascade (IC) and Linear Threshold (LT) [@shakarian2015independent]. Our GraphSL library is standardized: for instance, tests of all source inference methods return a Metric object, which provides five performance metrics (accuracy, precision, recall, F-score, and area under ROC curve) for performance evaluation.
 
@@ -42,9 +42,9 @@ Our proposed GraphSL library targets at both developers and practical users: the
 
 # Methods and Benchmark Datasets
 
-![The hierarchical structure of our GraphSL library version 0.10.\label{fig:overview}](overview.png)
+![The hierarchical structure of the GraphSL library: in total 6 algorithms are implemented, which can be devided into two categories: prescribed methods that rely on hand-crafted rules and GNN-based methods which learn rules from graph data. \label{fig:overview}](overview.png)
 
-The structure of our GraphSL library is depicted in \autoref{fig:overview}. Existing graph source localization methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
+The structure of our GraphSL library is depicted in \autoref{fig:overview}. Existing methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
 
 Prescribed methods rely on hand-crafted rules and heuristics. For instance, LPSI propagates infection in networks and labels local peaks as source nodes [@wang2017multiple]. NetSleuth employs the Minimum Description Length principle to identify the optimal set of source nodes and virus propagation ripple [@prakash2012spotting]. OJC identifies a set of nodes (Jordan cover) that cover all observed infected nodes with the minimum radius [@zhu2017catch].
 
@@ -61,9 +61,9 @@ GNN-based methods learn rules from graph data in an end-to-end manner by capturi
 |     Memetracker [@leskovec2009meme]    |  7,884 | 47,911 |
 |        Digg [@hogg2012social]       | 15,912 | 78,649 |
 
-Table: \label{tab:statistics} The statistics of eight datasets.
+Table: \label{tab:statistics}   Eight benchmark graph datasets: their numbers of nodes and edges.
 
-Aside from methods, we also provide eight benchmark datasets to facilitate the research of graph source localization, whose statistics are shown in \autoref{tab:statistics}. Memetracker and Digg provide seed-diffusion pairs. While others do not have such pairs, they can be generated by information diffusion simulations.
+Aside from methods, we also release eight benchmark graph datasets to facilitate the research of graph source localization, whose statistics are shown in \autoref{tab:statistics}. While Memetracker and Digg provide information sources and diffusions, for other datasets, they can be generated by the function [diffusion_generation](https://graphsl.readthedocs.io/en/latest/GraphSL.html#GraphSL.utils.diffusion_generation).
 
 # Availability and Documentation
 
