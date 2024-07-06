@@ -56,7 +56,7 @@ GNN-based methods learn rules from graph data in an end-to-end manner by capturi
 | Network   Science [@newman2006finding] |  1,589 |  2,742 |
 |       Cora-ML [@mccallum2000automating]     |  2,810 |  7,981 |
 |    Power   Grid [@watts1998collective]    |  4,941 |  6,594 |
-|     Memetracker [@rozemberczki2019gemsec]    |  7,884 | 47,911 |
+|     Memetracker [@leskovec2009meme]    |  7,884 | 47,911 |
 |        Digg [@hogg2012social]       | 15,912 | 78,649 |
 
 Table: \label{tab:statistics} The statistics of eight datasets.
