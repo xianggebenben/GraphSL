@@ -5,18 +5,10 @@ from GraphSL.Prescribed import LPSI, NetSleuth, OJC
 from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 import os
 curr_dir = os.getcwd()
-# 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid', , 'meme8000', 'digg16000'
-data_name = 'meme8000'
+# 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid'
+data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)
-if data_name not in ['meme8000', 'digg16000']:
-    dataset = diffusion_generation(
-        graph=graph,
-        infect_prob=0.3,
-        diff_type='IC',
-        sim_num=100,
-        seed_ratio=0.3)
-else:
-    dataset = graph
+dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.3)
 adj, train_dataset, test_dataset = split_dataset(dataset)
 lpsi = LPSI()
 alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)
