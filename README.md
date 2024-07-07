@@ -57,10 +57,6 @@ Aside from methods, we also provide eight benchmark datasets to facilitate the r
 
 6. Power Grid: Power Grid delineates the topology network of the Western States Power Grid in the United States.
 
-7. Memetracker: Memetracker tracks frequently used phrases on news social media, and a small subset of the whole Memetracker network was retrieved here.
-
-8. Digg: Digg showcases a reply network within social news, and a small subset of the whole Digg network was retrieved here.
-
 # Installation
 
 First, install GraphSL using pip:
