@@ -136,7 +136,7 @@ class IVGD:
         Initializes the IVGD model.
         """
 
-    def train_diffusion(self, adj, train_dataset):
+    def train_diffusion(self, adj, train_dataset, random_seed=0):
         """
         Train the diffusion model.
 
@@ -146,6 +146,7 @@ class IVGD:
 
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
+        - random_seed (int): Random seed.
         Returns:
 
         - diffusion_model (torch.nn.Module): Trained diffusion model.
@@ -189,11 +190,12 @@ class IVGD:
         prob_matrix = prob_matrix / prob_matrix.sum(dim=1, keepdims=True)
         ndim = 5
         niter = 2
+        torch.manual_seed(random_seed)
         propagate_model = DiffusionPropagate(prob_matrix, niter=niter)
         fea_constructor = FeatureCons(ndim=ndim)
         fea_constructor.prob_matrix = prob_matrix
         args_dict = {
-            'learning_rate': 1e-8,
+            'learning_rate': 1e-3,
             'λ': 0,
             'γ': 0,
             'idx_split_args': {
@@ -235,7 +237,9 @@ class IVGD:
                 0.9],
             lr=1e-4,
             weight_decay=1e-4,
-            num_epoch=10):
+            num_epoch=100,
+            print_epoch=10,
+            random_seed=0):
         """
         Train the IVGD model.
 
@@ -254,6 +258,10 @@ class IVGD:
         - weight_decay (float): Weight decay.
 
         - num_epoch (int): Number of epochs for training.
+
+        - print_epoch (int): Number of epochs every time to print loss.
+
+        - random_epoch (int): Random seed.
 
         Returns:
 
@@ -304,6 +312,7 @@ class IVGD:
         tau = 1
         rho = 1e-3
         lamda = 0
+        torch.manual_seed(random_seed)
         ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho)
         optimizer = optim.Adam(
             ivgd.parameters(),

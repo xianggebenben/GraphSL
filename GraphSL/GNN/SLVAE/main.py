@@ -130,6 +130,7 @@ class SLVAE_model(nn.Module):
 
         - total_loss (torch.Tensor): Total loss tensor.
         """
+        epsilon =1e-8
         device = y_true.device
         BN = nn.BatchNorm1d(1, affine=False).to(device)
         y_hat = y_hat.to(device)
@@ -139,7 +140,7 @@ class SLVAE_model(nn.Module):
             log_lh = torch.zeros(1).to(device)
             for i, x_i in enumerate(x_hat[0]):
                 temp = x_i * \
-                    torch.log(pred[i]+1e-8) + (1 - x_i) * torch.log(1 - pred[i]+1e-8).to(torch.double)
+                    torch.log(pred[i]+epsilon) + (1 - x_i) * torch.log(1 - pred[i]+epsilon).to(torch.double)
                 temp = temp.to(device)
                 log_lh += temp
             log_pmf.append(log_lh)
@@ -181,7 +182,8 @@ class SLVAE:
             lr=1e-4,
             weight_decay=1e-4,
             num_epoch=100,
-            print_epoch=10):
+            print_epoch=10,
+            random_seed=0):
         """
         Train the SLVAE model.
 
@@ -200,6 +202,8 @@ class SLVAE:
         - num_epoch (int): Number of training epochs.
 
         - print_epoch (int): Number of epochs every time to print loss.
+
+        - random_seed (int): Random seed.
 
         Returns:
 
@@ -254,6 +258,7 @@ class SLVAE:
         adj_matrix = torch.sparse_coo_tensor(
             i, v, torch.Size(shape)).to_dense()
         train_num = len(train_dataset)
+        torch.manual_seed(random_seed)
         vae = VAE().to(device)
         gnn = GNN(adj_matrix=adj_matrix)
         propagate = DiffusionPropagate(adj_matrix, niter=2)
@@ -309,7 +314,7 @@ class SLVAE:
 
         optimizer = Adam(seed_infer, lr=lr, weight_decay=weight_decay)
 
-        for epoch in range(num_epoch):
+        for epoch in range(int(num_epoch/5)):
             overall_loss = 0
             for i, influ_mat in enumerate(train_dataset):
                 influ_vec = influ_mat[:, -1]
@@ -327,7 +332,7 @@ class SLVAE:
 
             average_loss = overall_loss / train_num
 
-            if epoch % print_epoch == 0:
+            if epoch % int(print_epoch/5) == 0:
                 print(f"epoch = {epoch}, obj = {average_loss:.4f}")
 
         train_auc = 0

@@ -29,11 +29,12 @@ class GCNSI:
                           0.5,
                           0.7,
                           0.9],
-              lr=0.001,
-              num_epoch=50,
+              lr=1e-3,
+              num_epoch=100,
               print_epoch=10,
               weight=torch.tensor([1.0,
-                                   3.0])):
+                                   3.0]),
+              random_seed=0):
         """
         Train the GCNSI model.
 
@@ -55,6 +56,7 @@ class GCNSI:
 
         - weight (torch.Tensor): Weight tensor for loss computation, the first and second values are loss weights for non-seed and seed, respectively.
 
+        - random_seed (int): Random seed.
         Returns:
 
         - gcnsi_model (GCNSI_model): GCNSI model.
@@ -104,6 +106,7 @@ class GCNSI:
         col = torch.from_numpy(coo.col.astype(np.int64)).to(torch.long)
         edge_index = torch.stack([row, col], dim=0)
         # Iterate over alpha values
+        torch.manual_seed(random_seed)
         gcnsi_model = GCNSI_model()
         optimizer = torch.optim.Adam(gcnsi_model.parameters(), lr=lr)
         criterion = torch.nn.CrossEntropyLoss(weight=weight)

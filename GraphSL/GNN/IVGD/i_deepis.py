@@ -50,15 +50,13 @@ class DiffusionPropagate(nn.Module):
             prob_matrix = prob_matrix.toarray()
         self.register_buffer('prob_matrix', torch.FloatTensor(prob_matrix))
 
-    def forward(self, preds, seed_idx, idx):
+    def forward(self, preds, idx):
         """
         Performs forward pass for diffusion propagation.
 
         Args:
 
         - preds (torch.Tensor): Input tensor of predictions.
-
-        - seed_idx (torch.Tensor): Indices of seed nodes.
 
         - idx (torch.Tensor): Indices of nodes to propagate to.
 
@@ -75,7 +73,6 @@ class DiffusionPropagate(nn.Module):
             P3 = torch.ones(self.prob_matrix.shape).to(device) - P2
             preds = torch.ones((self.prob_matrix.shape[0],)).to(
                 device) - torch.prod(P3, dim=1)
-            # preds[seed_idx] = 1
         preds = (preds + temp) / 2
         return preds[idx]
 
@@ -151,14 +148,12 @@ class i_DeepIS(nn.Module):
         total_node_nums = self.gnn_model.features.weight.shape[0]
         total_nodes = torch.LongTensor(np.arange(total_node_nums)).to(device)
         seed = self.gnn_model.features.weight[:, 0]
-        seed_idx = torch.LongTensor(np.argwhere(
-            seed.detach().cpu().numpy() == 1)).to(device)
         seed = torch.unsqueeze(seed, 1)
         # predict all, for prediction propagation
         predictions = self.gnn_model(total_nodes)
         predictions = (predictions + seed) / 2
 
-        predictions = self.propagate(predictions, seed_idx, idx)  # then select
+        predictions = self.propagate(predictions, idx)  # then select
 
         return predictions.flatten()
 
