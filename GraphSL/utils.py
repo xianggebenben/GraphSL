@@ -30,7 +30,7 @@ def load_dataset(dataset, data_dir):
     return graph
 
 
-def generate_seed_vector(top_nodes, seed_num, G):
+def generate_seed_vector(top_nodes, seed_num, G, random_seed):
     """
     Generate a seed vector for diffusion simulation.
 
@@ -42,10 +42,13 @@ def generate_seed_vector(top_nodes, seed_num, G):
 
     - G (networkx.Graph): The graph object.
 
+    - random_seed (int): Random Seed
+
     Returns:
 
         seed_vector (list): Seed vector for diffusion simulation.
     """
+    random.seed(random_seed)
     seed_nodes = random.sample(top_nodes, seed_num)
     seed_vector = [1 if node in seed_nodes else 0 for node in G.nodes()]
     return seed_vector
@@ -60,7 +63,8 @@ def diffusion_generation(
         seed_ratio=0.1,
         infect_prob=0.1,
         recover_prob=0.005,
-        threshold=0.5):
+        threshold=0.5,
+        random_seed=0):
     """
     Generate diffusion matrices for a graph.
 
@@ -83,6 +87,8 @@ def diffusion_generation(
     - recover_prob (float): Recovery probability, used in SIS or SIR.
 
     - threshold (float): Threshold parameter for diffusion models, used in IC or LT.
+
+    - random_seed (int): Random seed.
 
     Returns:
 
@@ -113,28 +119,28 @@ def diffusion_generation(
     top_nodes = [x[0] for x in degree_list[:int(len(degree_list) * 0.3)]]
 
     for i in range(sim_num):
-        seed_vector = generate_seed_vector(top_nodes, seed_num, G)
+        seed_vector = generate_seed_vector(top_nodes, seed_num, G, random_seed+i)
         inf_vec_all = torch.zeros(node_num)
         config = mc.Configuration()
         for k in range(repeat_step):
             if diff_type == 'LT':
-                model = ep.ThresholdModel(G)
+                model = ep.ThresholdModel(G,random_seed)
                 for n in G.nodes():
                     config.add_node_configuration("threshold", n, threshold)
             elif diff_type == 'IC':
-                model = ep.IndependentCascadesModel(G)
+                model = ep.IndependentCascadesModel(G,random_seed)
                 for e in G.edges():
                     config.add_edge_configuration("threshold", e, threshold)
             elif diff_type == 'SIS':
-                model = ep.SISModel(G)
+                model = ep.SISModel(G,random_seed)
                 config.add_model_parameter('beta', infect_prob)
                 config.add_model_parameter('lambda', recover_prob)
             elif diff_type == 'SIR':
-                model = ep.SIRModel(G)
+                model = ep.SIRModel(G,random_seed)
                 config.add_model_parameter('beta', infect_prob)
                 config.add_model_parameter('gamma', recover_prob)
             elif diff_type == 'SI':
-                model = ep.SIModel(G)
+                model = ep.SIModel(G,random_seed)
                 config.add_model_parameter('beta', infect_prob)
             else:
                 raise ValueError('Only IC, LT, SI, SIR and SIS are supported.')

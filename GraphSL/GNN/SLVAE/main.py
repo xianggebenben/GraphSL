@@ -139,7 +139,7 @@ class SLVAE_model(nn.Module):
             log_lh = torch.zeros(1).to(device)
             for i, x_i in enumerate(x_hat[0]):
                 temp = x_i * \
-                    torch.log(pred[i]) + (1 - x_i) * torch.log(1 - pred[i]).to(torch.double)
+                    torch.log(pred[i]+1e-8) + (1 - x_i) * torch.log(1 - pred[i]+1e-8).to(torch.double)
                 temp = temp.to(device)
                 log_lh += temp
             log_pmf.append(log_lh)
@@ -178,9 +178,9 @@ class SLVAE:
                 0.5,
                 0.7,
                 0.9],
-            lr=1e-3,
+            lr=1e-4,
             weight_decay=1e-4,
-            num_epoch=50,
+            num_epoch=100,
             print_epoch=10):
         """
         Train the SLVAE model.
@@ -367,9 +367,9 @@ class SLVAE:
             slvae_model,
             seed_vae_train,
             thres,
-            lr=0.001,
-            num_epoch=50,
-            print_epoch=10):
+            lr=0.0001,
+            num_epoch=10,
+            print_epoch=1):
         """
         Infer using the SLVAE model.
 

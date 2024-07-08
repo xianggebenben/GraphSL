@@ -8,7 +8,7 @@ curr_dir = os.getcwd()
 # 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid'
 data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)
-dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.3)
+dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.2)
 adj, train_dataset, test_dataset = split_dataset(dataset)
 lpsi = LPSI()
 alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)

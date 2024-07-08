@@ -233,7 +233,7 @@ class IVGD:
                 0.5,
                 0.7,
                 0.9],
-            lr=1e-3,
+            lr=1e-4,
             weight_decay=1e-4,
             num_epoch=10):
         """
