@@ -32,30 +32,21 @@ class IVGD_model(torch.nn.Module):
         - rho (float): Value of rho parameter.
         """
         super(IVGD_model, self).__init__()
-        self.number_layer = 5
         self.alpha1 = alpha
         self.alpha2 = alpha
         self.alpha3 = alpha
-        self.alpha4 = alpha
-        self.alpha5 = alpha
 
         self.tau1 = tau
         self.tau2 = tau
         self.tau3 = tau
-        self.tau4 = tau
-        self.tau5 = tau
 
         self.net1 = correction()
         self.net2 = correction()
         self.net3 = correction()
-        self.net4 = correction()
-        self.net5 = correction()
 
         self.rho1 = rho
         self.rho2 = rho
         self.rho3 = rho
-        self.rho4 = rho
-        self.rho5 = rho
 
     def forward(self, x, label, lamda):
         """
@@ -76,8 +67,6 @@ class IVGD_model(torch.nn.Module):
         self.net1.to(x.device)
         self.net2.to(x.device)
         self.net3.to(x.device)
-        self.net4.to(x.device)
-        self.net5.to(x.device)
         sum = torch.sum(label)
         label = torch.cat((1 - label, label), dim=1)
         x = torch.cat((1 - x, x), dim=1)
@@ -95,33 +84,7 @@ class IVGD_model(torch.nn.Module):
         x = (self.tau3 * self.net3(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
              - self.rho3 * (torch.sum(x) - sum) + self.alpha3 * x) / (
             self.tau3 + self.alpha3)
-        prob = x[:, 1].unsqueeze(-1)
-        lamda = lamda + self.rho3 * (torch.sum(prob) - sum)
-        x = (self.tau4 * self.net4(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
-             - self.rho4 * (torch.sum(x) - sum) + self.alpha4 * x) / (
-            self.tau4 + self.alpha4)
-        prob = x[:, 1].unsqueeze(-1)
-        lamda = lamda + self.rho4 * (torch.sum(prob) - sum)
-        x = (self.tau5 * self.net5(prob) - label * torch.softmax(x, dim=1) / label.shape[0] - lamda
-             - self.rho5 * (torch.sum(x) - sum) + self.alpha5 * x) / (
-            self.tau5 + self.alpha5)
         return x
-
-    def correction(self, pred):
-        """
-        Corrects predictions based on input.
-
-        Args:
-
-        - pred (torch.Tensor): Input tensor of predictions.
-
-        Returns:
-
-        - torch.Tensor: Corrected predictions.
-        """
-        temp = pred[:, 0].unsqueeze(-1)
-        return (self.net1(temp) + self.net2(temp) + self.net3(temp) +
-                self.net4(temp) + self.net5(temp)) / self.number_layer
 
 
 class IVGD:
@@ -311,7 +274,7 @@ class IVGD:
         alpha = 1
         tau = 1
         rho = 1e-3
-        lamda = 0
+        lamda = 1e-3
         torch.manual_seed(random_seed)
         ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho)
         optimizer = optim.Adam(
@@ -320,29 +283,63 @@ class IVGD:
             weight_decay=weight_decay)
         ivgd.train()
         train_num = len(train_dataset)
-        for i, influ_mat in enumerate(train_dataset):
-            seed_vec = influ_mat[:, 0].to(device)
+
+        seed_preds_list=list()
+
+        for influ_mat in train_dataset:
+
             influ_vec = influ_mat[:, -1].to(device)
+
+            # Get predictions
             seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
-            seed_preds = seed_preds.unsqueeze(-1).float()
-            seed_vec = seed_vec.unsqueeze(-1).float()
-            for epoch in range(num_epoch):
+            seed_preds_unsqueeze = seed_preds.unsqueeze(-1).detach()
+            seed_preds_list.append(seed_preds_unsqueeze)
+
+        for epoch in range(num_epoch):
+            overall_loss = 0
+            for i, influ_mat in enumerate(train_dataset):
                 optimizer.zero_grad()
-                seed_correction = ivgd(seed_preds, seed_vec, lamda)
-                loss = criterion(seed_correction, seed_vec.squeeze(-1).long())
-                loss.backward(retain_graph=True)
+                
+                # Ensure that influ_mat is on the correct device
+                influ_mat = influ_mat.to(device)
+                
+                # Extract and prepare seed_vec
+                seed_vec = influ_mat[:, 0].to(device)
+                seed_vec_unsqueeze = seed_vec.unsqueeze(-1).float()
+                
+                # Ensure seed_preds_list[i] is detached if it's from a previous computation
+                seed_preds_unsqueeze = seed_preds_list[i].detach()
+                seed_correction = ivgd(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
+                
+                # Prepare one-hot encoding
+                seed_vec_onehot = torch.cat((1-seed_vec_unsqueeze, seed_vec_unsqueeze), dim=1)
+                
+                # Calculate loss
+                loss = criterion(seed_correction, seed_vec_onehot)
+                
+                # Backward pass
+                loss.backward()
+                
+                # Accumulate loss
+                overall_loss += loss.item()
+                
+                # Update parameters
                 optimizer.step()
-            print(f"optimize simulation {i+1}: loss = {loss:.3f}")
+            
+            # Calculate and print average loss for the epoch
+            if epoch % print_epoch ==0:
+                average_loss = overall_loss / train_num
+                print(f"epoch {epoch}: loss = {average_loss:.3f}")
+
+
 
         ivgd.eval()
         train_auc = 0
-        for influ_mat in train_dataset:
+        for i, influ_mat in enumerate(train_dataset):
             seed_vec = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
-            seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
-            seed_preds = torch.tensor(seed_preds).unsqueeze(-1).float()
+            seed_preds_unsqueeze = seed_preds_list[i].to(device)
             seed_vec = seed_vec.unsqueeze(-1).float()
-            seed_correction = ivgd(seed_preds, seed_preds, lamda)
+            seed_correction = ivgd(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
             seed_correction = self.normalize(seed_correction)
@@ -355,10 +352,8 @@ class IVGD:
         seed_all = np.zeros((num_node, train_num))
         for i, influ_mat in enumerate(train_dataset):
             seed_all[:, i] = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
-            seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
-            seed_preds = torch.tensor(seed_preds).unsqueeze(-1).float()
-            seed_correction = ivgd(seed_preds, seed_preds, lamda)
+            seed_preds_unsqueeze = seed_preds_list[i].to(device)
+            seed_correction = ivgd(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
             seed_correction = self.normalize(seed_correction)
@@ -431,6 +426,8 @@ class IVGD:
 
         print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
         test_num = len(test_dataset)
         test_acc = 0
         test_pr = 0
@@ -438,19 +435,30 @@ class IVGD:
         test_f1 = 0
         test_auc = 0
 
-        lamda = 0
-        # Loop through each test dataset
+        lamda = 1e-3
+
+        seed_preds_list=list()
+
         for influ_mat in test_dataset:
+
+            influ_vec = influ_mat[:, -1].to(device)
+
+            # Get predictions
+            seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
+            seed_preds_unsqueeze = seed_preds.unsqueeze(-1).detach()
+            seed_preds_list.append(seed_preds_unsqueeze)
+
+        # Loop through each test dataset
+        for i, influ_mat in enumerate(test_dataset):
             seed_vec = influ_mat[:, 0]
             influ_vec = influ_mat[:, -1]
 
             # Get seed predictions from the diffusion model
-            seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
-            seed_preds = torch.tensor(seed_preds).unsqueeze(-1).float()
+            seed_preds_unsqueeze = seed_preds_list[i].to(device)
             seed_vec = seed_vec.unsqueeze(-1).float()
 
             # Obtain seed correction predictions from the IVGD model
-            seed_correction = IVGD_model(seed_preds, seed_preds, lamda)
+            seed_correction = IVGD_model(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
             seed_correction = self.normalize(seed_correction)

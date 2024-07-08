@@ -42,13 +42,13 @@ class correction(torch.nn.Module):
         # Add the input tensor to the output tensor
         temp = (temp + x)
         # Clip the values of the output tensor between 0 and 1
-        temp = torch.minimum(
-            torch.maximum(
-                torch.zeros(
-                    temp.shape).to(
-                    x.device),
-                temp),
-            torch.ones(
-                temp.shape).to(
-                x.device))
+        # temp = torch.minimum(
+        #     torch.maximum(
+        #         torch.zeros(
+        #             temp.shape).to(
+        #             x.device),
+        #         temp),
+        #     torch.ones(
+        #         temp.shape).to(
+        #         x.device))
         return temp

@@ -80,7 +80,7 @@ def diffusion_generation(
 
     - repeat_step (int): Number of repetitions for each simulation.
 
-    - seed_ratio (float): Ratio of seed nodes.
+    - seed_ratio (float): Ratio of seed nodes, should be between 0 and 0.3.
 
     - infect_prob (float): Infection probability,  used in SIS, SIR or SI.
 
@@ -117,6 +117,8 @@ def diffusion_generation(
     degree_list = list(G.degree())
     degree_list.sort(key=lambda x: x[1], reverse=True)
     top_nodes = [x[0] for x in degree_list[:int(len(degree_list) * 0.3)]]
+
+    assert seed_ratio<=0.3 and seed_ratio>=0, "seed_ratio should be between 0 and 0.3"
 
     for i in range(sim_num):
         seed_vector = generate_seed_vector(top_nodes, seed_num, G, random_seed+i)
