@@ -76,6 +76,7 @@ Second, download the data folder of the repo from https://github.com/xianggebenb
 Now, you can import and use GraphSL in your Python code. Please make sure your Python code and the data folder are in the same directory:
 
 ``` python
+
 from GraphSL.GNN.SLVAE.main import SLVAE
 from GraphSL.GNN.IVGD.main import IVGD
 from GraphSL.GNN.GCNSI.main import GCNSI
@@ -86,17 +87,17 @@ curr_dir = os.getcwd()
 # 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid'
 data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)
-dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.3)
+dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.2)
 adj, train_dataset, test_dataset = split_dataset(dataset)
-print("LPSI:")
 lpsi = LPSI()
 alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)
+print("LPSI:")
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 metric = lpsi.test(adj, test_dataset, alpha, thres)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
-print("NetSleuth:")
 netSleuth = NetSleuth()
 k, auc, f1 = netSleuth.train(adj, train_dataset)
+print("NetSleuth:")
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 metric = netSleuth.test(adj, test_dataset, k)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
