@@ -92,11 +92,11 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>GraphSL
 </pre></div>
 </div>
-<p>Or, clone the repo from <a class="reference external" href="https://github.com/xianggebenben/GraphSL">https://github.com/xianggebenben/GraphSL</a>, and install requirements:</p>
+<p>Or, clone the [repo](<a class="reference external" href="https://github.com/xianggebenben/GraphSL">https://github.com/xianggebenben/GraphSL</a>), and install requirements:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 </pre></div>
 </div>
-<p>Second, download the data folder of the repo from <a class="reference external" href="https://github.com/xianggebenben/GraphSL">https://github.com/xianggebenben/GraphSL</a>, which contains six datasets.</p>
+<p>Second, download the data folder of the [repo](<a class="reference external" href="https://github.com/xianggebenben/GraphSL">https://github.com/xianggebenben/GraphSL</a>), which contains six datasets.</p>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
@@ -194,7 +194,7 @@
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;test acc: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">acc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, test pr: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">pr</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, test re: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">re</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, test f1: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">f1</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, test auc: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>That’s it! You’re ready to start using GraphSL.</p>
+<p>That’s it! You’re ready to start using GraphSL. You check results on the Jupyter notebook tutorial.ipynb from the [repo](<a class="reference external" href="https://github.com/xianggebenben/GraphSL">https://github.com/xianggebenben/GraphSL</a>).</p>
 <p>If you use this package in your research, please consider citing our work as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>@article<span class="o">{</span>wang2024joss,
 <span class="nv">year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span><span class="m">2024</span><span class="o">}</span>,
@@ -204,6 +204,13 @@
 <span class="w"> </span><span class="o">}</span>
 </pre></div>
 </div>
+</section>
+<section id="contact">
+<h2>Contact<a class="headerlink" href="#contact" title="Link to this heading"></a></h2>
+<p>We welcome your contributions! If you’d like to contribute your datasets or algorithms, please submit a pull request consisting of an atomic commit and a brief message describing your contribution.</p>
+<p>For a new dataset, please upload it to the [data](<a class="reference external" href="https://github.com/xianggebenben/GraphSL/tree/main/data">https://github.com/xianggebenben/GraphSL/tree/main/data</a>) folder. The file should be a dictionary object saved by [pickle](<a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a>). It contains a key “adj_mat” with the value of a garph adjacency matrix (sprase numpy array with the [CSR](<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html</a>) format).</p>
+<p>For a new algorithm, please determine it whether it belongs to presribed methods or GNN-based methods: if it belongs to the prescribed methods,  add your algorithm as a new class in the [GraphSL/Prescribed.py](<a class="reference external" href="https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Prescribed.py">https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Prescribed.py</a>). Otherwises, please upload it as a folder under the [GraphSL/GNN](<a class="reference external" href="https://github.com/xianggebenben/GraphSL/tree/main/GraphSL/GNN">https://github.com/xianggebenben/GraphSL/tree/main/GraphSL/GNN</a>) folder. Typically, the algorithm should include a “train” function and a “test” function, and the “test” function should return a [Metric](<a class="reference external" href="https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Evaluation.py">https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Evaluation.py</a>) object.</p>
+<p>Feel free to Email me (<a class="reference external" href="mailto:junxiang&#46;wang&#37;&#52;&#48;alumni&#46;emory&#46;edu">junxiang<span>&#46;</span>wang<span>&#64;</span>alumni<span>&#46;</span>emory<span>&#46;</span>edu</a>) if you have any questions. Bug reports and feedback can be directed to the [Github issues page](<a class="reference external" href="https://github.com/xianggebenben/GraphSL/issues">https://github.com/xianggebenben/GraphSL/issues</a>).</p>
 </section>
 </section>
 <section id="indices-and-tables">
