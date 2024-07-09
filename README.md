@@ -64,11 +64,11 @@ First, install GraphSL using pip:
 
     pip install GraphSL
 
-Or, clone the repo from https://github.com/xianggebenben/GraphSL and install requirements:
+Or, clone the [repo](https://github.com/xianggebenben/GraphSL) and install requirements:
 
     pip install -r requirements.txt
 
-Second, download the data folder of the repo from https://github.com/xianggebenben/GraphSL, which contains eight datasets.
+Second, download the data folder of the [repo](https://github.com/xianggebenben/GraphSL), which contains six datasets.
 
 
 # Quickstart
