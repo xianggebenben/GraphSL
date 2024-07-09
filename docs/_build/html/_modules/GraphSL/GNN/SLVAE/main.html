@@ -213,6 +213,7 @@
 
 <span class="sd">        - total_loss (torch.Tensor): Total loss tensor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">epsilon</span> <span class="o">=</span><span class="mf">1e-8</span>
         <span class="n">device</span> <span class="o">=</span> <span class="n">y_true</span><span class="o">.</span><span class="n">device</span>
         <span class="n">BN</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="n">y_hat</span> <span class="o">=</span> <span class="n">y_hat</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
@@ -222,7 +223,7 @@
             <span class="n">log_lh</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x_hat</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="n">temp</span> <span class="o">=</span> <span class="n">x_i</span> <span class="o">*</span> \
-                    <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x_i</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x_i</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
                 <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
                 <span class="n">log_lh</span> <span class="o">+=</span> <span class="n">temp</span>
             <span class="n">log_pmf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_lh</span><span class="p">)</span>
@@ -267,10 +268,11 @@
                 <span class="mf">0.5</span><span class="p">,</span>
                 <span class="mf">0.7</span><span class="p">,</span>
                 <span class="mf">0.9</span><span class="p">],</span>
-            <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+            <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
             <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
-            <span class="n">num_epoch</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-            <span class="n">print_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">num_epoch</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">print_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the SLVAE model.</span>
 
@@ -289,6 +291,8 @@
 <span class="sd">        - num_epoch (int): Number of training epochs.</span>
 
 <span class="sd">        - print_epoch (int): Number of epochs every time to print loss.</span>
+
+<span class="sd">        - random_seed (int): Random seed.</span>
 
 <span class="sd">        Returns:</span>
 
@@ -343,6 +347,7 @@
         <span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse_coo_tensor</span><span class="p">(</span>
             <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
         <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
         <span class="n">vae</span> <span class="o">=</span> <span class="n">VAE</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="n">gnn</span> <span class="o">=</span> <span class="n">GNN</span><span class="p">(</span><span class="n">adj_matrix</span><span class="o">=</span><span class="n">adj_matrix</span><span class="p">)</span>
         <span class="n">propagate</span> <span class="o">=</span> <span class="n">DiffusionPropagate</span><span class="p">(</span><span class="n">adj_matrix</span><span class="p">,</span> <span class="n">niter</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -398,7 +403,7 @@
 
         <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">seed_infer</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epoch</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">num_epoch</span><span class="o">/</span><span class="mi">5</span><span class="p">)):</span>
             <span class="n">overall_loss</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
                 <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -416,7 +421,7 @@
 
             <span class="n">average_loss</span> <span class="o">=</span> <span class="n">overall_loss</span> <span class="o">/</span> <span class="n">train_num</span>
 
-            <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">print_epoch</span><span class="o">/</span><span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch = </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">, obj = </span><span class="si">{</span><span class="n">average_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
@@ -459,9 +464,9 @@
             <span class="n">slvae_model</span><span class="p">,</span>
             <span class="n">seed_vae_train</span><span class="p">,</span>
             <span class="n">thres</span><span class="p">,</span>
-            <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
-            <span class="n">num_epoch</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-            <span class="n">print_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span>
+            <span class="n">num_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">print_epoch</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Infer using the SLVAE model.</span>
 

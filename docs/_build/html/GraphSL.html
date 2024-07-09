@@ -112,9 +112,9 @@
 <li class="toctree-l2"><a class="reference internal" href="GraphSL.GNN.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.GNN.GCNSI.html">GraphSL.GNN.GCNSI package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#graphsl-gnn-gcnsi-main-module">GraphSL.GNN.GCNSI.main module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#graphsl-gnn-gcnsi-model-module">GraphSL.GNN.GCNSI.model module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#module-GraphSL.GNN.GCNSI.main">GraphSL.GNN.GCNSI.main module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#module-GraphSL.GNN.GCNSI.model">GraphSL.GNN.GCNSI.model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="GraphSL.GNN.GCNSI.html#module-GraphSL.GNN.GCNSI">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.GNN.IVGD.html">GraphSL.GNN.IVGD package</a><ul>
@@ -152,7 +152,7 @@
 <span id="graphsl-utils-module"></span><h2>GraphSL.utils module<a class="headerlink" href="#module-GraphSL.utils" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="GraphSL.utils.diffusion_generation">
-<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">diffusion_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'IC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infect_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recover_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#diffusion_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.diffusion_generation" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">diffusion_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'IC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infect_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recover_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#diffusion_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.diffusion_generation" title="Link to this definition"></a></dt>
 <dd><p>Generate diffusion matrices for a graph.</p>
 <p>Args:</p>
 <ul class="simple">
@@ -161,10 +161,11 @@
 <li><p>diff_type (str): Type of diffusion model (IC, LT, SI, SIS, SIR). IC stands for Independent Cascade, LT stands for Linear Threshold, SI stands for Susceptible or Infective, SIS stands for Susceptible or Infective or Susceptible, SIR stands for Susceptible or Infective or Recovered.</p></li>
 <li><p>time_step (int): Number of time steps in the simulation.</p></li>
 <li><p>repeat_step (int): Number of repetitions for each simulation.</p></li>
-<li><p>seed_ratio (float): Ratio of seed nodes.</p></li>
+<li><p>seed_ratio (float): Ratio of seed nodes, should be between 0 and 0.3.</p></li>
 <li><p>infect_prob (float): Infection probability,  used in SIS, SIR or SI.</p></li>
 <li><p>recover_prob (float): Recovery probability, used in SIS or SIR.</p></li>
 <li><p>threshold (float): Threshold parameter for diffusion models, used in IC or LT.</p></li>
+<li><p>random_seed (int): Random seed.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
@@ -181,13 +182,14 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="GraphSL.utils.generate_seed_vector">
-<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">generate_seed_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#generate_seed_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.generate_seed_vector" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">generate_seed_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#generate_seed_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.generate_seed_vector" title="Link to this definition"></a></dt>
 <dd><p>Generate a seed vector for diffusion simulation.</p>
 <p>Args:</p>
 <ul class="simple">
 <li><p>top_nodes (list): List of top nodes based on node degree.</p></li>
 <li><p>seed_num (int): Number of seed nodes.</p></li>
 <li><p>G (networkx.Graph): The graph object.</p></li>
+<li><p>random_seed (int): Random Seed</p></li>
 </ul>
 <p>Returns:</p>
 <blockquote>

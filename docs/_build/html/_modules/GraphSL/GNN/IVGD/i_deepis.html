@@ -133,15 +133,13 @@
 
 <div class="viewcode-block" id="DiffusionPropagate.forward">
 <a class="viewcode-back" href="../../../../GraphSL.GNN.IVGD.html#GraphSL.GNN.IVGD.i_deepis.DiffusionPropagate.forward">[docs]</a>
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">seed_idx</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs forward pass for diffusion propagation.</span>
 
 <span class="sd">        Args:</span>
 
 <span class="sd">        - preds (torch.Tensor): Input tensor of predictions.</span>
-
-<span class="sd">        - seed_idx (torch.Tensor): Indices of seed nodes.</span>
 
 <span class="sd">        - idx (torch.Tensor): Indices of nodes to propagate to.</span>
 
@@ -158,7 +156,6 @@
             <span class="n">P3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prob_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="o">-</span> <span class="n">P2</span>
             <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">prob_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
                 <span class="n">device</span><span class="p">)</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">P3</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="c1"># preds[seed_idx] = 1</span>
         <span class="n">preds</span> <span class="o">=</span> <span class="p">(</span><span class="n">preds</span> <span class="o">+</span> <span class="n">temp</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="k">return</span> <span class="n">preds</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
 
@@ -243,14 +240,12 @@
         <span class="n">total_node_nums</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gnn_model</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">total_nodes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">total_node_nums</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gnn_model</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">weight</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="n">seed_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span>
-            <span class="n">seed</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="c1"># predict all, for prediction propagation</span>
         <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gnn_model</span><span class="p">(</span><span class="n">total_nodes</span><span class="p">)</span>
         <span class="n">predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">predictions</span> <span class="o">+</span> <span class="n">seed</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 
-        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">seed_idx</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>  <span class="c1"># then select</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>  <span class="c1"># then select</span>
 
         <span class="k">return</span> <span class="n">predictions</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span></div>
 

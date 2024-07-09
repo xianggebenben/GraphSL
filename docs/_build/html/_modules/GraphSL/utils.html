@@ -108,7 +108,7 @@
 
 <div class="viewcode-block" id="generate_seed_vector">
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.utils.generate_seed_vector">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_seed_vector</span><span class="p">(</span><span class="n">top_nodes</span><span class="p">,</span> <span class="n">seed_num</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">generate_seed_vector</span><span class="p">(</span><span class="n">top_nodes</span><span class="p">,</span> <span class="n">seed_num</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a seed vector for diffusion simulation.</span>
 
@@ -120,10 +120,13 @@
 
 <span class="sd">    - G (networkx.Graph): The graph object.</span>
 
+<span class="sd">    - random_seed (int): Random Seed</span>
+
 <span class="sd">    Returns:</span>
 
 <span class="sd">        seed_vector (list): Seed vector for diffusion simulation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
     <span class="n">seed_nodes</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">top_nodes</span><span class="p">,</span> <span class="n">seed_num</span><span class="p">)</span>
     <span class="n">seed_vector</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">seed_nodes</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">()]</span>
     <span class="k">return</span> <span class="n">seed_vector</span></div>
@@ -141,7 +144,8 @@
         <span class="n">seed_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">infect_prob</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">recover_prob</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
-        <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate diffusion matrices for a graph.</span>
 
@@ -157,13 +161,15 @@
 
 <span class="sd">    - repeat_step (int): Number of repetitions for each simulation.</span>
 
-<span class="sd">    - seed_ratio (float): Ratio of seed nodes.</span>
+<span class="sd">    - seed_ratio (float): Ratio of seed nodes, should be between 0 and 0.3.</span>
 
 <span class="sd">    - infect_prob (float): Infection probability,  used in SIS, SIR or SI.</span>
 
 <span class="sd">    - recover_prob (float): Recovery probability, used in SIS or SIR.</span>
 
 <span class="sd">    - threshold (float): Threshold parameter for diffusion models, used in IC or LT.</span>
+
+<span class="sd">    - random_seed (int): Random seed.</span>
 
 <span class="sd">    Returns:</span>
 
@@ -193,29 +199,31 @@
     <span class="n">degree_list</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">top_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">degree_list</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">degree_list</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)]]</span>
 
+    <span class="k">assert</span> <span class="n">seed_ratio</span><span class="o">&lt;=</span><span class="mf">0.3</span> <span class="ow">and</span> <span class="n">seed_ratio</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;seed_ratio should be between 0 and 0.3&quot;</span>
+
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sim_num</span><span class="p">):</span>
-        <span class="n">seed_vector</span> <span class="o">=</span> <span class="n">generate_seed_vector</span><span class="p">(</span><span class="n">top_nodes</span><span class="p">,</span> <span class="n">seed_num</span><span class="p">,</span> <span class="n">G</span><span class="p">)</span>
+        <span class="n">seed_vector</span> <span class="o">=</span> <span class="n">generate_seed_vector</span><span class="p">(</span><span class="n">top_nodes</span><span class="p">,</span> <span class="n">seed_num</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
         <span class="n">inf_vec_all</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">node_num</span><span class="p">)</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Configuration</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repeat_step</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">diff_type</span> <span class="o">==</span> <span class="s1">&#39;LT&#39;</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">ThresholdModel</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">ThresholdModel</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">random_seed</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">add_node_configuration</span><span class="p">(</span><span class="s2">&quot;threshold&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">diff_type</span> <span class="o">==</span> <span class="s1">&#39;IC&#39;</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">IndependentCascadesModel</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">IndependentCascadesModel</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">random_seed</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">add_edge_configuration</span><span class="p">(</span><span class="s2">&quot;threshold&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">diff_type</span> <span class="o">==</span> <span class="s1">&#39;SIS&#39;</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">SISModel</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">SISModel</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">random_seed</span><span class="p">)</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">add_model_parameter</span><span class="p">(</span><span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="n">infect_prob</span><span class="p">)</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">add_model_parameter</span><span class="p">(</span><span class="s1">&#39;lambda&#39;</span><span class="p">,</span> <span class="n">recover_prob</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">diff_type</span> <span class="o">==</span> <span class="s1">&#39;SIR&#39;</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">SIRModel</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">SIRModel</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">random_seed</span><span class="p">)</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">add_model_parameter</span><span class="p">(</span><span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="n">infect_prob</span><span class="p">)</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">add_model_parameter</span><span class="p">(</span><span class="s1">&#39;gamma&#39;</span><span class="p">,</span> <span class="n">recover_prob</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">diff_type</span> <span class="o">==</span> <span class="s1">&#39;SI&#39;</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">SIModel</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">ep</span><span class="o">.</span><span class="n">SIModel</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">random_seed</span><span class="p">)</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">add_model_parameter</span><span class="p">(</span><span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="n">infect_prob</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only IC, LT, SI, SIR and SIS are supported.&#39;</span><span class="p">)</span>
