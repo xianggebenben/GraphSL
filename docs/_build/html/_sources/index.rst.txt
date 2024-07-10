@@ -152,7 +152,7 @@ If you use this package in your research, please consider citing our work as fol
 Contact
 ------------
 
-We welcome your contributions! If you’d like to contribute your datasets or algorithms, please submit a pull request consisting of an atomic commit and a brief message describing your contribution.
+We welcome your contributions! If you'd like to contribute your datasets or algorithms, please submit a pull request consisting of an atomic commit and a brief message describing your contribution.
 
 For a new dataset, please upload it to the data folder (https://github.com/xianggebenben/GraphSL/tree/main/data). The file should be a dictionary object saved by pickle(https://docs.python.org/3/library/pickle.html). It contains a key "adj_mat" with the value of a graph adjacency matrix (sprase numpy array with the CSR format(https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html)).
 
