@@ -18,7 +18,7 @@ Graph diffusion is a fundamental task in graph learning, which aims to predict f
 
 Graph source localization spans a broad spectrum of promising research and real-world applications. For instance, online social media platforms like Twitter and Facebook have been instrumental in disseminating rumors and misinformation with significant repercussions. Additionally, the rapid propagation of computer viruses across the Internet, infecting millions of computers, underscores the critical need for tracking their sources. Moreover, in smart grids, where isolated failures can trigger rolling blackouts leading to substantial financial losses, graph source localization plays a pivotal role. Hence, the graph source localization problem demands attention and extensive investigations from machine learning researchers.
 
-The GraphSL library includes six state-of-the-art approaches and eight benchmark datasets.
+The GraphSL library includes six state-of-the-art approaches and six benchmark datasets.
 
 
 ## Approaches
