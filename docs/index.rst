@@ -154,11 +154,11 @@ Contact
 
 We welcome your contributions! If you’d like to contribute your datasets or algorithms, please submit a pull request consisting of an atomic commit and a brief message describing your contribution.
 
-For a new dataset, please upload it to the data(https://github.com/xianggebenben/GraphSL/tree/main/data) folder. The file should be a dictionary object saved by pickle(https://docs.python.org/3/library/pickle.html). It contains a key "adj_mat" with the value of a garph adjacency matrix (sprase numpy array with the CSR(https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html) format).
+For a new dataset, please upload it to the data folder (https://github.com/xianggebenben/GraphSL/tree/main/data). The file should be a dictionary object saved by pickle(https://docs.python.org/3/library/pickle.html). It contains a key "adj_mat" with the value of a graph adjacency matrix (sprase numpy array with the CSR format(https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html)).
 
-For a new algorithm, please determine it whether it belongs to presribed methods or GNN-based methods: if it belongs to the prescribed methods,  add your algorithm as a new class in the GraphSL/Prescribed.py(https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Prescribed.py). Otherwises, please upload it as a folder under the GraphSL/GNN(https://github.com/xianggebenben/GraphSL/tree/main/GraphSL/GNN) folder. Typically, the algorithm should include a "train" function and a "test" function, and the "test" function should return a Metric object(https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Evaluation.py).
+For a new algorithm, please determine whether it belongs to presribed methods or GNN-based methods: if it belongs to the prescribed methods,  add your algorithm as a new class in the GraphSL/Prescribed.py(https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Prescribed.py). Otherwises, please upload it as a folder under the GraphSL/GNN folder(https://github.com/xianggebenben/GraphSL/tree/main/GraphSL/GNN). Typically, the algorithm should include a "train" function and a "test" function, and the "test" function should return a Metric object(https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Evaluation.py).
 
-Feel free to Email me (junxiang.wang@alumni.emory.edu) if you have any questions. Bug reports and feedback can be directed to the Github issues page(https://github.com/xianggebenben/GraphSL/issues).
+Feel free to Email me(junxiang.wang@alumni.emory.edu) if you have any questions. Bug reports and feedback can be directed to the Github issues page(https://github.com/xianggebenben/GraphSL/issues).
 
 Indices and tables
 ==================
