@@ -110,6 +110,7 @@ class IVGD:
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
         - random_seed (int): Random seed.
+        
         Returns:
 
         - diffusion_model (torch.nn.Module): Trained diffusion model.

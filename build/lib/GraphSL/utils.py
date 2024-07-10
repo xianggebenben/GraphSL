@@ -12,25 +12,25 @@ def load_dataset(dataset, data_dir):
     Load a dataset from a pickle file.
 
     Args:
-        
+
     - dataset (str): The name of the dataset file, 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid','meme8000', 'digg16000'.
-        
+
     - data_dir (str): The directory where the dataset files are stored.
 
     Returns:
-        
+
     - graph (dict): A dictionary containing the dataset.
 
     """
     import pickle
 
-    data_dir = data_dir+"/data/"+dataset
+    data_dir = data_dir + "/data/" + dataset
     with open(data_dir, 'rb') as f:
         graph = pickle.load(f)
     return graph
 
 
-def generate_seed_vector(top_nodes, seed_num, G):
+def generate_seed_vector(top_nodes, seed_num, G, random_seed):
     """
     Generate a seed vector for diffusion simulation.
 
@@ -42,17 +42,29 @@ def generate_seed_vector(top_nodes, seed_num, G):
 
     - G (networkx.Graph): The graph object.
 
+    - random_seed (int): Random Seed
+
     Returns:
 
         seed_vector (list): Seed vector for diffusion simulation.
     """
+    random.seed(random_seed)
     seed_nodes = random.sample(top_nodes, seed_num)
     seed_vector = [1 if node in seed_nodes else 0 for node in G.nodes()]
     return seed_vector
 
 
-def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=10, repeat_step=10, seed_ratio=0.1,
-                         infect_prob=0.1, recover_prob=0.005, threshold=0.5):
+def diffusion_generation(
+        graph,
+        sim_num=10,
+        diff_type='IC',
+        time_step=10,
+        repeat_step=10,
+        seed_ratio=0.1,
+        infect_prob=0.1,
+        recover_prob=0.005,
+        threshold=0.5,
+        random_seed=0):
     """
     Generate diffusion matrices for a graph.
 
@@ -68,7 +80,7 @@ def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=10, repeat
 
     - repeat_step (int): Number of repetitions for each simulation.
 
-    - seed_ratio (float): Ratio of seed nodes.
+    - seed_ratio (float): Ratio of seed nodes, should be between 0 and 0.3.
 
     - infect_prob (float): Infection probability,  used in SIS, SIR or SI.
 
@@ -76,9 +88,11 @@ def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=10, repeat
 
     - threshold (float): Threshold parameter for diffusion models, used in IC or LT.
 
+    - random_seed (int): Random seed.
+
     Returns:
 
-    - dataset (dict): Dictionary containing ('adj_mat') adjacency matrix and ('diff_mat') diffusion matrices.
+    - dataset (dict): Dictionary containing ('adj_mat') adjacency matrix (the dimensionality is number of nodes * number of nodes) and ('diff_mat') diffusion matrices (the dimensionality is number of simulations * number of nodes * 2(the first column is the source vector, and the second column is the diffusion vector)).
 
     Example:
 
@@ -104,29 +118,31 @@ def diffusion_generation(graph, sim_num=10, diff_type='IC', time_step=10, repeat
     degree_list.sort(key=lambda x: x[1], reverse=True)
     top_nodes = [x[0] for x in degree_list[:int(len(degree_list) * 0.3)]]
 
+    assert seed_ratio<=0.3 and seed_ratio>=0, "seed_ratio should be between 0 and 0.3"
+
     for i in range(sim_num):
-        seed_vector = generate_seed_vector(top_nodes, seed_num, G)
+        seed_vector = generate_seed_vector(top_nodes, seed_num, G, random_seed+i)
         inf_vec_all = torch.zeros(node_num)
         config = mc.Configuration()
         for k in range(repeat_step):
             if diff_type == 'LT':
-                model = ep.ThresholdModel(G)
+                model = ep.ThresholdModel(G,random_seed)
                 for n in G.nodes():
                     config.add_node_configuration("threshold", n, threshold)
             elif diff_type == 'IC':
-                model = ep.IndependentCascadesModel(G)
+                model = ep.IndependentCascadesModel(G,random_seed)
                 for e in G.edges():
                     config.add_edge_configuration("threshold", e, threshold)
             elif diff_type == 'SIS':
-                model = ep.SISModel(G)
+                model = ep.SISModel(G,random_seed)
                 config.add_model_parameter('beta', infect_prob)
                 config.add_model_parameter('lambda', recover_prob)
             elif diff_type == 'SIR':
-                model = ep.SIRModel(G)
+                model = ep.SIRModel(G,random_seed)
                 config.add_model_parameter('beta', infect_prob)
                 config.add_model_parameter('gamma', recover_prob)
             elif diff_type == 'SI':
-                model = ep.SIModel(G)
+                model = ep.SIModel(G,random_seed)
                 config.add_model_parameter('beta', infect_prob)
             else:
                 raise ValueError('Only IC, LT, SI, SIR and SIS are supported.')
@@ -198,7 +214,7 @@ def split_dataset(dataset, train_ratio: float = 0.6, seed: int = 0):
     all_num = len(diff_mat)
     train_num = int(all_num * train_ratio)
     test_num = all_num - train_num
-    train_diff_mat, test_diff_mat = torch.utils.data.random_split(diff_mat, [train_num, test_num],
-                                                                  generator=torch.Generator().manual_seed(seed))
+    train_diff_mat, test_diff_mat = torch.utils.data.random_split(
+        diff_mat, [train_num, test_num], generator=torch.Generator().manual_seed(seed))
 
     return adj, train_diff_mat, test_diff_mat

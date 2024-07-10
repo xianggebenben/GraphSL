@@ -2,6 +2,8 @@ import torch
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 import torch.nn.functional as F
+
+
 class GCNConv(MessagePassing):
     """
     Define a Graph Convolutional Network (GCN) layer.
@@ -17,8 +19,11 @@ class GCNConv(MessagePassing):
 
         - out_channels (int): Number of output channels.
         """
-        super(GCNConv, self).__init__(aggr='add')  # Setting the aggregation method for message passing
-        self.lin = torch.nn.Linear(in_channels, out_channels)  # Initializing a linear transformation
+        super(
+            GCNConv, self).__init__(
+            aggr='add')  # Setting the aggregation method for message passing
+        # Initializing a linear transformation
+        self.lin = torch.nn.Linear(in_channels, out_channels)
 
     def forward(self, x, edge_index):
         """
@@ -47,7 +52,14 @@ class GCNConv(MessagePassing):
         norm = deg_inv_sqrt[row] * deg_inv_sqrt[col]
 
         # Step 4: Propagate the embeddings to the next layer
-        return self.propagate(edge_index, size=(x.size(0), x.size(0)), x=x, norm=norm)
+        return self.propagate(
+            edge_index,
+            size=(
+                x.size(0),
+                x.size(0)),
+            x=x,
+            norm=norm)
+
 
 class GCNSI_model(torch.nn.Module):
     """
@@ -58,8 +70,9 @@ class GCNSI_model(torch.nn.Module):
         super(GCNSI_model, self).__init__()
         self.conv1 = GCNConv(4, 32)  # Initializing the first GCN layer
         self.conv2 = GCNConv(32, 32)  # Initializing the second GCN layer
-        self.fc = torch.nn.Linear(32, 2)  # Initializing a linear transformation layer
-        #self.softmax=torch.nn.Softmax(dim=1)
+        # Initializing a linear transformation layer
+        self.fc = torch.nn.Linear(32, 2)
+        # self.softmax=torch.nn.Softmax(dim=1)
 
     def forward(self, x, edge_index):
         """
@@ -75,12 +88,12 @@ class GCNSI_model(torch.nn.Module):
 
         - x (torch.Tensor): A tensor representing identified source nodes.
         """
-        
+
         x = torch.tensor(x, dtype=torch.float)
         x = self.conv1(x, edge_index)
         x = F.relu(x)
         x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
         x = self.fc(x)
-        #x = self.softmax(x)
+        # x = self.softmax(x)
         return x

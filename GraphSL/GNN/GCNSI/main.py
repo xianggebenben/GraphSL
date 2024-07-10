@@ -57,6 +57,7 @@ class GCNSI:
         - weight (torch.Tensor): Weight tensor for loss computation, the first and second values are loss weights for non-seed and seed, respectively.
 
         - random_seed (int): Random seed.
+        
         Returns:
 
         - gcnsi_model (GCNSI_model): GCNSI model.

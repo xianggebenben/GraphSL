@@ -34,8 +34,12 @@ class EarlyStopping:
     """
 
     def __init__(
-            self, model: Module, stop_varnames: List[StopVariable],
-            patience: int = 30, max_epochs: int = 1000, remember: Best = Best.ALL):
+            self,
+            model: Module,
+            stop_varnames: List[StopVariable],
+            patience: int = 30,
+            max_epochs: int = 1000,
+            remember: Best = Best.ALL):
         """
         Initializes the EarlyStopping object.
 
@@ -93,24 +97,24 @@ class EarlyStopping:
             self.patience = self.max_patience
 
             comp_remembered = [
-                    self.comp_ops[i](val, self.remembered_vals[i])
-                    for i, val in enumerate(values)]
+                self.comp_ops[i](val, self.remembered_vals[i])
+                for i, val in enumerate(values)]
             if self.remember is Best.ALL:
                 if all(comp_remembered):
                     self.best_epoch = epoch
                     self.remembered_vals = copy.copy(values)
                     self.best_state = {
-                            key: value.cpu() for key, value
-                            in self.model.state_dict().items()}
+                        key: value.cpu() for key, value
+                        in self.model.state_dict().items()}
             elif self.remember is Best.RANKED:
                 for i, comp in enumerate(comp_remembered):
                     if comp:
-                        if not(self.remembered_vals[i] == values[i]):
+                        if not (self.remembered_vals[i] == values[i]):
                             self.best_epoch = epoch
                             self.remembered_vals = copy.copy(values)
                             self.best_state = {
-                                    key: value.cpu() for key, value
-                                    in self.model.state_dict().items()}
+                                key: value.cpu() for key, value
+                                in self.model.state_dict().items()}
                             break
                     else:
                         break

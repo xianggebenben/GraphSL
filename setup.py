@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='GraphSL',         # How you named your package folder (MyLib)
     packages=find_packages(),   # Chose the same as "name"
-    version='0.10',      # Start with a small number and increase it with every change you make
+    version='0.11',      # Start with a small number and increase it with every change you make
     # Chose a license from here:
     # https://help.github.com/articles/licensing-a-repository
     license='MIT',

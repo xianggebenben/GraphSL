@@ -2,10 +2,12 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import numpy as np
-from GraphSL.GNN.SLVAE.model import VAE,GNN,DiffusionPropagate
+from GraphSL.GNN.SLVAE.model import VAE, GNN, DiffusionPropagate
 from torch.optim import Adam
-from sklearn.metrics import roc_auc_score,f1_score,accuracy_score,precision_score,recall_score
+from sklearn.metrics import roc_auc_score, f1_score, accuracy_score, precision_score, recall_score
 from GraphSL.Evaluation import Metric
+
+
 class SLVAE_model(nn.Module):
     """
     Source Localization Variational Autoencoder (SLVAE) model combining VAE, GNN, and propagation modules.
@@ -35,7 +37,10 @@ class SLVAE_model(nn.Module):
         self.vae = vae
         self.gnn = gnn
         self.propagate = propagate
-        self.reg_params = list(filter(lambda x: x.requires_grad, self.gnn.parameters()))
+        self.reg_params = list(
+            filter(
+                lambda x: x.requires_grad,
+                self.gnn.parameters()))
 
     def forward(self, seed_vec, train_mode):
         """
@@ -57,7 +62,8 @@ class SLVAE_model(nn.Module):
 
         - predictions (torch.Tensor): Predictions made by the SLVAE model.
         """
-        # Pass seed_vec through VAE to obtain reconstructed seed vector, mean, and log variance
+        # Pass seed_vec through VAE to obtain reconstructed seed vector, mean,
+        # and log variance
         seed_hat, mean, log_var = self.vae(seed_vec)
 
         if train_mode:
@@ -124,6 +130,7 @@ class SLVAE_model(nn.Module):
 
         - total_loss (torch.Tensor): Total loss tensor.
         """
+        epsilon =1e-8
         device = y_true.device
         BN = nn.BatchNorm1d(1, affine=False).to(device)
         y_hat = y_hat.to(device)
@@ -132,7 +139,8 @@ class SLVAE_model(nn.Module):
         for pred in train_pred:
             log_lh = torch.zeros(1).to(device)
             for i, x_i in enumerate(x_hat[0]):
-                temp = x_i * torch.log(pred[i]) + (1 - x_i) * torch.log(1 - pred[i]).to(torch.double)
+                temp = x_i * \
+                    torch.log(pred[i]+epsilon) + (1 - x_i) * torch.log(1 - pred[i]+epsilon).to(torch.double)
                 temp = temp.to(device)
                 log_lh += temp
             log_pmf.append(log_lh)
@@ -148,6 +156,7 @@ class SLVAE_model(nn.Module):
 
         return total_loss
 
+
 class SLVAE:
     """
     Implement the Source Localization Variational Autoencoder (SLVAE) model.
@@ -160,7 +169,21 @@ class SLVAE:
         Initialize the SLVAE model.
         """
 
-    def train(self, adj, train_dataset, thres_list=[0.1, 0.3, 0.5, 0.7, 0.9], lr = 1e-3, weight_decay = 1e-4, num_epoch = 50,print_epoch =10):
+    def train(
+            self,
+            adj,
+            train_dataset,
+            thres_list=[
+                0.1,
+                0.3,
+                0.5,
+                0.7,
+                0.9],
+            lr=1e-4,
+            weight_decay=1e-4,
+            num_epoch=100,
+            print_epoch=10,
+            random_seed=0):
         """
         Train the SLVAE model.
 
@@ -179,6 +202,8 @@ class SLVAE:
         - num_epoch (int): Number of training epochs.
 
         - print_epoch (int): Number of epochs every time to print loss.
+
+        - random_seed (int): Random seed.
 
         Returns:
 
@@ -230,8 +255,10 @@ class SLVAE:
         v = torch.FloatTensor(values)
         shape = adj.shape
 
-        adj_matrix = torch.sparse_coo_tensor(i, v, torch.Size(shape)).to_dense()
+        adj_matrix = torch.sparse_coo_tensor(
+            i, v, torch.Size(shape)).to_dense()
         train_num = len(train_dataset)
+        torch.manual_seed(random_seed)
         vae = VAE().to(device)
         gnn = GNN(adj_matrix=adj_matrix)
         propagate = DiffusionPropagate(adj_matrix, niter=2)
@@ -251,14 +278,16 @@ class SLVAE:
                 influ_vec = influ_vec.unsqueeze(-1).float()
                 seed_vec = seed_vec.unsqueeze(-1).float()
                 optimizer.zero_grad()
-                seed_vec_hat, mean, log_var, influ_vec_hat = slvae_model(seed_vec, True)
-                loss = slvae_model.train_loss(seed_vec, seed_vec_hat, mean, log_var, influ_vec, influ_vec_hat)
+                seed_vec_hat, mean, log_var, influ_vec_hat = slvae_model(
+                    seed_vec, True)
+                loss = slvae_model.train_loss(
+                    seed_vec, seed_vec_hat, mean, log_var, influ_vec, influ_vec_hat)
 
                 overall_loss += loss.item()
 
                 loss.backward()
                 optimizer.step()
-            average_loss = overall_loss/train_num
+            average_loss = overall_loss / train_num
             if epoch % print_epoch == 0:
                 print(f"epoch = {epoch}, loss = {average_loss:.3f}")
 
@@ -276,32 +305,34 @@ class SLVAE:
         seed_infer = []
         seed_vae_mean = torch.mean(seed_vae_train, 0).unsqueeze(-1).to(device)
         for i in range(train_num):
-            seed_vec_hat, _, _, influ_vec_hat = slvae_model(seed_vae_mean, False)
+            seed_vec_hat, _, _, influ_vec_hat = slvae_model(
+                seed_vae_mean, False)
             seed_infer.append(seed_vec_hat)
 
         for seed in seed_infer:
             seed.requires_grad = True
 
-        optimizer = Adam(seed_infer, lr = lr, weight_decay = weight_decay)
+        optimizer = Adam(seed_infer, lr=lr, weight_decay=weight_decay)
 
-        for epoch in range(num_epoch):
+        for epoch in range(int(num_epoch/5)):
             overall_loss = 0
             for i, influ_mat in enumerate(train_dataset):
                 influ_vec = influ_mat[:, -1]
                 influ_vec = influ_vec.unsqueeze(-1).float()
                 optimizer.zero_grad()
-                seed_vec_hat, _, _, influ_vec_hat = slvae_model(seed_infer[i], False)
-                loss = slvae_model.infer_loss(influ_vec, influ_vec_hat, seed_vec_hat, seed_vae_train)
+                seed_vec_hat, _, _, influ_vec_hat = slvae_model(
+                    seed_infer[i], False)
+                loss = slvae_model.infer_loss(
+                    influ_vec, influ_vec_hat, seed_vec_hat, seed_vae_train)
 
                 overall_loss += loss.item()
 
                 loss.backward()
                 optimizer.step()
-            
-            average_loss = overall_loss/train_num
 
+            average_loss = overall_loss / train_num
 
-            if epoch % print_epoch ==0:
+            if epoch % int(print_epoch/5) == 0:
                 print(f"epoch = {epoch}, obj = {average_loss:.4f}")
 
         train_auc = 0
@@ -320,22 +351,30 @@ class SLVAE:
                 seed_vec = influ_mat[:, 0]
                 seed_vec = seed_vec.squeeze(-1).cpu().detach().numpy()
                 seed_pred = seed_infer[i].cpu().detach().numpy()
-                train_f1 += f1_score(seed_vec, seed_pred >= thres, zero_division = 1)
+                train_f1 += f1_score(seed_vec, seed_pred >=
+                                     thres, zero_division=1)
             train_f1 = train_f1 / train_num
             print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
             if train_f1 > opt_f1:
                 opt_f1 = train_f1
                 opt_thres = thres
-        
-        pred = np.zeros((num_node,train_num))
+
+        pred = np.zeros((num_node, train_num))
 
         for i in range(train_num):
-            pred[:,i] = seed_infer[i].squeeze(-1).cpu().detach().numpy()
-
+            pred[:, i] = seed_infer[i].squeeze(-1).cpu().detach().numpy()
 
         return slvae_model, seed_vae_train, opt_thres, train_auc, opt_f1, pred
 
-    def infer(self, test_dataset, slvae_model, seed_vae_train, thres, lr=0.001,num_epoch = 50, print_epoch = 10):
+    def infer(
+            self,
+            test_dataset,
+            slvae_model,
+            seed_vae_train,
+            thres,
+            lr=0.0001,
+            num_epoch=10,
+            print_epoch=1):
         """
         Infer using the SLVAE model.
 
@@ -415,8 +454,10 @@ class SLVAE:
                 influ_vec = influ_mat[:, -1]
                 influ_vec = influ_vec.unsqueeze(-1).float()
                 optimizer.zero_grad()
-                seed_vec_hat, _, _, influ_vec_hat = slvae_model(seed_infer[i], False)
-                loss = slvae_model.infer_loss(influ_vec, influ_vec_hat, seed_vec_hat, seed_vae_train)
+                seed_vec_hat, _, _, influ_vec_hat = slvae_model(
+                    seed_infer[i], False)
+                loss = slvae_model.infer_loss(
+                    influ_vec, influ_vec_hat, seed_vec_hat, seed_vae_train)
 
                 overall_loss += loss.item()
 
@@ -425,7 +466,6 @@ class SLVAE:
                 loss.backward()
                 optimizer.step()
 
-            
             if epoch % print_epoch == 0:
                 print(f"epoch = {epoch}, obj = {average_loss:.4f}")
 
@@ -440,9 +480,12 @@ class SLVAE:
             seed_vec = seed_vec.squeeze(-1).cpu().detach().numpy()
             seed_pred = seed_infer[i].cpu().detach().numpy()
             test_acc += accuracy_score(seed_vec, seed_pred >= thres)
-            test_pr += precision_score(seed_vec, seed_pred >= thres, zero_division = 1)
-            test_re += recall_score(seed_vec, seed_pred >= thres, zero_division = 1)
-            test_f1 += f1_score(seed_vec, seed_pred >= thres, zero_division = 1)
+            test_pr += precision_score(seed_vec,
+                                       seed_pred >= thres,
+                                       zero_division=1)
+            test_re += recall_score(seed_vec, seed_pred >=
+                                    thres, zero_division=1)
+            test_f1 += f1_score(seed_vec, seed_pred >= thres, zero_division=1)
             test_auc += roc_auc_score(seed_vec, seed_pred)
 
         test_acc = test_acc / test_num
@@ -453,4 +496,3 @@ class SLVAE:
 
         metric = Metric(test_acc, test_pr, test_re, test_f1, test_auc)
         return metric
-
