@@ -130,6 +130,8 @@ metric = slave.infer(test_dataset, slvae_model, seed_vae_train, thres)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
 ```
 
+We also provide a [tutorial](https://github.com/xianggebenben/GraphSL/blob/main/tutorial.ipynb) to help you get started and check the expected results.
+
 # Documentation
 
 Official documentation, including a detailed [API reference](https://graphsl.readthedocs.io/en/latest/modules.html), is available on [Read the Docs](https://graphsl.readthedocs.io/en/latest/#).
