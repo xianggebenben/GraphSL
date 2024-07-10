@@ -6,7 +6,7 @@
 
 # GraphSL: Graph Source Localization Library
 
-This is the source code of the GraphSL (Graph Source Localization) library, in order to support the research and development of the graph learning community.
+This is the source code of the GraphSL library to support the research of the graph source localization problem.
 
 # Introduction
 
@@ -154,3 +154,6 @@ For a new dataset, please upload it to the [data](https://github.com/xianggebenb
 For a new algorithm, please determine whether it belongs to prescribed methods or GNN-based methods: if it belongs to the prescribed methods,  add your algorithm as a new class in the [GraphSL/Prescribed.py](https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Prescribed.py). Otherwise, please upload it as a folder under the [GraphSL/GNN](https://github.com/xianggebenben/GraphSL/tree/main/GraphSL/GNN) folder. Typically, the algorithm should include a "train" function and a "test" function, and the "test" function should return a [Metric](https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Evaluation.py) object.
 
 Feel free to Email me (junxiang.wang@alumni.emory.edu) if you have any questions. Bug reports and feedback can be directed to the [Github issues page](https://github.com/xianggebenben/GraphSL/issues).
+
+# Version Log
+The new version 0.11 removes the memetracker and the digg datasets, improves the IVGD method, and creates random seeds for reproducibility.
