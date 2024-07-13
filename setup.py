@@ -13,7 +13,7 @@ setup(
     author_email='junxiang.wang@alumni.emory.edu',      # Type in your E-Mail
     url='https://xianggebenben.github.io/Junxiang_Wang.github.io/',
     # Provide either the link to your github or to your website
-    download_url='https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.8.tar.gz',
+    download_url='https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.11.tar.gz',
         # I explain this later on
     keywords=[
         'Graph Diffusion',
