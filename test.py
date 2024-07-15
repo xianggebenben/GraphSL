@@ -2,9 +2,11 @@ from GraphSL.GNN.SLVAE.main import SLVAE
 from GraphSL.GNN.IVGD.main import IVGD
 from GraphSL.GNN.GCNSI.main import GCNSI
 from GraphSL.Prescribed import LPSI, NetSleuth, OJC
-from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
+from GraphSL.utils import load_dataset, diffusion_generation, split_dataset,download_dataset
 import os
 curr_dir = os.getcwd()
+# download datasets
+download_dataset(curr_dir)
 # load datasets ('karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid')
 data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)

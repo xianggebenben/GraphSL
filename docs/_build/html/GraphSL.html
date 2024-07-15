@@ -55,6 +55,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-GraphSL.utils">GraphSL.utils module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.diffusion_generation"><code class="docutils literal notranslate"><span class="pre">diffusion_generation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.download_dataset"><code class="docutils literal notranslate"><span class="pre">download_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.generate_seed_vector"><code class="docutils literal notranslate"><span class="pre">generate_seed_vector()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.load_dataset"><code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.split_dataset"><code class="docutils literal notranslate"><span class="pre">split_dataset()</span></code></a></li>
@@ -178,6 +179,16 @@
 <p>data_name = ‘karate’</p>
 <p>graph = load_dataset(data_name, data_dir=curr_dir)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="GraphSL.utils.download_dataset">
+<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">download_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#download_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.download_dataset" title="Link to this definition"></a></dt>
+<dd><p>Download datasets from url.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>data_dir (str): The directory where the downloaded dataset files are stored.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">

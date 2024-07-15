@@ -19,7 +19,7 @@ Quickstart Guide
 Installation
 ------------
 
-First, install GraphSL using pip:
+Install GraphSL using pip:
 
 .. code-block:: bash
 
@@ -31,14 +31,10 @@ Or, clone the repo (https://github.com/xianggebenben/GraphSL), and install requi
 
     pip install -r requirements.txt
 
-Second, download the data folder of the repo (https://github.com/xianggebenben/GraphSL), which contains six datasets.
-
-
 Usage
 ------------
 
-Now, you can import and use GraphSL in your Python code. Please make sure your Python code and the data folder are in the same directory:
-
+Now, you can import and use GraphSL in your Python code.
 .. code-block:: python
 
     from GraphSL.GNN.SLVAE.main import SLVAE
@@ -48,6 +44,8 @@ Now, you can import and use GraphSL in your Python code. Please make sure your P
     from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
     import os
     curr_dir = os.getcwd()
+    # download datasets
+    download_dataset(curr_dir)
     # load datasets ('karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid')
     data_name = 'karate'
     graph = load_dataset(data_name, data_dir=curr_dir)
@@ -112,8 +110,7 @@ Now, you can import and use GraphSL in your Python code. Please make sure your P
     diffusion_model = ivgd.train_diffusion(adj, train_dataset)
 
     # train IVGD
-    ivgd_model, thres, auc, f1, pred = ivgd.train(
-        adj, train_dataset, diffusion_model)
+    ivgd_model, thres, auc, f1, pred = ivgd.train(adj, train_dataset, diffusion_model)
     print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
     # test IVGD
@@ -125,8 +122,7 @@ Now, you can import and use GraphSL in your Python code. Please make sure your P
     slave = SLVAE()
 
     # train SLVAE
-    slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(
-        adj, train_dataset)
+    slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(adj, train_dataset)
     print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
     # test SLVAE
@@ -154,11 +150,11 @@ Contact
 
 We welcome your contributions! If you'd like to contribute your datasets or algorithms, please submit a pull request consisting of an atomic commit and a brief message describing your contribution.
 
-For a new dataset, please upload it to the data folder (https://github.com/xianggebenben/GraphSL/tree/main/data). The file should be a dictionary object saved by pickle (https://docs.python.org/3/library/pickle.html). It contains a key "adj_mat" with the value of a graph adjacency matrix (sprase numpy array with the CSR format (https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html)).
+For a new dataset, please upload it to the data folder of the repo. The file should be a dictionary object saved by pickle. It contains a key "adj_mat" with the value of a graph adjacency matrix (sprase numpy array with the CSR format).
 
-For a new algorithm, please determine whether it belongs to presribed methods or GNN-based methods: if it belongs to the prescribed methods,  add your algorithm as a new class in the GraphSL/Prescribed.py (https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Prescribed.py). Otherwises, please upload it as a folder under the GraphSL/GNN folder (https://github.com/xianggebenben/GraphSL/tree/main/GraphSL/GNN). Typically, the algorithm should include a "train" function and a "test" function, and the "test" function should return a Metric object (https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Evaluation.py).
+For a new algorithm, please determine whether it belongs to presribed methods or GNN-based methods: if it belongs to the prescribed methods,  add your algorithm as a new class in the GraphSL/Prescribed.py. Otherwises, please upload it as a folder under the GraphSL/GNN folder. Typically, the algorithm should include a "train" function and a "test" function, and the "test" function should return a Metric object.
 
-Feel free to Email me(junxiang.wang@alumni.emory.edu) if you have any questions. Bug reports and feedback can be directed to the Github issues page (https://github.com/xianggebenben/GraphSL/issues).
+Feel free to Email me(junxiang.wang@alumni.emory.edu) if you have any questions. Bug reports and feedback can be directed to the Github issues page.
 
 Indices and tables
 ==================

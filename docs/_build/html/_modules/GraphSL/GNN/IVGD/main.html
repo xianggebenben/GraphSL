@@ -261,6 +261,7 @@
         <span class="n">diffusion_model</span> <span class="o">=</span> <span class="n">i_DeepIS</span><span class="p">(</span>
             <span class="n">gnn_model</span><span class="o">=</span><span class="n">gnn_model</span><span class="p">,</span>
             <span class="n">propagate</span><span class="o">=</span><span class="n">propagate_model</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;train IVGD diffusion model:&quot;</span><span class="p">)</span>
         <span class="n">diffusion_model</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
             <span class="n">diffusion_model</span><span class="p">,</span> <span class="n">fea_constructor</span><span class="p">,</span> <span class="n">prob_matrix</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">args_dict</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;train mean error:</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;mean error&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -373,6 +374,8 @@
 
         <span class="n">seed_preds_list</span><span class="o">=</span><span class="nb">list</span><span class="p">()</span>
 
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;train IVGD:&quot;</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
 
             <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
@@ -416,7 +419,7 @@
             <span class="c1"># Calculate and print average loss for the epoch</span>
             <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
                 <span class="n">average_loss</span> <span class="o">=</span> <span class="n">overall_loss</span> <span class="o">/</span> <span class="n">train_num</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">: loss = </span><span class="si">{</span><span class="n">average_loss</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Epoch (</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_epoch</span><span class="si">}</span><span class="s2">), loss = </span><span class="si">{</span><span class="n">average_loss</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 

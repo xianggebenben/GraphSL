@@ -1,19 +1,23 @@
 from setuptools import setup, find_packages
-
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 setup(
     name='GraphSL',         # How you named your package folder (MyLib)
     packages=find_packages(),   # Chose the same as "name"
-    version='0.11',      # Start with a small number and increase it with every change you make
+    version='0.12',      # Start with a small number and increase it with every change you make
     # Chose a license from here:
     # https://help.github.com/articles/licensing-a-repository
     license='MIT',
     description='Graph Source Localization Approaches and Benchmark Datasets',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     # Give a short description about your library
     author='Junxiang Wang',                   # Type in your name
     author_email='junxiang.wang@alumni.emory.edu',      # Type in your E-Mail
-    url='https://xianggebenben.github.io/Junxiang_Wang.github.io/',
+    url='https://github.com/xianggebenben/GraphSL',
     # Provide either the link to your github or to your website
-    download_url='https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.11.tar.gz',
+    download_url='https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.12.tar.gz',
         # I explain this later on
     keywords=[
         'Graph Diffusion',

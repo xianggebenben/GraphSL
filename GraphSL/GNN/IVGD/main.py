@@ -178,6 +178,7 @@ class IVGD:
         diffusion_model = i_DeepIS(
             gnn_model=gnn_model,
             propagate=propagate_model)
+        print("train IVGD diffusion model:")
         diffusion_model, result = train_model(
             diffusion_model, fea_constructor, prob_matrix, train_dataset, **args_dict)
         print(f"train mean error:{result['train']['mean error']:.3f}")
@@ -287,6 +288,8 @@ class IVGD:
 
         seed_preds_list=list()
 
+        print("train IVGD:")
+
         for influ_mat in train_dataset:
 
             influ_vec = influ_mat[:, -1].to(device)
@@ -330,7 +333,7 @@ class IVGD:
             # Calculate and print average loss for the epoch
             if epoch % print_epoch ==0:
                 average_loss = overall_loss / train_num
-                print(f"epoch {epoch}: loss = {average_loss:.3f}")
+                print(f"Epoch ({epoch}/{num_epoch}), loss = {average_loss:.3f}")
 
 
 

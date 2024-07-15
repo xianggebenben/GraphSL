@@ -59,7 +59,7 @@ Aside from methods, we also provide six benchmark datasets to facilitate the res
 
 # Installation
 
-First, install GraphSL using pip:
+Install GraphSL using pip:
 
 
     pip install GraphSL
@@ -68,12 +68,9 @@ Or, clone the [repo](https://github.com/xianggebenben/GraphSL) and install requi
 
     pip install -r requirements.txt
 
-Second, download the data folder of the [repo](https://github.com/xianggebenben/GraphSL), which contains six datasets.
-
-
 # Quickstart
 
-Now, you can import and use GraphSL in your Python code. Please make sure your Python code and the data folder are in the same directory:
+Now, you can import and use GraphSL in your Python code.
 
 ``` python
 
@@ -84,6 +81,8 @@ from GraphSL.Prescribed import LPSI, NetSleuth, OJC
 from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
 import os
 curr_dir = os.getcwd()
+# download datasets
+download_dataset(curr_dir)
 # 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid'
 data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)
