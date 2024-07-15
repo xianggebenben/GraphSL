@@ -5,6 +5,51 @@ import ndlib.models.ModelConfig as mc
 import ndlib.models.epidemics as ep
 import torch
 import copy
+import requests
+import pickle
+import os
+
+def download_dataset(data_dir):
+    """
+    Download datasets from url.
+
+    Args:
+
+    - data_dir (str): The directory where the downloaded dataset files are stored.
+
+
+    """
+
+    api_url ="https://api.github.com/repos/xianggebenben/graphsl/contents/data?ref=main"
+
+        # Send a request to fetch the folder contents
+    response = requests.get(api_url)
+    response.raise_for_status()  # Raise an exception for HTTP errors
+
+    data_dir = data_dir + "/data/"
+
+    # Ensure the output directory exists
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+
+    # Check if response content type is JSON
+    if 'application/json' in response.headers.get('Content-Type', ''):
+        folder_contents = response.json()
+    else:
+        print(f"Response is not in JSON format. Response text:\n{response.text}")
+        return
+
+    # Process the contents of the folder
+    for item in folder_contents:
+        if item['type'] == 'file':
+            # Download the file
+            download_url = item['download_url']
+            file_name = item['name']
+            file_response = requests.get(download_url)
+            file_path = os.path.join(data_dir, file_name)
+            with open(file_path, 'wb') as file:
+                file.write(file_response.content)
+            print(f"Downloaded {file_name}")
 
 
 def load_dataset(dataset, data_dir):
@@ -22,7 +67,6 @@ def load_dataset(dataset, data_dir):
     - graph (dict): A dictionary containing the dataset.
 
     """
-    import pickle
 
     data_dir = data_dir + "/data/" + dataset
     with open(data_dir, 'rb') as f:

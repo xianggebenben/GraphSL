@@ -12,7 +12,7 @@ This is the source code of the GraphSL library to support the research of the gr
 
 ## Problem Definition
 
-![image](SL_example.png)
+![image](https://github.com/xianggebenben/GraphSL/blob/main/SL_example.png)
 
 Graph diffusion is a fundamental task in graph learning, which aims to predict future graph cascade patterns given source nodes. Conversely, its inverse problem, graph source localization, though rarely explored, stands as an extremely important topic: it focuses on the detection of source nodes given their future graph cascade patterns. As illustrated in the above figure, graph diffusion seeks to predict the cascade pattern $\lbrace b,c,d,e \rbrace$ from a source node $b$, whereas graph source localization aims to identify source nodes $b$ from the cascade pattern $\lbrace b,c,d,e \rbrace$. 
 
@@ -23,7 +23,7 @@ The GraphSL library includes six state-of-the-art approaches and six benchmark d
 
 ## Approaches
 
-![image](overview.png)
+![image](https://github.com/xianggebenben/GraphSL/blob/main/overview.png)
 
  Existing graph source localization methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
 
@@ -157,4 +157,4 @@ Feel free to Email me (junxiang.wang@alumni.emory.edu) if you have any questions
 # Version Log
 The new version 0.11 removes the memetracker and the digg datasets, improves the IVGD method, and creates random seeds for reproducibility.
 
-The new version 0.12 add the datasets downloader.
+The new version 0.12 adds the datasets downloader.
