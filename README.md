@@ -156,3 +156,5 @@ Feel free to Email me (junxiang.wang@alumni.emory.edu) if you have any questions
 
 # Version Log
 The new version 0.11 removes the memetracker and the digg datasets, improves the IVGD method, and creates random seeds for reproducibility.
+
+The new version 0.12 add the datasets downloader.
