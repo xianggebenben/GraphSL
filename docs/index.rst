@@ -35,6 +35,7 @@ Usage
 ------------
 
 Now, you can import and use GraphSL in your Python code.
+
 .. code-block:: python
 
     from GraphSL.GNN.SLVAE.main import SLVAE
