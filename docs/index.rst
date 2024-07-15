@@ -133,7 +133,7 @@ Now, you can import and use GraphSL in your Python code.
   
 
 
-That's it! You're ready to start using GraphSL. You can check results on the Jupyter notebook tutorial.ipynb from the repo (https://github.com/xianggebenben/GraphSL).
+That's it! You're ready to start using GraphSL. You can check results on the Jupyter notebook tutorial.ipynb from the repo.
 
 If you use this package in your research, please consider citing our work as follows:
 
