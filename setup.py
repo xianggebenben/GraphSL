@@ -5,7 +5,7 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name='GraphSL',         # How you named your package folder (MyLib)
     packages=find_packages(),   # Chose the same as "name"
-    version='0.12',      # Start with a small number and increase it with every change you make
+    version='0.13',      # Start with a small number and increase it with every change you make
     # Chose a license from here:
     # https://help.github.com/articles/licensing-a-repository
     license='MIT',
@@ -17,7 +17,7 @@ setup(
     author_email='junxiang.wang@alumni.emory.edu',      # Type in your E-Mail
     url='https://github.com/xianggebenben/GraphSL',
     # Provide either the link to your github or to your website
-    download_url='https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.12.tar.gz',
+    download_url='https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.13.tar.gz',
         # I explain this later on
     keywords=[
         'Graph Diffusion',
