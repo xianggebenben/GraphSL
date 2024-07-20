@@ -7,6 +7,7 @@ from GraphSL.utils import load_dataset, diffusion_generation, split_dataset, dow
 import os
 
 curr_dir = os.getcwd()
+download_dataset()
 data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)
 dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.2)

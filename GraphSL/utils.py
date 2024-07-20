@@ -8,6 +8,11 @@ import copy
 import requests
 import pickle
 import os
+from scipy.sparse import csr_matrix
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from torch.utils.data import random_split
+
 
 def download_dataset(data_dir):
     """
@@ -258,7 +263,105 @@ def split_dataset(dataset, train_ratio: float = 0.6, seed: int = 0):
     all_num = len(diff_mat)
     train_num = int(all_num * train_ratio)
     test_num = all_num - train_num
-    train_diff_mat, test_diff_mat = torch.utils.data.random_split(
+    train_diff_mat, test_diff_mat = random_split(
         diff_mat, [train_num, test_num], generator=torch.Generator().manual_seed(seed))
 
     return adj, train_diff_mat, test_diff_mat
+
+
+def visualize_source_prediction(adj: csr_matrix, predictions: np.ndarray, labels: np.ndarray, save_dir: str, save_name: str):
+
+    """
+    Visualize source predictions.
+
+    Args:
+
+    - adj (csr_matrix): Dictionary containing the dataset.
+
+    - predictions (numpy array): Predicted source vector.
+
+    - labels (numpy array): labeled source vector.
+
+    - save_dir (str):  Dirctory of the saved figure.
+
+    - save_name (str): Name of the saved figure.
+
+
+    Example:
+
+    from GraphSL.GNN.GCNSI.main import GCNSI
+
+    from GraphSL.utils import load_dataset, diffusion_generation, split_dataset,download_dataset,visualize_source_prediction
+
+    import os
+
+    curr_dir = os.getcwd()
+
+    download_dataset(curr_dir)
+
+    data_name = 'karate'
+
+    graph = load_dataset(data_name, data_dir=curr_dir)
+
+    dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.2)
+
+    adj, train_dataset, test_dataset = split_dataset(dataset)
+
+    print("GCNSI:")
+
+    gcnsi = GCNSI()
+
+    gcnsi_model, thres, auc, f1, pred = gcnsi.train(adj, train_dataset)
+
+    print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+    pred = (pred >= thres)
+    
+    visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="GCNSI_source_prediction")
+
+ """
+
+    # Convert the adjacency matrix to a NetworkX graph
+    graph = nx.from_scipy_sparse_array(adj)
+    
+    # Determine the number of nodes
+    num_nodes = adj.shape[0]
+    
+    # Check that predictions and labels have the same length as the number of nodes
+    if len(predictions) != num_nodes or len(labels) != num_nodes:
+        raise ValueError("The length of predictions and labels must match the number of nodes in the graph.")
+    
+    # Set up the plot
+    plt.figure(figsize=(10, 5))
+    
+    # Define the layout for the graph
+    pos = nx.spring_layout(graph)
+
+    # Plot the predictions
+    plt.subplot(1, 2, 1)
+    nx.draw(graph, pos, node_color=predictions, with_labels=True, cmap=plt.cm.coolwarm, node_size=500)
+    plt.title("Predicted Sources")
+    pred_patch_0 = mpatches.Patch(color=plt.cm.coolwarm(0.0), label='Not Source')
+    pred_patch_1 = mpatches.Patch(color=plt.cm.coolwarm(1.0), label='Source')
+    plt.legend(handles=[pred_patch_0, pred_patch_1], loc='best')
+    
+    
+    # Plot the true labels
+    plt.subplot(1, 2, 2)
+    nx.draw(graph, pos, node_color=labels, with_labels=True, cmap=plt.cm.coolwarm, node_size=500)
+    plt.title("True Sources")
+    label_patch_0 = mpatches.Patch(color=plt.cm.coolwarm(0.0), label='Not Source')
+    label_patch_1 = mpatches.Patch(color=plt.cm.coolwarm(1.0), label='Source')
+    plt.legend(handles=[label_patch_0, label_patch_1], loc='best')
+    
+
+    
+    # Show the plots
+    plt.tight_layout()
+    
+    # Save the figure to the specified directory
+    os.makedirs(save_dir, exist_ok=True)
+    file_path = os.path.join(save_dir, save_name+".png")
+    plt.savefig(file_path)
+    plt.close()
+    print(f"Figure saved to {file_path}")

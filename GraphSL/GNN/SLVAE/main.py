@@ -289,7 +289,7 @@ class SLVAE:
                 optimizer.step()
             average_loss = overall_loss / train_num
             if epoch % print_epoch == 0:
-                print(f"Epoch ({epoch}/{num_epoch}), loss = {average_loss:.3f}")
+                print(f"Epoch [{epoch}/{num_epoch}], loss = {average_loss:.3f}")
 
         # Evaluation
         print("infer seed from training set:")
@@ -333,7 +333,7 @@ class SLVAE:
             average_loss = overall_loss / train_num
 
             if epoch % int(print_epoch/5) == 0:
-                print(f"Epoch ({epoch}/{int(num_epoch/5)}), obj = {average_loss:.4f}")
+                print(f"Epoch [{epoch}/{int(num_epoch/5)}], obj = {average_loss:.4f}")
 
         train_auc = 0
         for i, influ_mat in enumerate(train_dataset):
@@ -467,7 +467,7 @@ class SLVAE:
                 optimizer.step()
 
             if epoch % print_epoch == 0:
-                print(f"Epoch ({epoch}/{num_epoch}), obj = {average_loss:.4f}")
+                print(f"Epoch [{epoch}/{num_epoch}], obj = {average_loss:.4f}")
 
         test_acc = 0
         test_pr = 0

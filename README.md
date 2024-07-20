@@ -155,6 +155,8 @@ For a new algorithm, please determine whether it belongs to prescribed methods o
 Feel free to Email me (junxiang.wang@alumni.emory.edu) if you have any questions. Bug reports and feedback can be directed to the [Github issues page](https://github.com/xianggebenben/GraphSL/issues).
 
 # Version Log
-The new version 0.11 removes the memetracker and the digg datasets, improves the IVGD method, and creates random seeds for reproducibility.
+Version 0.11 removes the memetracker and the digg datasets, improves the IVGD method, and creates random seeds for reproducibility.
 
-The new version 0.12 adds the datasets downloader.
+Version 0.12 adds the datasets downloader.
+
+Version 0.13 adds the visualization of source predictions.

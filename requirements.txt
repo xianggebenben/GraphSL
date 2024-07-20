@@ -105,3 +105,4 @@ yarg==0.1.9
 yarl==1.9.4
 sphinx-rtd-theme==2.0.0
 pytest==8.2.2
+matplotlib==3.9.1

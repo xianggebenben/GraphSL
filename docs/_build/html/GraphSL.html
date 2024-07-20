@@ -59,6 +59,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.generate_seed_vector"><code class="docutils literal notranslate"><span class="pre">generate_seed_vector()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.load_dataset"><code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.split_dataset"><code class="docutils literal notranslate"><span class="pre">split_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#GraphSL.utils.visualize_source_prediction"><code class="docutils literal notranslate"><span class="pre">visualize_source_prediction()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-GraphSL.Evaluation">GraphSL.Evaluation module</a><ul>
@@ -247,6 +248,36 @@
 <p>graph = load_dataset(data_name, data_dir = curr_dir)</p>
 <p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
 <p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="GraphSL.utils.visualize_source_prediction">
+<span class="sig-prename descclassname"><span class="pre">GraphSL.utils.</span></span><span class="sig-name descname"><span class="pre">visualize_source_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">csr_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/utils.html#visualize_source_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.utils.visualize_source_prediction" title="Link to this definition"></a></dt>
+<dd><p>Visualize source predictions.</p>
+<p>Args:</p>
+<ul class="simple">
+<li><p>adj (csr_matrix): Dictionary containing the dataset.</p></li>
+<li><p>predictions (numpy array): Predicted source vector.</p></li>
+<li><p>labels (numpy array): labeled source vector.</p></li>
+<li><p>save_dir (str):  Dirctory of the saved figure.</p></li>
+<li><p>save_name (str): Name of the saved figure.</p></li>
+</ul>
+<p>Example:</p>
+<p>from GraphSL.GNN.GCNSI.main import GCNSI</p>
+<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset,download_dataset,visualize_source_prediction</p>
+<p>import os</p>
+<p>curr_dir = os.getcwd()</p>
+<p>download_dataset(curr_dir)</p>
+<p>data_name = ‘karate’</p>
+<p>graph = load_dataset(data_name, data_dir=curr_dir)</p>
+<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.2)</p>
+<p>adj, train_dataset, test_dataset = split_dataset(dataset)</p>
+<p>print(“GCNSI:”)</p>
+<p>gcnsi = GCNSI()</p>
+<p>gcnsi_model, thres, auc, f1, pred = gcnsi.train(adj, train_dataset)</p>
+<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
+<p>pred = (pred &gt;= thres)</p>
+<p>visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name=”GCNSI_source_prediction”)</p>
 </dd></dl>
 
 </section>
