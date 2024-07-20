@@ -278,9 +278,9 @@ def visualize_source_prediction(adj: csr_matrix, predictions: np.ndarray, labels
 
     - adj (csr_matrix): Dictionary containing the dataset.
 
-    - predictions (numpy array): Predicted source vector.
+    - predictions (numpy array): Predicted source vector, each entry should be either 0 or 1, where 1 means the source, and 0 means otherwise.
 
-    - labels (numpy array): labeled source vector.
+    - labels (numpy array): Labeled source vector, each entry should be either 0 or 1, where 1 means the source, and 0 means otherwise.
 
     - save_dir (str):  Dirctory of the saved figure.
 
@@ -316,7 +316,7 @@ def visualize_source_prediction(adj: csr_matrix, predictions: np.ndarray, labels
     print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
     pred = (pred >= thres)
-    
+
     visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="GCNSI_source_prediction")
 
  """
