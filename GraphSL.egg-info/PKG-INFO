@@ -1,9 +1,9 @@
 Metadata-Version: 2.1
 Name: GraphSL
-Version: 0.12
+Version: 0.13
 Summary: Graph Source Localization Approaches and Benchmark Datasets
 Home-page: https://github.com/xianggebenben/GraphSL
-Download-URL: https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.12.tar.gz
+Download-URL: https://github.com/xianggebenben/GraphSL/archive/refs/tags/v.0.13.tar.gz
 Author: Junxiang Wang
 Author-email: junxiang.wang@alumni.emory.edu
 License: MIT
@@ -37,18 +37,18 @@ This is the source code of the GraphSL library to support the research of the gr
 
 ## Problem Definition
 
-![image](SL_example.png)
+![image](https://github.com/xianggebenben/GraphSL/blob/main/SL_example.png)
 
-Graph diffusion is a fundamental task in graph learning, which aims to predict future graph cascade patterns given source nodes. Conversely, its inverse problem, graph source localization, though rarely explored, stands as an extremely important topic: it focuses on the detection of source nodes given their future graph cascade patterns. As illustrated in the above figure, graph diffusion seeks to predict the cascade pattern $\lbrace b,c,d,e \rbrace$ from a source node $b$, whereas graph source localization aims to identify source nodes $b$ from the cascade pattern $\lbrace b,c,d,e \rbrace$. 
+Graph diffusion is a fundamental task in graph learning, which aims to predict future graph cascade patterns given source nodes. Conversely, its inverse problem, graph source localization, though rarely explored, is an extremely important topic: it focuses on detecting source nodes given their future graph cascade patterns. As illustrated in the above figure, graph diffusion seeks to predict the cascade pattern $\lbrace b,c,d,e \rbrace$ from a source node $b$, whereas graph source localization aims to identify source nodes $b$ from the cascade pattern $\lbrace b,c,d,e \rbrace$. 
 
-Graph source localization spans a broad spectrum of promising research and real-world applications. For instance, online social media platforms like Twitter and Facebook have been instrumental in disseminating rumors and misinformation with significant repercussions. Additionally, the rapid propagation of computer viruses across the Internet, infecting millions of computers, underscores the critical need for tracking their sources. Moreover, in smart grids, where isolated failures can trigger rolling blackouts leading to substantial financial losses, graph source localization plays a pivotal role. Hence, the graph source localization problem demands attention and extensive investigations from machine learning researchers.
+Graph source localization spans a broad spectrum of promising research and real-world applications. For instance, online social media platforms like Twitter and Facebook have been instrumental in disseminating rumors and misinformation with significant repercussions. Additionally, the rapid propagation of computer viruses across the Internet, infecting millions of computers, underscores the critical need for tracking their sources. Moreover, graph source localization plays a pivotal role in smart grids where isolated failures can trigger rolling blackouts leading to substantial financial losses. Hence, the graph source localization problem demands attention and extensive investigations from machine learning researchers.
 
 The GraphSL library includes six state-of-the-art approaches and six benchmark datasets.
 
 
 ## Approaches
 
-![image](overview.png)
+![image](https://github.com/xianggebenben/GraphSL/blob/main/overview.png)
 
  Existing graph source localization methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
 
@@ -103,53 +103,106 @@ from GraphSL.GNN.SLVAE.main import SLVAE
 from GraphSL.GNN.IVGD.main import IVGD
 from GraphSL.GNN.GCNSI.main import GCNSI
 from GraphSL.Prescribed import LPSI, NetSleuth, OJC
-from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
+from GraphSL.utils import load_dataset, diffusion_generation, split_dataset,download_dataset,visualize_source_prediction
 import os
 curr_dir = os.getcwd()
 # download datasets
 download_dataset(curr_dir)
-# 'karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid'
+# load datasets ('karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid')
 data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)
+# generate diffusion
 dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.2)
+# split into training and test sets
 adj, train_dataset, test_dataset = split_dataset(dataset)
-lpsi = LPSI()
-alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)
+
+# LPSI
 print("LPSI:")
+lpsi = LPSI()
+
+# train LPSI
+alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+# test LPSI
 metric = lpsi.test(adj, test_dataset, alpha, thres)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
-netSleuth = NetSleuth()
-k, auc, f1 = netSleuth.train(adj, train_dataset)
+
+# NetSleuth
 print("NetSleuth:")
+netSleuth = NetSleuth()
+
+# train NetSleuth
+k, auc, f1 = netSleuth.train(adj, train_dataset)
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+# test NetSleuth
 metric = netSleuth.test(adj, test_dataset, k)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
+
+# OJC
 print("OJC:")
 ojc = OJC()
+
+# train OJC
 Y, auc, f1 = ojc.train(adj, train_dataset)
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+# test OJC
 metric = ojc.test(adj, test_dataset, Y)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
+
+# GCNSI
 print("GCNSI:")
 gcnsi = GCNSI()
+
+# train GCNSI
 gcnsi_model, thres, auc, f1, pred = gcnsi.train(adj, train_dataset)
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+# visualize training predictions
+pred = (pred >= thres)
+visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="GCNSI_source_prediction")
+
+
+# test GCNSI
 metric = gcnsi.test(adj, test_dataset, gcnsi_model, thres)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
+
+# IVGD
 print("IVGD:")
 ivgd = IVGD()
+
+# train IVGD diffusion
 diffusion_model = ivgd.train_diffusion(adj, train_dataset)
+
+# train IVGD
 ivgd_model, thres, auc, f1, pred = ivgd.train(
     adj, train_dataset, diffusion_model)
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+# visualize training predictions
+pred = (pred >= thres)
+visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="IVGD_source_prediction")
+
+# test IVGD
 metric = ivgd.test(test_dataset, diffusion_model, ivgd_model, thres)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
+
+# SLVAE
 print("SLVAE:")
 slave = SLVAE()
+
+# train SLVAE
 slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(
     adj, train_dataset)
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+
+# visualize training predictions
+pred = (pred >= thres)
+visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="SLVAE_source_prediction")
+
+# test SLVAE
 metric = slave.infer(test_dataset, slvae_model, seed_vae_train, thres)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
 ```
@@ -180,6 +233,8 @@ For a new algorithm, please determine whether it belongs to prescribed methods o
 Feel free to Email me (junxiang.wang@alumni.emory.edu) if you have any questions. Bug reports and feedback can be directed to the [Github issues page](https://github.com/xianggebenben/GraphSL/issues).
 
 # Version Log
-The new version 0.11 removes the memetracker and the digg datasets, improves the IVGD method, and creates random seeds for reproducibility.
+Version 0.11 removes the memetracker and the digg datasets, improves the IVGD method, and creates random seeds for reproducibility.
 
-The new version 0.12 adds the datasets downloader.
+Version 0.12 adds the datasets downloader.
+
+Version 0.13 adds the visualization of source predictions.

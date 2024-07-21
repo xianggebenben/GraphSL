@@ -333,7 +333,7 @@ class IVGD:
             # Calculate and print average loss for the epoch
             if epoch % print_epoch ==0:
                 average_loss = overall_loss / train_num
-                print(f"Epoch ({epoch}/{num_epoch}), loss = {average_loss:.3f}")
+                print(f"Epoch [{epoch}/{num_epoch}], loss = {average_loss:.3f}")
 
 
 

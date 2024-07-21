@@ -147,7 +147,7 @@ class GCNSI:
                 optimizer.step()
             average_loss = total_loss / train_num
             if epoch % print_epoch == 0:
-                print(f"Epoch ({epoch}/{num_epoch}), loss = {average_loss:.3f}")
+                print(f"Epoch [{epoch}/{num_epoch}], loss = {average_loss:.3f}")
         train_auc = 0
         # Compute AUC score on training data
         for i, influ_mat in enumerate(train_dataset):
