@@ -194,12 +194,7 @@ class IVGD:
             adj,
             train_dataset,
             diffusion_model,
-            thres_list=[
-                0.1,
-                0.3,
-                0.5,
-                0.7,
-                0.9],
+            num_thres=10,
             lr=1e-4,
             weight_decay=1e-4,
             num_epoch=100,
@@ -216,7 +211,7 @@ class IVGD:
 
         - diffusion_model (torch.nn.Module): Trained diffusion model.
 
-        - thres_list (list): List of threshold values.
+        - num_thres (int): Number of threshold values to try.
 
         - lr (float): Learning rate.
 
@@ -270,15 +265,17 @@ class IVGD:
 
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        criterion = nn.CrossEntropyLoss()
-        # train_num = len(train_dataset)
         num_node = adj.shape[0]
-        alpha = 1
-        tau = 1
+        num_seed = torch.sum(train_dataset[0][:,0]).item()
+        weight =torch.tensor([1,(num_node-num_seed)/num_seed]).to(device)
+        criterion = nn.CrossEntropyLoss(weight=weight)
+        # train_num = len(train_dataset)
+        alpha = 0.01
+        tau = 0.01
         rho = 1e-3
         lamda = 1e-3
         torch.manual_seed(random_seed)
-        ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho)
+        ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho).to(device)
         optimizer = optim.Adam(
             ivgd.parameters(),
             lr=lr,
@@ -291,13 +288,13 @@ class IVGD:
         print("train IVGD:")
 
         for influ_mat in train_dataset:
-
+            seed_vec = influ_mat[:, 0].to(device)
             influ_vec = influ_mat[:, -1].to(device)
-
             # Get predictions
             seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
             seed_preds_unsqueeze = seed_preds.unsqueeze(-1).detach()
             seed_preds_list.append(seed_preds_unsqueeze)
+        
 
         for epoch in range(num_epoch):
             overall_loss = 0
@@ -312,7 +309,7 @@ class IVGD:
                 seed_vec_unsqueeze = seed_vec.unsqueeze(-1).float()
                 
                 # Ensure seed_preds_list[i] is detached if it's from a previous computation
-                seed_preds_unsqueeze = seed_preds_list[i].detach()
+                seed_preds_unsqueeze = seed_preds_list[i].detach().to(device)
                 seed_correction = ivgd(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
                 
                 # Prepare one-hot encoding
@@ -365,8 +362,11 @@ class IVGD:
                 -1).cpu().detach().numpy()
             pred[:, i] = seed_correction
 
-        opt_f1 = 0
-        opt_thres = 0
+        opt_f1 = -1
+        opt_thres = -1
+        pred_min = pred.min()
+        pred_max = pred.max()
+        thres_list = np.linspace(pred_min, pred_max, num=num_thres+2)[1:-1].tolist()
         # Find optimal threshold and F1 score
         for thres in thres_list:
             train_f1 = 0
@@ -431,6 +431,7 @@ class IVGD:
         print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        IVGD_model = IVGD_model.to(device)
 
         test_num = len(test_dataset)
         test_acc = 0
@@ -455,11 +456,9 @@ class IVGD:
         # Loop through each test dataset
         for i, influ_mat in enumerate(test_dataset):
             seed_vec = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
-
             # Get seed predictions from the diffusion model
             seed_preds_unsqueeze = seed_preds_list[i].to(device)
-            seed_vec = seed_vec.unsqueeze(-1).float()
+            seed_vec = seed_vec.float().detach().cpu().numpy()
 
             # Obtain seed correction predictions from the IVGD model
             seed_correction = IVGD_model(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
@@ -468,7 +467,6 @@ class IVGD:
             seed_correction = self.normalize(seed_correction)
             seed_correction = seed_correction.squeeze(
                 -1).cpu().detach().numpy()
-            seed_vec = seed_vec.squeeze(-1).detach().cpu().numpy()
 
             # Compute metrics
             test_acc += accuracy_score(seed_vec, seed_correction >= thres)

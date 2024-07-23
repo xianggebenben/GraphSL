@@ -173,12 +173,7 @@ class SLVAE:
             self,
             adj,
             train_dataset,
-            thres_list=[
-                0.1,
-                0.3,
-                0.5,
-                0.7,
-                0.9],
+            num_thres=10,
             lr=1e-4,
             weight_decay=1e-4,
             num_epoch=100,
@@ -193,7 +188,7 @@ class SLVAE:
 
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
-        - thres_list (list): List of threshold values to try.
+        - num_thres (int): Number of threshold values to try.
 
         - lr (float): Learning rate.
 
@@ -260,7 +255,7 @@ class SLVAE:
         train_num = len(train_dataset)
         torch.manual_seed(random_seed)
         vae = VAE().to(device)
-        gnn = GNN(adj_matrix=adj_matrix)
+        gnn = GNN(adj_matrix=adj_matrix).to(device)
         propagate = DiffusionPropagate(adj_matrix, niter=2)
 
         slvae_model = SLVAE_model(vae, gnn, propagate).to(device)
@@ -314,7 +309,9 @@ class SLVAE:
 
         optimizer = Adam(seed_infer, lr=lr, weight_decay=weight_decay)
 
-        for epoch in range(int(num_epoch/5)):
+        infer_epoch = int(num_epoch/10)
+
+        for epoch in range(infer_epoch):
             overall_loss = 0
             for i, influ_mat in enumerate(train_dataset):
                 influ_vec = influ_mat[:, -1]
@@ -332,19 +329,24 @@ class SLVAE:
 
             average_loss = overall_loss / train_num
 
-            if epoch % int(print_epoch/5) == 0:
-                print(f"Epoch [{epoch}/{int(num_epoch/5)}], obj = {average_loss:.4f}")
+            if epoch % print_epoch == 0:
+                print(f"Epoch [{epoch}/{infer_epoch}], obj = {average_loss:.4f}")
 
         train_auc = 0
+        pred_min = 9999
+        pred_max = -9999
         for i, influ_mat in enumerate(train_dataset):
             seed_vec = influ_mat[:, 0]
             seed_vec = seed_vec.squeeze(-1).cpu().detach().numpy()
             seed_pred = seed_infer[i].cpu().cpu().detach().numpy()
+            pred_min = min(pred_min,seed_pred.min())
+            pred_max = max(pred_max,seed_pred.max())
             train_auc += roc_auc_score(seed_vec, seed_pred)
         train_auc = train_auc / train_num
 
-        opt_f1 = 0
-        opt_thres = 0
+        opt_f1 = -1
+        opt_thres = -1
+        thres_list = np.linspace(pred_min, pred_max, num=num_thres+2)[1:-1].tolist()
         for thres in thres_list:
             train_f1 = 0
             for i, influ_mat in enumerate(train_dataset):
@@ -431,6 +433,7 @@ class SLVAE:
         print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        slvae_model = slvae_model.to(device)
         test_num = len(test_dataset)
         slvae_model.eval()
         for param in slvae_model.parameters():

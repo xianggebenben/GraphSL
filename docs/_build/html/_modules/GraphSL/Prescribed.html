@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GraphSL.Prescribed &mdash; GraphSL 0.8 documentation</title>
+  <title>GraphSL.Prescribed &mdash; GraphSL 0.12 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -123,8 +123,7 @@
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.Prescribed.LPSI.train">[docs]</a>
     <span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">alpha_list</span><span class="o">=</span><span class="p">[</span>
-            <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="n">thres_list</span><span class="o">=</span><span class="p">[</span>
-            <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]):</span>
+            <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="n">num_thres</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">         Train the LPSI algorithm.</span>
 
@@ -136,7 +135,7 @@
 
 <span class="sd">        - alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.</span>
 
-<span class="sd">        - thres_list (list): List of threshold values to try.</span>
+<span class="sd">        - num_thres (list): Number of threshold values to try.</span>
 
 <span class="sd">        Returns:</span>
 
@@ -203,10 +202,12 @@
             <span class="n">opt_pred</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
                 <span class="n">laplacian</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">opt_alpha</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
 
-        <span class="n">opt_f1</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">opt_thres</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">opt_f1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">opt_thres</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">pred_min</span> <span class="o">=</span> <span class="n">opt_pred</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">pred_max</span> <span class="o">=</span> <span class="n">opt_pred</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">thres_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">pred_min</span><span class="p">,</span> <span class="n">pred_max</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_thres</span><span class="o">+</span><span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">thres</span> <span class="ow">in</span> <span class="n">thres_list</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;thres = </span><span class="si">{</span><span class="n">thres</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">train_f1</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_num</span><span class="p">):</span>
                 <span class="n">train_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_all</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span>

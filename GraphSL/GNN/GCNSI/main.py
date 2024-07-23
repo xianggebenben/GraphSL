@@ -24,16 +24,10 @@ class GCNSI:
               adj,
               train_dataset,
               alpha=0.01,
-              thres_list=[0.1,
-                          0.3,
-                          0.5,
-                          0.7,
-                          0.9],
+              num_thres=10,
               lr=1e-3,
               num_epoch=100,
               print_epoch=10,
-              weight=torch.tensor([1.0,
-                                   3.0]),
               random_seed=0):
         """
         Train the GCNSI model.
@@ -46,15 +40,13 @@ class GCNSI:
 
         - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
 
-        - thres_list (list): List of threshold values to try.
+        - num_thres (int): Number of threshold values to try.
 
         - lr (float): Learning rate.
 
         - num_epoch (int): Number of training epochs.
 
         - print_epoch (int): Number of epochs every time to print loss.
-
-        - weight (torch.Tensor): Weight tensor for loss computation, the first and second values are loss weights for non-seed and seed, respectively.
 
         - random_seed (int): Random seed.
         
@@ -97,6 +89,7 @@ class GCNSI:
         print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
         # Compute Laplacian matrix
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         S = csgraph.laplacian(adj, normed=True)
         S = np.array(coo_matrix.todense(S))
         num_node = adj.shape[0]
@@ -105,11 +98,13 @@ class GCNSI:
         coo = adj.tocoo()
         row = torch.from_numpy(coo.row.astype(np.int64)).to(torch.long)
         col = torch.from_numpy(coo.col.astype(np.int64)).to(torch.long)
-        edge_index = torch.stack([row, col], dim=0)
+        edge_index = torch.stack([row, col], dim=0).to(device)
         # Iterate over alpha values
         torch.manual_seed(random_seed)
-        gcnsi_model = GCNSI_model()
+        gcnsi_model = GCNSI_model().to(device)
         optimizer = torch.optim.Adam(gcnsi_model.parameters(), lr=lr)
+        num_seed = torch.sum(train_dataset[0][:,0]).item()
+        weight =torch.tensor([1,(num_node-num_seed)/num_seed]).to(device)
         criterion = torch.nn.CrossEntropyLoss(weight=weight)
         # Augmented features by LPSI
 
@@ -132,12 +127,13 @@ class GCNSI:
             d4 = d4[:, np.newaxis]
             lpsi_input[i, :, :] = np.concatenate((d1, d2, d3, d4), axis=1)
         # Training loop
+        lpsi_input = torch.tensor(lpsi_input,device=device)
         print("train GCNSI:")
         for epoch in range(num_epoch):
             optimizer.zero_grad()
             total_loss = 0
             for i, influ_mat in enumerate(train_dataset):
-                seed_vec = influ_mat[:, 0].unsqueeze(-1)
+                seed_vec = influ_mat[:, 0].unsqueeze(-1).to(device)
                 seed_vec_onehot = torch.concat((1 - seed_vec, seed_vec), dim=1)
                 diff_vec = influ_mat[:, -1]
                 pred = gcnsi_model(lpsi_input[i, :, :], edge_index)
@@ -155,7 +151,7 @@ class GCNSI:
             seed_vec = seed_vec.squeeze(-1).long()
             pred = gcnsi_model(lpsi_input[i, :, :], edge_index)
             pred = torch.softmax(pred, dim=1)
-            pred = pred[:, 1].squeeze(-1).detach().numpy()
+            pred = pred[:, 1].squeeze(-1).detach().cpu().numpy()
             train_auc += roc_auc_score(seed_vec, pred)
         train_auc = train_auc / train_num
         print(f"train_auc = {train_auc:.3f}")
@@ -167,10 +163,13 @@ class GCNSI:
             diff_vec = influ_mat[:, -1]
             pred = gcnsi_model(lpsi_input[i, :, :], edge_index)
             pred = torch.softmax(pred, dim=1)
-            pred = pred[:, 1].squeeze(-1).detach().numpy()
+            pred = pred[:, 1].squeeze(-1).detach().cpu().numpy()
             opt_pred[:, i] = pred
-
-        opt_f1 = 0
+        
+        opt_f1 = -1
+        pred_min = opt_pred.min()
+        pred_max = opt_pred.max()
+        thres_list = np.linspace(pred_min, pred_max, num=num_thres+2)[1:-1].tolist()
         # Find optimal threshold and F1 score
         for thres in thres_list:
             train_f1 = 0
@@ -235,6 +234,8 @@ class GCNSI:
 
         print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        gcnsi_model = gcnsi_model.to(device)
         # Compute Laplacian matrix
         S = csgraph.laplacian(adj, normed=True)
         S = np.array(coo_matrix.todense(S))
@@ -244,7 +245,7 @@ class GCNSI:
         coo = adj.tocoo()
         row = torch.from_numpy(coo.row.astype(np.int64)).to(torch.long)
         col = torch.from_numpy(coo.col.astype(np.int64)).to(torch.long)
-        edge_index = torch.stack([row, col], dim=0)
+        edge_index = torch.stack([row, col], dim=0).to(device)
 
         lpsi = LPSI()  # Initializing LPSI module
         lpsi_input = np.zeros((test_num, num_node, 4))
@@ -264,6 +265,8 @@ class GCNSI:
             d4 = lpsi.predict(S, num_node, alpha, V4)
             d4 = d4[:, np.newaxis]
             lpsi_input[i, :, :] = np.concatenate((d1, d2, d3, d4), axis=1)
+        
+        lpsi_input = torch.tensor(lpsi_input,device=device)
         test_acc = 0
         test_pr = 0
         test_re = 0
@@ -272,10 +275,10 @@ class GCNSI:
         # Evaluate on test data
         for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
-            diff_vec = influ_mat[:, -1]
+            diff_vec = influ_mat[:, -1].to(device)
             pred = gcnsi_model(lpsi_input[i, :, :], edge_index)
             pred = torch.softmax(pred, dim=1)
-            pred = pred[:, 1].squeeze(-1).detach().numpy()
+            pred = pred[:, 1].squeeze(-1).detach().cpu().numpy()
             test_acc += accuracy_score(seed_vec, pred >= thres)
             test_pr += precision_score(seed_vec,
                                        pred >= thres, zero_division=1)
