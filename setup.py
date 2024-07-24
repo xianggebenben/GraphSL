@@ -5,7 +5,7 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name='GraphSL',         # How you named your package folder (MyLib)
     packages=find_packages(),   # Chose the same as "name"
-    version='0.13',      # Start with a small number and increase it with every change you make
+    version='0.14',      # Start with a small number and increase it with every change you make
     # Chose a license from here:
     # https://help.github.com/articles/licensing-a-repository
     license='MIT',
