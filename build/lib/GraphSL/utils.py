@@ -278,9 +278,9 @@ def visualize_source_prediction(adj: csr_matrix, predictions: np.ndarray, labels
 
     - adj (csr_matrix): Dictionary containing the dataset.
 
-    - predictions (numpy array): Predicted source vector, each entry should be either 0 or 1, where 1 means the source, and 0 means otherwise.
+    - predictions (numpy.ndarray): Predicted source vector, each entry should be either 0 or 1, where 1 means the source, and 0 means otherwise.
 
-    - labels (numpy array): Labeled source vector, each entry should be either 0 or 1, where 1 means the source, and 0 means otherwise.
+    - labels (numpy.ndarray): Labeled source vector, each entry should be either 0 or 1, where 1 means the source, and 0 means otherwise.
 
     - save_dir (str):  Dirctory of the saved figure.
 

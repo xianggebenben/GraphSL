@@ -43,8 +43,7 @@ class LPSI:
 
     def train(
         self, adj, train_dataset, alpha_list=[
-            0.001, 0.01, 0.1], thres_list=[
-            0.1, 0.3, 0.5, 0.7, 0.9]):
+            0.001, 0.01, 0.1], num_thres=10):
         """
          Train the LPSI algorithm.
 
@@ -56,7 +55,7 @@ class LPSI:
 
         - alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
 
-        - thres_list (list): List of threshold values to try.
+        - num_thres (list): Number of threshold values to try.
 
         Returns:
 
@@ -123,10 +122,12 @@ class LPSI:
             opt_pred[:, i] = self.predict(
                 laplacian, num_node, opt_alpha, influ_vec)
 
-        opt_f1 = 0
-        opt_thres = 0
+        opt_f1 = -1
+        opt_thres = -1
+        pred_min = opt_pred.min()
+        pred_max = opt_pred.max()
+        thres_list = np.linspace(pred_min, pred_max, num=num_thres+2)[1:-1].tolist()
         for thres in thres_list:
-            print(f"thres = {thres:.3f}")
             train_f1 = 0
             for i in range(train_num):
                 train_f1 += f1_score(seed_all[:, i],

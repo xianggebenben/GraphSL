@@ -12,7 +12,7 @@ This is the source code of the GraphSL library to support the research of the gr
 
 ## Problem Definition
 
-![image](https://github.com/xianggebenben/GraphSL/blob/main/SL_example.png)
+![image](https://raw.githubusercontent.com/xianggebenben/GraphSL/main/SL_example.png)
 
 Graph diffusion is a fundamental task in graph learning, which aims to predict future graph cascade patterns given source nodes. Conversely, its inverse problem, graph source localization, though rarely explored, is an extremely important topic: it focuses on detecting source nodes given their future graph cascade patterns. As illustrated in the above figure, graph diffusion seeks to predict the cascade pattern $\lbrace b,c,d,e \rbrace$ from a source node $b$, whereas graph source localization aims to identify source nodes $b$ from the cascade pattern $\lbrace b,c,d,e \rbrace$. 
 
@@ -23,7 +23,7 @@ The GraphSL library includes six state-of-the-art approaches and six benchmark d
 
 ## Approaches
 
-![image](https://github.com/xianggebenben/GraphSL/blob/main/overview.png)
+![image](https://raw.githubusercontent.com/xianggebenben/GraphSL/main/overview.png)
 
  Existing graph source localization methods can be categorized into two groups: Prescribed methods and Graph Neural Networks (GNN)-based methods.
 
@@ -214,4 +214,4 @@ Version 0.12 adds the datasets downloader.
 
 Version 0.13 adds the visualization of source predictions.
 
-Version 0.14 uses the num_thres (i.e. number of thresholds to try) instead of specificing thres_list (i.e. threshold list) for LPSI, GCNSI, IVGD and SLVAE. Moreover, GCNSI, IVGD and SLVAE are improved to run on CUDA if applicable.
+Version 0.14 uses the num_thres (i.e. number of thresholds to try) instead of specifying the thres_list (i.e. threshold list) for LPSI, GCNSI, IVGD and SLVAE. Moreover, GCNSI, IVGD and SLVAE are improved to run on CUDA if applicable.
