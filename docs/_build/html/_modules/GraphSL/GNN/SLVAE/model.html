@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GraphSL.GNN.SLVAE.model &mdash; GraphSL 0.8 documentation</title>
+  <title>GraphSL.GNN.SLVAE.model &mdash; GraphSL 0.12 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -85,11 +85,11 @@
 
 <span class="sd">    Attributes:</span>
 
-<span class="sd">    - input_dim (int): Dimension of the input.</span>
+<span class="sd">        - input_dim (int): Dimension of the input.</span>
 
-<span class="sd">    - hidden_dim (int): Dimension of the hidden layer.</span>
+<span class="sd">        - hidden_dim (int): Dimension of the hidden layer.</span>
 
-<span class="sd">    - latent_dim (int): Dimension of the latent space.</span>
+<span class="sd">        - latent_dim (int): Dimension of the latent space.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">latent_dim</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
@@ -98,11 +98,11 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - input_dim (int): Dimension of the input.</span>
+<span class="sd">            - input_dim (int): Dimension of the input.</span>
 
-<span class="sd">        - hidden_dim (int): Dimension of the hidden layer.</span>
+<span class="sd">            - hidden_dim (int): Dimension of the hidden layer.</span>
 
-<span class="sd">        - latent_dim (int): Dimension of the latent space.</span>
+<span class="sd">            - latent_dim (int): Dimension of the latent space.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Encoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -119,13 +119,13 @@
 <span class="sd">        Forward pass of the Encoder.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        - x (torch.Tensor): Input tensor.</span>
+<span class="sd">            - x (torch.Tensor): Input tensor.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - mean (torch.Tensor): The mean of the latent space.</span>
+<span class="sd">            - mean (torch.Tensor): The mean of the latent space.</span>
 
-<span class="sd">        - log_var (torch.Tensor): The log variance of the latent space.</span>
+<span class="sd">            - log_var (torch.Tensor): The log variance of the latent space.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
@@ -146,11 +146,11 @@
 
 <span class="sd">    Attributes:</span>
 
-<span class="sd">    - output_dim (int): Dimension of the output.</span>
+<span class="sd">        - output_dim (int): Dimension of the output.</span>
 
-<span class="sd">    - hidden_dim (int): Dimension of the hidden layer.</span>
+<span class="sd">        - hidden_dim (int): Dimension of the hidden layer.</span>
 
-<span class="sd">    - latent_dim (int): Dimension of the latent space.</span>
+<span class="sd">        - latent_dim (int): Dimension of the latent space.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dim</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">latent_dim</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
@@ -159,12 +159,11 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - output_dim (int): Dimension of the output.</span>
+<span class="sd">            - output_dim (int): Dimension of the output.</span>
 
+<span class="sd">            - hidden_dim (int): Dimension of the hidden layer.</span>
 
-<span class="sd">        - hidden_dim (int): Dimension of the hidden layer.</span>
-
-<span class="sd">        - latent_dim (int): Dimension of the latent space.</span>
+<span class="sd">            - latent_dim (int): Dimension of the latent space.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Decoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -181,11 +180,11 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - x (torch.Tensor): Input tensor.</span>
+<span class="sd">            - x (torch.Tensor): Input tensor.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - x_hat (torch.Tensor): Decoded output tensor.</span>
+<span class="sd">            - x_hat (torch.Tensor): Decoded output tensor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linear2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
@@ -204,11 +203,11 @@
 
 <span class="sd">    Attributes:</span>
 
-<span class="sd">    - input_dim (int): Dimension of the input.</span>
+<span class="sd">        - input_dim (int): Dimension of the input.</span>
 
-<span class="sd">    - hidden_dim (int): Dimension of the hidden layer.</span>
+<span class="sd">        - hidden_dim (int): Dimension of the hidden layer.</span>
 
-<span class="sd">    - latent_dim (int): Dimension of the latent space.</span>
+<span class="sd">        - latent_dim (int): Dimension of the latent space.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">latent_dim</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
@@ -217,11 +216,11 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - input_dim (int): Dimension of the input.</span>
+<span class="sd">            - input_dim (int): Dimension of the input.</span>
 
-<span class="sd">        - hidden_dim (int): Dimension of the hidden layer.</span>
+<span class="sd">            - hidden_dim (int): Dimension of the hidden layer.</span>
 
-<span class="sd">        - latent_dim (int): Dimension of the latent space.</span>
+<span class="sd">            - latent_dim (int): Dimension of the latent space.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">VAE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -255,13 +254,13 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - x (torch.Tensor): Input tensor.</span>
+<span class="sd">            - x (torch.Tensor): Input tensor.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - mean (torch.Tensor):  The mean of latent space</span>
+<span class="sd">            - mean (torch.Tensor):  The mean of latent space</span>
 
-<span class="sd">        - logvar (torch.Tensor):   Log variance of latent space.</span>
+<span class="sd">            - logvar (torch.Tensor):   Log variance of latent space.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mean_layer</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
@@ -280,15 +279,15 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - mean (torch.Tensor): Mean of the latent space.</span>
+<span class="sd">            - mean (torch.Tensor): Mean of the latent space.</span>
 
-<span class="sd">        - var (torch.Tensor): Variance of the latent space.</span>
+<span class="sd">            - var (torch.Tensor): Variance of the latent space.</span>
 
-<span class="sd">        - device (torch.device): Device to be used for computation, cpu or cuda.</span>
+<span class="sd">            - device (torch.device): Device to be used for computation, cpu or cuda.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - z (torch.Tensor): Sampled latent vector.</span>
+<span class="sd">            - z (torch.Tensor): Sampled latent vector.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">epsilon</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">var</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">var</span> <span class="o">*</span> <span class="n">epsilon</span>
@@ -303,11 +302,11 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - x (torch.Tensor): Latent vector.</span>
+<span class="sd">            - x (torch.Tensor): Latent vector.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - torch.Tensor: Decoded output tensor.</span>
+<span class="sd">            - x (torch.Tensor): Decoded output tensor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
@@ -321,15 +320,15 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - x (torch.Tensor): Input tensor.</span>
+<span class="sd">            - x (torch.Tensor): Input tensor.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - x_hat (tensor.Tensor): The reconstructed input.</span>
+<span class="sd">            - x_hat (tensor.Tensor): The reconstructed input.</span>
 
-<span class="sd">        - mean (tensor.Tensor): The mean of the latent space.</span>
+<span class="sd">            - mean (tensor.Tensor): The mean of the latent space.</span>
 
-<span class="sd">        - log_var (tensor.Tensor): The log variance of the latent space.</span>
+<span class="sd">            - log_var (tensor.Tensor): The log variance of the latent space.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">device</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">device</span>
@@ -341,43 +340,66 @@
 
 
 
+<div class="viewcode-block" id="GCNLayer">
+<a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.GCNLayer">[docs]</a>
+<span class="k">class</span> <span class="nc">GCNLayer</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A single layer of a Graph Convolutional Network (GCN).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        - in_features (int): Number of input features for each node.</span>
+
+<span class="sd">        - out_features (int): Number of output features for each node.</span>
+
+<span class="sd">        - bias (bool): Whether to include a bias term in the layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a GCN layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            - in_features (int): Number of input features for each node.</span>
+
+<span class="sd">            - out_features (int): Number of output features for each node.</span>
+
+<span class="sd">            - bias (bool): Whether to include a bias term in the layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GCNLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="c1"># Define a linear transformation for the layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span><span class="p">,</span> <span class="n">out_features</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GCNLayer.forward">
+<a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.GCNLayer.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward pass of the GCN layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            - x (torch.Tensor): Input feature matrix of shape (num_nodes, in_features).</span>
+
+<span class="sd">            - adj (torch.Tensor): Adjacency matrix of shape (num_nodes, num_nodes).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - x(torch.Tensor): Output feature matrix of shape (num_nodes, out_features).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Perform the graph convolution operation</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="GNN">
 <a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.GNN">[docs]</a>
 <span class="k">class</span> <span class="nc">GNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Graph Neural Network (GNN) model.</span>
+<span class="sd">    Graph Neural Network (GNN) model using GCN layers.</span>
 
 <span class="sd">    Attributes:</span>
-
-<span class="sd">    - input_dim (int): Dimension of the input.</span>
-
-<span class="sd">    - adj_matrix (torch.Tensor): adjacency matrix representing graph connectivity.</span>
-
-<span class="sd">    - hiddenunits (List[int]): List of hidden units for each layer.</span>
-
-<span class="sd">    - num_classes (int): Number of output classes.</span>
-
-<span class="sd">    - bias (bool): Whether to include bias in linear layers.</span>
-
-<span class="sd">    - drop_prob (float): Dropout probability.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">adj_matrix</span><span class="p">,</span>
-            <span class="n">input_dim</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-            <span class="n">hiddenunits</span><span class="o">=</span><span class="p">[</span>
-                <span class="mi">64</span><span class="p">,</span>
-                <span class="mi">64</span><span class="p">],</span>
-            <span class="n">num_classes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">drop_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the GNN model.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">        - adj_matrix (torch.Tensor): adjacency matrix representing graph connectivity.</span>
+<span class="sd">        - adj_matrix (torch.Tensor): Adjacency matrix representing graph connectivity.</span>
 
 <span class="sd">        - input_dim (int): Dimension of the input.</span>
 
@@ -388,9 +410,37 @@
 <span class="sd">        - bias (bool): Whether to include bias in linear layers.</span>
 
 <span class="sd">        - drop_prob (float): Dropout probability.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">adj_matrix</span><span class="p">,</span>
+            <span class="n">input_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">hiddenunits</span><span class="o">=</span><span class="p">[</span>
+                <span class="mi">64</span><span class="p">,</span>
+                <span class="mi">64</span><span class="p">],</span>
+            <span class="n">out_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">drop_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the GNN model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            - adj_matrix (torch.Tensor): Adjacency matrix representing graph connectivity.</span>
+
+<span class="sd">            - input_dim (int): Dimension of the input.</span>
+
+<span class="sd">            - hiddenunits (List[int]): List of hidden units for each layer.</span>
+
+<span class="sd">            - out_dim (int): Dimension of the output.</span>
+
+<span class="sd">            - bias (bool): Whether to include bias in linear layers.</span>
+
+<span class="sd">            - drop_prob (float): Dropout probability.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">GNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_dim</span> <span class="o">=</span> <span class="n">input_dim</span>
 
         <span class="c1"># Convert sparse matrix to dense if needed</span>
@@ -398,25 +448,22 @@
             <span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">adj_matrix</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">adj_matrix</span><span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">adj_matrix</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),</span>
             <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="c1"># Define fully connected layers</span>
-        <span class="n">fcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="n">hiddenunits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">)]</span>
+        <span class="c1"># Define GCN layers</span>
+        <span class="n">gcn_layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">GCNLayer</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="n">hiddenunits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">)]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">)):</span>
-            <span class="n">fcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">hiddenunits</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-        <span class="n">fcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_classes</span><span class="p">))</span>
+            <span class="n">gcn_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GCNLayer</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">hiddenunits</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">))</span>
+        <span class="n">gcn_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GCNLayer</span><span class="p">(</span><span class="n">hiddenunits</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_dim</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">fcs</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span><span class="n">fcs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcn_layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span><span class="n">gcn_layers</span><span class="p">)</span>
 
         <span class="c1"># Define dropout layer</span>
-        <span class="k">if</span> <span class="n">drop_prob</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">drop_prob</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">drop_prob</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> <span class="k">if</span> <span class="n">drop_prob</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
 
         <span class="c1"># Activation function</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GNN.forward">
 <a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.GNN.forward">[docs]</a>
@@ -425,27 +472,21 @@
 <span class="sd">        Forward pass of the GNN.</span>
 
 <span class="sd">        Args:</span>
-
-<span class="sd">        - seed_vec (torch.Tensor): Input seed vector.</span>
+<span class="sd">            - seed_vec (torch.Tensor): Input seed vector.</span>
 
 <span class="sd">        Returns:</span>
-
-<span class="sd">        - res (torch.Tensor): Predicted output.</span>
+<span class="sd">            - x (torch.Tensor): Predicted output.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">seed_vec</span>
-                <span class="n">attr_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-                    <span class="p">(</span><span class="n">seed_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">mat</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">attr_mat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">attr_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">attr_mat</span><span class="p">,</span> <span class="n">mat</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Initial feature matrix is the seed vector</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">seed_vec</span>
 
-        <span class="n">layer_inner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fcs</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span>
-            <span class="n">attr_mat</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="o">*</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">attr_mat</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)))))</span>
-        <span class="k">for</span> <span class="n">fc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcs</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="n">layer_inner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span><span class="p">(</span><span class="n">fc</span><span class="p">(</span><span class="n">layer_inner</span><span class="p">))</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fcs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">layer_inner</span><span class="p">)))</span>
+        <span class="c1"># Apply each GCN layer</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcn_layers</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act_fn</span><span class="p">(</span><span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span><span class="p">))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="c1"># Final layer with no activation function</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gcn_layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">res</span></div>
 
 
@@ -456,159 +497,12 @@
 <span class="sd">        Calculate loss.</span>
 
 <span class="sd">        Args:</span>
-
-<span class="sd">        - y (torch.Tensor): Ground truth.</span>
-
-<span class="sd">        - y_hat (torch.Tensor): Predicted output.</span>
+<span class="sd">            - y (torch.Tensor): Ground truth.</span>
+<span class="sd">            - y_hat (torch.Tensor): Predicted output.</span>
 
 <span class="sd">        Returns:</span>
-
-<span class="sd">        - forward_loss (torch.Tensor): Forward loss.</span>
+<span class="sd">            - forward_loss (torch.Tensor): Forward loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">forward_loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">mse_loss</span><span class="p">(</span><span class="n">y_hat</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">forward_loss</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="DiffusionPropagate">
-<a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.DiffusionPropagate">[docs]</a>
-<span class="k">class</span> <span class="nc">DiffusionPropagate</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Diffusion Propagation module for graph data.</span>
-
-<span class="sd">    Attributes:</span>
-
-<span class="sd">    - adj_matrix (torch.Tensor): adjacency matrix representing graph connectivity.</span>
-
-<span class="sd">    - niter (int): Number of diffusion iterations.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj_matrix</span><span class="p">,</span> <span class="n">niter</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the DiffusionPropagate module.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">        - adj_matrix (torch.Tensor): adjacency matrix representing graph connectivity.</span>
-
-<span class="sd">        - niter (int): Number of diffusion iterations.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DiffusionPropagate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">niter</span> <span class="o">=</span> <span class="n">niter</span>
-
-        <span class="c1"># Convert sparse matrix to dense if needed</span>
-        <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">isspmatrix</span><span class="p">(</span><span class="n">adj_matrix</span><span class="p">):</span>
-            <span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">adj_matrix</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;adj_matrix&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">adj_matrix</span><span class="p">))</span>
-
-<div class="viewcode-block" id="DiffusionPropagate.forward">
-<a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.DiffusionPropagate.forward">[docs]</a>
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Forward pass of the DiffusionPropagate module.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">        - preds (torch.Tensor): Predictions.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">        - prop_preds (torch.Tensor): Propagated predictions.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">device</span> <span class="o">=</span> <span class="n">preds</span><span class="o">.</span><span class="n">device</span>
-
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">preds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">prop_pred</span> <span class="o">=</span> <span class="n">preds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">niter</span><span class="p">):</span>
-                <span class="n">P2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> \
-                    <span class="n">prop_pred</span><span class="o">.</span><span class="n">view</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-                <span class="n">P3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="o">-</span> <span class="n">P2</span>
-                <span class="n">prop_pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">adj_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
-                    <span class="n">device</span><span class="p">)</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">P3</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">prop_pred</span> <span class="o">=</span> <span class="n">prop_pred</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">prop_preds</span> <span class="o">=</span> <span class="n">prop_pred</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">prop_preds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">prop_preds</span><span class="p">,</span> <span class="n">prop_pred</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">prop_preds</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="ForwardModel">
-<a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.ForwardModel">[docs]</a>
-<span class="k">class</span> <span class="nc">ForwardModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gnn_model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">propagate</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructor for ForwardModel class.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            gnn_model (nn.Module): Graph Neural Network model used as feature extractor.</span>
-
-<span class="sd">            propagate (nn.Module): Module to perform additional computation on GNN outputs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ForwardModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gnn_model</span> <span class="o">=</span> <span class="n">gnn_model</span>  <span class="c1"># Assigning the GNN model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="n">propagate</span>  <span class="c1"># Assigning the propagation module</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">relu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># ReLU activation function</span>
-
-        <span class="c1"># Extracting parameters requiring gradients from gnn_model for</span>
-        <span class="c1"># optimization</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reg_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="nb">filter</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">gnn_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()))</span>
-
-<div class="viewcode-block" id="ForwardModel.forward">
-<a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.ForwardModel.forward">[docs]</a>
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed_vec</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Forward pass of the ForwardModel.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            seed_vec (torch.Tensor): Input tensor for the forward pass.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">           predictions (torch.Tensor): Predictions after the forward pass.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Extracting indices where seed_vec equals 1</span>
-        <span class="n">seed_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">seed_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="c1"># Forward pass through the GNN model</span>
-        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gnn_model</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">)</span>
-
-        <span class="c1"># Additional computation using propagate module, possibly considering</span>
-        <span class="c1"># seed indices</span>
-        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">seed_idx</span><span class="p">)</span>
-
-        <span class="c1"># Applying ReLU activation function</span>
-        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">predictions</span></div>
-
-
-<div class="viewcode-block" id="ForwardModel.loss">
-<a class="viewcode-back" href="../../../../GraphSL.GNN.SLVAE.html#GraphSL.GNN.SLVAE.model.ForwardModel.loss">[docs]</a>
-    <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_hat</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute the loss between predicted and actual values.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            y (torch.Tensor): Actual values.</span>
-
-<span class="sd">            y_hat (torch.Tensor): Predicted values.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            forward_loss (torch.Tensor): Forward loss computed using Mean Squared Error.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Computing Mean Squared Error loss</span>
         <span class="n">forward_loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">mse_loss</span><span class="p">(</span><span class="n">y_hat</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">forward_loss</span></div>
 </div>

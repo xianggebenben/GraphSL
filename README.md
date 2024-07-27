@@ -161,7 +161,7 @@ pred = (pred >= thres)
 visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="IVGD_source_prediction")
 
 # test IVGD
-metric = ivgd.test(test_dataset, diffusion_model, ivgd_model, thres)
+metric = ivgd.test(adj, test_dataset, diffusion_model, ivgd_model, thres)
 print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
 
 # SLVAE

@@ -142,7 +142,7 @@ Now, you can import and use GraphSL in your Python code.
     visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="SLVAE_source_prediction")
 
     # test SLVAE
-    metric = slave.infer(test_dataset, slvae_model, seed_vae_train, thres)
+    metric = slave.infer(adj, test_dataset, slvae_model, seed_vae_train, thres)
     print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
 
   

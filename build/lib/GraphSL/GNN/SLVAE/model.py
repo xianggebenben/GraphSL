@@ -295,7 +295,7 @@ class GNN(nn.Module):
         if sp.isspmatrix(adj_matrix):
             adj_matrix = adj_matrix.toarray()
 
-        self.adj_matrix = nn.Parameter(
+        adj_matrix = nn.Parameter(
             torch.FloatTensor(adj_matrix),
             requires_grad=False)
 
@@ -330,11 +330,11 @@ class GNN(nn.Module):
         """
         for i in range(self.input_dim - 1):
             if i == 0:
-                mat = self.adj_matrix.T @ seed_vec
+                mat = adj_matrix.T @ seed_vec
                 attr_mat = torch.cat(
                     (seed_vec.unsqueeze(0), mat.unsqueeze(0)), 0)
             else:
-                mat = self.adj_matrix.T @ attr_mat[-1]
+                mat = adj_matrix.T @ attr_mat[-1]
                 attr_mat = torch.cat((attr_mat, mat.unsqueeze(0)), 0)
 
         layer_inner = self.act_fn(self.fcs[0](self.dropout(
@@ -410,10 +410,10 @@ class DiffusionPropagate(nn.Module):
         for i in range(preds.shape[0]):
             prop_pred = preds[i]
             for j in range(self.niter):
-                P2 = self.adj_matrix.T * \
-                    prop_pred.view((1, -1)).expand(self.adj_matrix.shape)
-                P3 = torch.ones(self.adj_matrix.shape).to(device) - P2
-                prop_pred = torch.ones((self.adj_matrix.shape[0],)).to(
+                P2 = adj_matrix.T * \
+                    prop_pred.view((1, -1)).expand(adj_matrix.shape)
+                P3 = torch.ones(adj_matrix.shape).to(device) - P2
+                prop_pred = torch.ones((adj_matrix.shape[0],)).to(
                     device) - torch.prod(P3, dim=1)
                 prop_pred = prop_pred.unsqueeze(0)
             if i == 0:

@@ -76,12 +76,9 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
 <span class="kn">from</span> <span class="nn">GraphSL.GNN.IVGD.correction</span> <span class="kn">import</span> <span class="n">correction</span>
-<span class="kn">from</span> <span class="nn">GraphSL.GNN.IVGD.i_deepis</span> <span class="kn">import</span> <span class="n">i_DeepIS</span><span class="p">,</span> <span class="n">DiffusionPropagate</span>
-<span class="kn">from</span> <span class="nn">GraphSL.GNN.IVGD.training</span> <span class="kn">import</span> <span class="n">FeatureCons</span><span class="p">,</span> <span class="n">get_idx_new_seeds</span>
-<span class="kn">from</span> <span class="nn">GraphSL.GNN.IVGD.model.MLP</span> <span class="kn">import</span> <span class="n">MLPTransform</span>
-<span class="kn">from</span> <span class="nn">GraphSL.GNN.IVGD.training</span> <span class="kn">import</span> <span class="n">train_model</span>
+<span class="kn">from</span> <span class="nn">GraphSL.GNN.IVGD.diffusion_model</span> <span class="kn">import</span> <span class="n">I_GCN</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span>
-<span class="kn">from</span> <span class="nn">GraphSL.Evaluation</span> <span class="kn">import</span> <span class="n">Metric</span>
+<span class="kn">from</span> <span class="nn">GraphSL.utils</span> <span class="kn">import</span> <span class="n">Metric</span>
 <span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
@@ -107,6 +104,7 @@
 <span class="sd">        - rho (float): Value of rho parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">IVGD_model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha1</span> <span class="o">=</span> <span class="n">alpha</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha2</span> <span class="o">=</span> <span class="n">alpha</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha3</span> <span class="o">=</span> <span class="n">alpha</span>
@@ -141,9 +139,9 @@
 
 <span class="sd">        - x (torch.Tensor): Output tensor after forward pass.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">net1</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">net2</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">net3</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net1</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net2</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net3</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="nb">sum</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
         <span class="n">label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">label</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -180,9 +178,11 @@
 <span class="sd">        Initializes the IVGD model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="IVGD.train_diffusion">
 <a class="viewcode-back" href="../../../../GraphSL.GNN.IVGD.html#GraphSL.GNN.IVGD.main.IVGD.train_diffusion">[docs]</a>
-    <span class="k">def</span> <span class="nf">train_diffusion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">train_diffusion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="n">weight_decay</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="n">num_epoch</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">print_epoch</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the diffusion model.</span>
 
@@ -191,6 +191,14 @@
 <span class="sd">        - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.</span>
 
 <span class="sd">        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</span>
+
+<span class="sd">        - lr (float): Learning rate.</span>
+
+<span class="sd">        - weight_decay (float): Weight decay.</span>
+
+<span class="sd">        - epoch_num (int): Number of epochs.</span>
+
+<span class="sd">        - print_epoch (int): Number of epochs every time to print loss.</span>
 
 <span class="sd">        - random_seed (int): Random seed.</span>
 <span class="sd">        </span>
@@ -221,55 +229,41 @@
 <span class="sd">        diffusion_model = ivgd.train_diffusion(adj, train_dataset)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
-        <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">adj_coo</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">adj_coo</span><span class="o">.</span><span class="n">data</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">adj_coo</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">adj_coo</span><span class="o">.</span><span class="n">col</span><span class="p">))</span>
-
-        <span class="n">i</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span>
-
-        <span class="n">prob_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span>
-            <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
-        <span class="n">prob_matrix</span> <span class="o">=</span> <span class="n">prob_matrix</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">prob_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">prob_matrix</span> <span class="o">=</span> <span class="n">prob_matrix</span> <span class="o">/</span> <span class="n">prob_matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">5</span>
-        <span class="n">niter</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
-        <span class="n">propagate_model</span> <span class="o">=</span> <span class="n">DiffusionPropagate</span><span class="p">(</span><span class="n">prob_matrix</span><span class="p">,</span> <span class="n">niter</span><span class="o">=</span><span class="n">niter</span><span class="p">)</span>
-        <span class="n">fea_constructor</span> <span class="o">=</span> <span class="n">FeatureCons</span><span class="p">(</span><span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
-        <span class="n">fea_constructor</span><span class="o">.</span><span class="n">prob_matrix</span> <span class="o">=</span> <span class="n">prob_matrix</span>
-        <span class="n">args_dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
-            <span class="s1">&#39;λ&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s1">&#39;γ&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s1">&#39;idx_split_args&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;ntraining&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">num_node</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
-                <span class="s1">&#39;nstopping&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">num_node</span> <span class="o">/</span> <span class="mi">6</span><span class="p">),</span>
-                <span class="s1">&#39;nval&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span>
-                    <span class="n">num_node</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)},</span>
-            <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s1">&#39;device&#39;</span><span class="p">:</span> <span class="n">device</span><span class="p">,</span>
-            <span class="s1">&#39;print_interval&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
-        <span class="n">gnn_model</span> <span class="o">=</span> <span class="n">MLPTransform</span><span class="p">(</span>
-            <span class="n">input_dim</span><span class="o">=</span><span class="n">ndim</span><span class="p">,</span> <span class="n">hiddenunits</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">ndim</span><span class="p">,</span> <span class="n">ndim</span><span class="p">],</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-        <span class="n">diffusion_model</span> <span class="o">=</span> <span class="n">i_DeepIS</span><span class="p">(</span>
-            <span class="n">gnn_model</span><span class="o">=</span><span class="n">gnn_model</span><span class="p">,</span>
-            <span class="n">propagate</span><span class="o">=</span><span class="n">propagate_model</span><span class="p">)</span>
+        
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;train IVGD diffusion model:&quot;</span><span class="p">)</span>
-        <span class="n">diffusion_model</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
-            <span class="n">diffusion_model</span><span class="p">,</span> <span class="n">fea_constructor</span><span class="p">,</span> <span class="n">prob_matrix</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">args_dict</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;train mean error:</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;mean error&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;early_stopping mean error:</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;early_stopping&#39;</span><span class="p">][</span><span class="s1">&#39;mean error&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;validation mean error:</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;valtest&#39;</span><span class="p">][</span><span class="s1">&#39;mean error&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run time:</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;runtime&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run time per epoch:</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;runtime_perepoch&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+        <span class="n">diffusion_model</span> <span class="o">=</span> <span class="n">I_GCN</span><span class="p">()</span>
+
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">diffusion_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay</span><span class="p">)</span>
+        <span class="n">loss_function</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+
+        <span class="n">diffusion_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epoch</span><span class="p">):</span>
+            <span class="n">train_loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
+                <span class="n">seed_vector</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">diff_vector</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+                <span class="n">output</span> <span class="o">=</span> <span class="n">diffusion_model</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span><span class="n">seed_vector</span><span class="p">)</span><span class="o">+</span><span class="n">seed_vector</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_function</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">diff_vector</span><span class="p">)</span>
+
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="n">train_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+            <span class="n">train_loss</span> <span class="o">=</span> <span class="n">train_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Epoch [</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">num_epoch</span><span class="si">}</span><span class="s1">], Loss: </span><span class="si">{</span><span class="n">train_loss</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        
         <span class="k">return</span> <span class="n">diffusion_model</span></div>
 
 
@@ -283,7 +277,7 @@
             <span class="n">num_thres</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
             <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
             <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
-            <span class="n">num_epoch</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">num_epoch</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
             <span class="n">print_epoch</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
             <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -350,10 +344,9 @@
 <span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">num_seed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="n">weight</span> <span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,(</span><span class="n">num_node</span><span class="o">-</span><span class="n">num_seed</span><span class="p">)</span><span class="o">/</span><span class="n">num_seed</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">weight</span> <span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,(</span><span class="n">num_node</span><span class="o">-</span><span class="n">num_seed</span><span class="p">)</span><span class="o">/</span><span class="n">num_seed</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
         <span class="c1"># train_num = len(train_dataset)</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.01</span>
@@ -361,7 +354,7 @@
         <span class="n">rho</span> <span class="o">=</span> <span class="mf">1e-3</span>
         <span class="n">lamda</span> <span class="o">=</span> <span class="mf">1e-3</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
-        <span class="n">ivgd</span> <span class="o">=</span> <span class="n">IVGD_model</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="n">tau</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="n">rho</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">ivgd</span> <span class="o">=</span> <span class="n">IVGD_model</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="n">tau</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="n">rho</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
             <span class="n">ivgd</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span>
             <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span>
@@ -374,12 +367,11 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;train IVGD:&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
-            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
             <span class="c1"># Get predictions</span>
-            <span class="n">seed_preds</span> <span class="o">=</span> <span class="n">get_idx_new_seeds</span><span class="p">(</span><span class="n">diffusion_model</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
-            <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
-            <span class="n">seed_preds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed_preds_unsqueeze</span><span class="p">)</span>
+            <span class="n">seed_preds</span> <span class="o">=</span> <span class="n">diffusion_model</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span><span class="n">influ_vec</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+            <span class="n">seed_preds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed_preds</span><span class="p">)</span>
         
 
         <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epoch</span><span class="p">):</span>
@@ -388,14 +380,14 @@
                 <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
                 
                 <span class="c1"># Ensure that influ_mat is on the correct device</span>
-                <span class="n">influ_mat</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">influ_mat</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
                 
                 <span class="c1"># Extract and prepare seed_vec</span>
-                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
                 <span class="n">seed_vec_unsqueeze</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
                 
                 <span class="c1"># Ensure seed_preds_list[i] is detached if it&#39;s from a previous computation</span>
-                <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
                 <span class="n">seed_correction</span> <span class="o">=</span> <span class="n">ivgd</span><span class="p">(</span><span class="n">seed_preds_unsqueeze</span><span class="p">,</span> <span class="n">seed_preds_unsqueeze</span><span class="p">,</span> <span class="n">lamda</span><span class="p">)</span>
                 
                 <span class="c1"># Prepare one-hot encoding</span>
@@ -424,7 +416,7 @@
         <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
             <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
             <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
             <span class="n">seed_correction</span> <span class="o">=</span> <span class="n">ivgd</span><span class="p">(</span><span class="n">seed_preds_unsqueeze</span><span class="p">,</span> <span class="n">seed_preds_unsqueeze</span><span class="p">,</span> <span class="n">lamda</span><span class="p">)</span>
             <span class="n">seed_correction</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">seed_correction</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -439,7 +431,7 @@
         <span class="n">seed_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_node</span><span class="p">,</span> <span class="n">train_num</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
             <span class="n">seed_all</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
             <span class="n">seed_correction</span> <span class="o">=</span> <span class="n">ivgd</span><span class="p">(</span><span class="n">seed_preds_unsqueeze</span><span class="p">,</span> <span class="n">seed_preds_unsqueeze</span><span class="p">,</span> <span class="n">lamda</span><span class="p">)</span>
             <span class="n">seed_correction</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">seed_correction</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">seed_correction</span> <span class="o">=</span> <span class="n">seed_correction</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -469,11 +461,13 @@
 
 <div class="viewcode-block" id="IVGD.test">
 <a class="viewcode-back" href="../../../../GraphSL.GNN.IVGD.html#GraphSL.GNN.IVGD.main.IVGD.test">[docs]</a>
-    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">diffusion_model</span><span class="p">,</span> <span class="n">IVGD_model</span><span class="p">,</span> <span class="n">thres</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">diffusion_model</span><span class="p">,</span> <span class="n">IVGD_model</span><span class="p">,</span> <span class="n">thres</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test the IVGD model on the given test dataset.</span>
 
 <span class="sd">        Args:</span>
+
+<span class="sd">        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
 
 <span class="sd">        - test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</span>
 
@@ -515,12 +509,11 @@
 
 <span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
 
-<span class="sd">        metric = ivgd.test(test_dataset, diffusion_model, ivgd_model, thres)</span>
+<span class="sd">        metric = ivgd.test(adj, test_dataset, diffusion_model, ivgd_model, thres)</span>
 
 <span class="sd">        print(f&quot;test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
-        <span class="n">IVGD_model</span> <span class="o">=</span> <span class="n">IVGD_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">IVGD_model</span> <span class="o">=</span> <span class="n">IVGD_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
         <span class="n">test_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
         <span class="n">test_acc</span> <span class="o">=</span> <span class="mi">0</span>
@@ -535,18 +528,17 @@
 
         <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">test_dataset</span><span class="p">:</span>
 
-            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
             <span class="c1"># Get predictions</span>
-            <span class="n">seed_preds</span> <span class="o">=</span> <span class="n">get_idx_new_seeds</span><span class="p">(</span><span class="n">diffusion_model</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
-            <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
-            <span class="n">seed_preds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed_preds_unsqueeze</span><span class="p">)</span>
+            <span class="n">seed_preds</span> <span class="o">=</span> <span class="n">diffusion_model</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span><span class="n">influ_vec</span><span class="p">)</span>
+            <span class="n">seed_preds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed_preds</span><span class="p">)</span>
 
         <span class="c1"># Loop through each test dataset</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">):</span>
             <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
             <span class="c1"># Get seed predictions from the diffusion model</span>
-            <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">seed_preds_unsqueeze</span> <span class="o">=</span> <span class="n">seed_preds_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
             <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 
             <span class="c1"># Obtain seed correction predictions from the IVGD model</span>

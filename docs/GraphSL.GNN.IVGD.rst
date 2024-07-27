@@ -1,14 +1,6 @@
 GraphSL.GNN.IVGD package
 ========================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   GraphSL.GNN.IVGD.model
-
 Submodules
 ----------
 
@@ -20,21 +12,6 @@ GraphSL.GNN.IVGD.correction module
    :undoc-members:
    :show-inheritance:
 
-GraphSL.GNN.IVGD.earlystopping module
--------------------------------------
-
-.. automodule:: GraphSL.GNN.IVGD.earlystopping
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-GraphSL.GNN.IVGD.i\_deepis module
----------------------------------
-
-.. automodule:: GraphSL.GNN.IVGD.i_deepis
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 GraphSL.GNN.IVGD.main module
 ----------------------------
@@ -44,18 +21,10 @@ GraphSL.GNN.IVGD.main module
    :undoc-members:
    :show-inheritance:
 
-GraphSL.GNN.IVGD.preprocessing module
--------------------------------------
+GraphSL.GNN.IVGD.diffusion_model module
+---------------------------------------
 
-.. automodule:: GraphSL.GNN.IVGD.preprocessing
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-GraphSL.GNN.IVGD.training module
---------------------------------
-
-.. automodule:: GraphSL.GNN.IVGD.training
+.. automodule:: GraphSL.GNN.IVGD.diffusion_model
    :members:
    :undoc-members:
    :show-inheritance:

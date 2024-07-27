@@ -76,9 +76,8 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span>
-<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csgraph</span><span class="p">,</span> <span class="n">coo_matrix</span>
-<span class="kn">from</span> <span class="nn">GraphSL.Evaluation</span> <span class="kn">import</span> <span class="n">Metric</span>
-
+<span class="kn">from</span> <span class="nn">GraphSL.utils</span> <span class="kn">import</span> <span class="n">Metric</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse.csgraph</span> <span class="kn">import</span> <span class="n">laplacian</span> <span class="k">as</span> <span class="n">csgraph_laplacian</span>
 
 <div class="viewcode-block" id="LPSI">
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.Prescribed.LPSI">[docs]</a>
@@ -86,13 +85,15 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implement the Label Propagation based Source Identification (LPSI) algorithm.</span>
 
-<span class="sd">    Wang, Zheng, et al. &quot;Multiple source detection without knowing the underlying propagation model.&quot; Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 31. No. 1. 2017.</span>
+<span class="sd">    Wang, Zheng, et al. &quot;Multiple source detection without knowing the underlying propagation model.&quot; </span>
+<span class="sd">    Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 31. No. 1. 2017.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the LPSI module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LPSI.predict">
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.Prescribed.LPSI.predict">[docs]</a>
@@ -102,121 +103,96 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - laplacian (numpy.ndarray): The Laplacian matrix of the graph.</span>
+<span class="sd">            - laplacian (torch.Tensor): The Laplacian matrix of the graph.</span>
 
-<span class="sd">        - num_node (int): Number of nodes in the graph.</span>
+<span class="sd">            - num_node (int): Number of nodes in the graph.</span>
 
-<span class="sd">        - alpha (float): the fraction of label information that a node gets from its neighbors (between 0 and 1).</span>
+<span class="sd">            - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).</span>
 
-<span class="sd">        - diff_vec (numpy.ndarray): The diffusion vector.</span>
+<span class="sd">            - diff_vec (torch.Tensor): The diffusion vector.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - x (numpy.ndarray): Prediction of source nodes.</span>
+<span class="sd">            - x (torch.Tensor): Prediction of source nodes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">num_node</span><span class="p">)</span> <span class="o">-</span>
-                                                   <span class="n">alpha</span> <span class="o">*</span> <span class="n">laplacian</span><span class="p">,</span> <span class="n">hermitian</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">diff_vec</span><span class="p">)</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_node</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">inv_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">I</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">laplacian</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">inv_matrix</span> <span class="o">@</span> <span class="n">diff_vec</span>
         <span class="k">return</span> <span class="n">x</span></div>
 
 
 <div class="viewcode-block" id="LPSI.train">
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.Prescribed.LPSI.train">[docs]</a>
-    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">alpha_list</span><span class="o">=</span><span class="p">[</span>
-            <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="n">num_thres</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">alpha_list</span><span class="o">=</span><span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="n">num_thres</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">         Train the LPSI algorithm.</span>
+<span class="sd">        Train the LPSI algorithm.</span>
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
+<span class="sd">            - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
 
-<span class="sd">        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</span>
+<span class="sd">            - train_dataset (torch.utils.data.dataset.Subset): The training dataset.</span>
 
-<span class="sd">        - alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.</span>
+<span class="sd">            - alpha_list (list): List of alpha values to try.</span>
 
-<span class="sd">        - num_thres (list): Number of threshold values to try.</span>
+<span class="sd">            - num_thres (int): Number of threshold values to try.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - opt_alpha (float): Optimal fraction of label information that a node gets from its neighbors, between 0 and 1.</span>
+<span class="sd">            - opt_alpha (float): Optimal fraction of label information that a node gets from its neighbors.</span>
 
-<span class="sd">        - opt_thres (float): Optimal threshold value.</span>
+<span class="sd">            - opt_thres (float): Optimal threshold value.</span>
 
-<span class="sd">        - opt_auc (float): Optimal Area Under the Curve (AUC) value.</span>
+<span class="sd">            - opt_auc (float): Optimal Area Under the Curve (AUC) value.</span>
 
-<span class="sd">        - opt_f1 (float): Optimal F1 score value.</span>
+<span class="sd">            - opt_f1 (float): Optimal F1 score value.</span>
 
-<span class="sd">        - opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        import os</span>
-
-<span class="sd">        curr_dir = os.getcwd()</span>
-
-<span class="sd">        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</span>
-
-<span class="sd">        from GraphSL.Prescribed import LPSI</span>
-
-<span class="sd">        data_name = &#39;karate&#39;</span>
-
-<span class="sd">        graph = load_dataset(data_name,data_dir=curr_dir)</span>
-
-<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
-
-<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
-
-<span class="sd">        lpsi = LPSI()</span>
-
-<span class="sd">        alpha, thres, auc, f1, pred =lpsi.train(adj, train_dataset)</span>
-
-<span class="sd">        print(&quot;LPSI:&quot;)</span>
-
-<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
+<span class="sd">            - opt_pred (torch.Tensor): Prediction of training seed vector given opt_alpha.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">csgraph</span><span class="o">.</span><span class="n">laplacian</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coo_matrix</span><span class="o">.</span><span class="n">todense</span><span class="p">(</span><span class="n">laplacian</span><span class="p">))</span>
+        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">csgraph_laplacian</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">laplacian</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
+        <span class="c1"># Initialize optimal values</span>
         <span class="n">opt_auc</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">opt_alpha</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">opt_pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_node</span><span class="p">,</span> <span class="n">train_num</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># Evaluate performance for different alphas</span>
         <span class="k">for</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="n">alpha_list</span><span class="p">:</span>
-            <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
-                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">auc_scores</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">laplacian</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
-                <span class="n">train_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-            <span class="n">train_auc</span> <span class="o">=</span> <span class="n">train_auc</span> <span class="o">/</span> <span class="n">train_num</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;alpha = </span><span class="si">{</span><span class="n">alpha</span><span class="si">}</span><span class="s2">, train_auc = </span><span class="si">{</span><span class="n">train_auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">train_auc</span> <span class="o">&gt;</span> <span class="n">opt_auc</span><span class="p">:</span>
-                <span class="n">opt_auc</span> <span class="o">=</span> <span class="n">train_auc</span>
+                <span class="n">auc_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))</span>
+            <span class="n">avg_auc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">auc_scores</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;alpha = </span><span class="si">{</span><span class="n">alpha</span><span class="si">}</span><span class="s2">, train_auc = </span><span class="si">{</span><span class="n">avg_auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">avg_auc</span> <span class="o">&gt;</span> <span class="n">opt_auc</span><span class="p">:</span>
+                <span class="n">opt_auc</span> <span class="o">=</span> <span class="n">avg_auc</span>
                 <span class="n">opt_alpha</span> <span class="o">=</span> <span class="n">alpha</span>
 
-        <span class="n">opt_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_node</span><span class="p">,</span> <span class="n">train_num</span><span class="p">))</span>
-        <span class="n">seed_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_node</span><span class="p">,</span> <span class="n">train_num</span><span class="p">))</span>
+        <span class="c1"># Compute predictions for optimal alpha</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
-            <span class="n">seed_all</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">opt_pred</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
-                <span class="n">laplacian</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">opt_alpha</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
+            <span class="n">seed_all</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">opt_pred</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">laplacian</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">opt_alpha</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
 
-        <span class="n">opt_f1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">opt_thres</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">pred_min</span> <span class="o">=</span> <span class="n">opt_pred</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">pred_max</span> <span class="o">=</span> <span class="n">opt_pred</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">thres_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">pred_min</span><span class="p">,</span> <span class="n">pred_max</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_thres</span><span class="o">+</span><span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">thres</span> <span class="ow">in</span> <span class="n">thres_list</span><span class="p">:</span>
-            <span class="n">train_f1</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_num</span><span class="p">):</span>
-                <span class="n">train_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_all</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span>
-                                     <span class="n">opt_pred</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">train_f1</span> <span class="o">=</span> <span class="n">train_f1</span> <span class="o">/</span> <span class="n">train_num</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;thres = </span><span class="si">{</span><span class="n">thres</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, train_f1 = </span><span class="si">{</span><span class="n">train_f1</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">train_f1</span> <span class="o">&gt;</span> <span class="n">opt_f1</span><span class="p">:</span>
-                <span class="n">opt_f1</span> <span class="o">=</span> <span class="n">train_f1</span>
-                <span class="n">opt_thres</span> <span class="o">=</span> <span class="n">thres</span>
+        <span class="c1"># Determine the optimal threshold</span>
+        <span class="n">pred_min</span><span class="p">,</span> <span class="n">pred_max</span> <span class="o">=</span> <span class="n">opt_pred</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">opt_pred</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">pred_min</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">pred_max</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">num</span><span class="o">=</span><span class="n">num_thres</span><span class="o">+</span><span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">f1_scores</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">thres</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">:</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">opt_pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">f1_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">f1_score</span><span class="p">(</span><span class="n">seed_all</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">predictions</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;thres = </span><span class="si">{</span><span class="n">thres</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, train_f1 = </span><span class="si">{</span><span class="n">f1_scores</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">opt_f1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">f1_scores</span><span class="p">)</span>
+        <span class="n">opt_thres</span> <span class="o">=</span> <span class="n">thresholds</span><span class="p">[</span><span class="n">f1_scores</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">opt_f1</span><span class="p">)]</span>
+
         <span class="k">return</span> <span class="n">opt_alpha</span><span class="p">,</span> <span class="n">opt_thres</span><span class="p">,</span> <span class="n">opt_auc</span><span class="p">,</span> <span class="n">opt_f1</span><span class="p">,</span> <span class="n">opt_pred</span></div>
 
 
@@ -228,74 +204,41 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
+<span class="sd">            - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
 
-<span class="sd">        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</span>
+<span class="sd">            - test_dataset (torch.utils.data.dataset.Subset): The test dataset.</span>
 
-<span class="sd">        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).</span>
+<span class="sd">            - alpha (float): The fraction of label information that a node gets from its neighbors.</span>
 
-<span class="sd">        - thres (float): Threshold value.</span>
+<span class="sd">            - thres (float): Threshold value.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        import os</span>
-
-<span class="sd">        curr_dir = os.getcwd()</span>
-
-<span class="sd">        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</span>
-
-<span class="sd">        from GraphSL.Prescribed import LPSI</span>
-
-<span class="sd">        data_name = &#39;karate&#39;</span>
-
-<span class="sd">        graph = load_dataset(data_name, data_dir=curr_dir)</span>
-
-<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
-
-<span class="sd">        adj, train_dataset, test_dataset = split_dataset(dataset)</span>
-
-<span class="sd">        lpsi = LPSI()</span>
-
-<span class="sd">        alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)</span>
-
-<span class="sd">        print(&quot;LPSI:&quot;)</span>
-
-<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
-
-<span class="sd">        metric=lpsi.test(adj, test_dataset, alpha, thres)</span>
-
-<span class="sd">        print(f&quot;test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}&quot;)</span>
+<span class="sd">            - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">csgraph</span><span class="o">.</span><span class="n">laplacian</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coo_matrix</span><span class="o">.</span><span class="n">todense</span><span class="p">(</span><span class="n">laplacian</span><span class="p">))</span>
+        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">csgraph_laplacian</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+        <span class="n">laplacian</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">laplacian</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">test_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
-        <span class="n">test_acc</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_pr</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_re</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_f1</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_auc</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">test_dataset</span><span class="p">:</span>
-            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">laplacian</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
-            <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
-        <span class="n">test_acc</span> <span class="o">=</span> <span class="n">test_acc</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_pr</span> <span class="o">=</span> <span class="n">test_pr</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_re</span> <span class="o">=</span> <span class="n">test_re</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_f1</span> <span class="o">=</span> <span class="n">test_f1</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_auc</span> <span class="o">=</span> <span class="n">test_auc</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">metric</span> <span class="o">=</span> <span class="n">Metric</span><span class="p">(</span><span class="n">test_acc</span><span class="p">,</span> <span class="n">test_pr</span><span class="p">,</span> <span class="n">test_re</span><span class="p">,</span> <span class="n">test_f1</span><span class="p">,</span> <span class="n">test_auc</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">metric</span></div>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># [accuracy, precision, recall, f1, auc]</span>
+
+        <span class="c1"># Compute metrics</span>
+        <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">test_dataset</span><span class="p">:</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">laplacian</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">metrics</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">predictions</span><span class="p">),</span>
+                <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+            <span class="p">])</span>
+
+        <span class="n">metrics</span> <span class="o">/=</span> <span class="n">test_num</span>
+        <span class="k">return</span> <span class="n">Metric</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">)</span></div>
 </div>
 
 
@@ -313,6 +256,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the NetSleuth.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="NetSleuth.predict">
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.Prescribed.NetSleuth.predict">[docs]</a>
@@ -331,33 +276,44 @@
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - seed_vec (torch.Tensor): A binary tensor representing identified source nodes.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>  <span class="c1"># Creating a deep copy of the input graph</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">g</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">diff_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]])</span>  <span class="c1"># Removing non-relevant nodes</span>
-        <span class="c1"># Computing the Laplacian matrix of the modified graph</span>
-        <span class="n">lap</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">laplacian_matrix</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+        <span class="c1"># Create a copy of the graph and filter nodes</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">subgraph</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="n">diff_vec</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
+        <span class="c1"># Compute the Laplacian matrix</span>
+        <span class="n">lap</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">laplacian_matrix</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+        <span class="n">lap</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lap</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># Initialize the seed list</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">:</span>
-            <span class="n">value</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">lap</span><span class="p">)</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">vector</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">value</span><span class="p">)])</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">k</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Compute eigenvalues and eigenvectors</span>
+            <span class="n">values</span><span class="p">,</span> <span class="n">vectors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">lap</span><span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">real</span>  <span class="c1"># Use only real part of eigenvalues</span>
+            <span class="n">vectors</span> <span class="o">=</span> <span class="n">vectors</span><span class="o">.</span><span class="n">real</span>  <span class="c1"># Use only real part of eigenvectors</span>
+
+            <span class="c1"># Find the index of the maximum eigenvalue</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
             <span class="n">seed_index</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">)[</span><span class="n">index</span><span class="p">]</span>
             <span class="n">seed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed_index</span><span class="p">)</span>
-            <span class="n">g</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">seed_index</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">break</span>
-            <span class="n">lap</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">laplacian_matrix</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
 
-        <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">diff_vec</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="c1"># Remove the selected node and update the Laplacian matrix</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">seed_index</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">lap</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">laplacian_matrix</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+                <span class="n">lap</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lap</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># Create the seed vector</span>
+        <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">seed_vec</span><span class="p">[</span><span class="n">seed</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">seed_vec</span></div>
 
 
 <div class="viewcode-block" id="NetSleuth.train">
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.Prescribed.NetSleuth.train">[docs]</a>
-    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">k_list</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">k_list</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the NetSleuth algorithm.</span>
 
@@ -365,7 +321,7 @@
 
 <span class="sd">        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
 
-<span class="sd">        - train_dataset (torch.utils.data.dataset.Subset): The training dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</span>
+<span class="sd">        - train_dataset (torch.utils.data.dataset.Subset): The training dataset.</span>
 
 <span class="sd">        - k_list (list): List of the numbers of source nodes to try.</span>
 
@@ -376,63 +332,36 @@
 <span class="sd">        - opt_auc (float): Optimal Area Under the Curve (AUC) value.</span>
 
 <span class="sd">        - train_f1 (float): Training F1 score value.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        import os</span>
-
-<span class="sd">        curr_dir = os.getcwd()</span>
-
-<span class="sd">        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</span>
-
-<span class="sd">        from GraphSL.Prescribed import NetSleuth</span>
-
-<span class="sd">        data_name = &#39;karate&#39;</span>
-
-<span class="sd">        graph = load_dataset(data_name, data_dir=curr_dir)</span>
-
-<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
-
-<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
-
-<span class="sd">        netSleuth = NetSleuth()</span>
-
-<span class="sd">        k, auc, f1=netSleuth.train(adj, train_dataset)</span>
-
-<span class="sd">        print(&quot;NetSleuth:&quot;)</span>
-
-<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Y should be no more than number of nodes</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="k">return</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">num_node</span>
-        <span class="n">k_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">k_list</span><span class="p">))</span>
+        <span class="n">k_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">k_list</span> <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">num_node</span><span class="p">]</span>
 
-        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_numpy_array</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_numpy_array</span><span class="p">(</span><span class="n">adj</span><span class="o">.</span><span class="n">toarray</span><span class="p">())</span>
         <span class="n">opt_auc</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">opt_k</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">k_list</span><span class="p">:</span>
-            <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">auc_scores</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
                 <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
-                <span class="n">train_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-            <span class="n">train_auc</span> <span class="o">=</span> <span class="n">train_auc</span> <span class="o">/</span> <span class="n">train_num</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;k = </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">, train_auc = </span><span class="si">{</span><span class="n">train_auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">auc_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))</span>
+            <span class="n">avg_auc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">auc_scores</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;k = </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">, train_auc = </span><span class="si">{</span><span class="n">avg_auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">train_auc</span> <span class="o">&gt;</span> <span class="n">opt_auc</span><span class="p">:</span>
-                <span class="n">opt_auc</span> <span class="o">=</span> <span class="n">train_auc</span>
+            <span class="k">if</span> <span class="n">avg_auc</span> <span class="o">&gt;</span> <span class="n">opt_auc</span><span class="p">:</span>
+                <span class="n">opt_auc</span> <span class="o">=</span> <span class="n">avg_auc</span>
                 <span class="n">opt_k</span> <span class="o">=</span> <span class="n">k</span>
 
-        <span class="n">train_f1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">f1_scores</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
             <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">opt_k</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
-            <span class="n">train_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">train_f1</span> <span class="o">=</span> <span class="n">train_f1</span> <span class="o">/</span> <span class="n">train_num</span>
+            <span class="n">f1_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">train_f1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">f1_scores</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">opt_k</span><span class="p">,</span> <span class="n">opt_auc</span><span class="p">,</span> <span class="n">train_f1</span></div>
 
@@ -447,71 +376,33 @@
 
 <span class="sd">        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
 
-<span class="sd">        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</span>
+<span class="sd">        - test_dataset (torch.utils.data.dataset.Subset): The test dataset.</span>
 
 <span class="sd">        - k (int): Number of source nodes.</span>
-
 
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        import os</span>
-
-<span class="sd">        curr_dir = os.getcwd()</span>
-
-<span class="sd">        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</span>
-
-<span class="sd">        from GraphSL.Prescribed import NetSleuth</span>
-
-<span class="sd">        data_name = &#39;karate&#39;</span>
-
-<span class="sd">        graph = load_dataset(data_name, data_dir=curr_dir)</span>
-
-<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
-
-<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
-
-<span class="sd">        netSleuth = NetSleuth()</span>
-
-<span class="sd">        k, auc, f1=netSleuth.train(adj, train_dataset)</span>
-
-<span class="sd">        print(&quot;NetSleuth:&quot;)</span>
-
-<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
-
-<span class="sd">        metric = netSleuth.test(adj, test_dataset, k)</span>
-
-<span class="sd">        print(f&quot;test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_numpy_array</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_numpy_array</span><span class="p">(</span><span class="n">adj</span><span class="o">.</span><span class="n">toarray</span><span class="p">())</span>
         <span class="n">test_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
-        <span class="n">test_acc</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_pr</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_re</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_f1</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_auc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;acc&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pr&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;re&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
         <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">test_dataset</span><span class="p">:</span>
             <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">)</span>
-            <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;acc&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;pr&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;re&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;f1&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;auc&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
 
-        <span class="n">test_acc</span> <span class="o">=</span> <span class="n">test_acc</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_pr</span> <span class="o">=</span> <span class="n">test_pr</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_re</span> <span class="o">=</span> <span class="n">test_re</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_f1</span> <span class="o">=</span> <span class="n">test_f1</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_auc</span> <span class="o">=</span> <span class="n">test_auc</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">metric</span> <span class="o">=</span> <span class="n">Metric</span><span class="p">(</span><span class="n">test_acc</span><span class="p">,</span> <span class="n">test_pr</span><span class="p">,</span> <span class="n">test_re</span><span class="p">,</span> <span class="n">test_f1</span><span class="p">,</span> <span class="n">test_auc</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">metric</span></div>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">/=</span> <span class="n">test_num</span>
+
+        <span class="k">return</span> <span class="n">Metric</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;acc&#39;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;pr&#39;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;re&#39;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;f1&#39;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;auc&#39;</span><span class="p">])</span></div>
 </div>
-
 
 
 <div class="viewcode-block" id="OJC">
@@ -527,12 +418,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the OJC module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OJC.get_K_list">
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.Prescribed.OJC.get_K_list">[docs]</a>
     <span class="k">def</span> <span class="nf">get_K_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">         Get the list of potential source nodes.</span>
+<span class="sd">        Get the list of potential source nodes.</span>
 
 <span class="sd">        Args:</span>
 
@@ -540,23 +432,24 @@
 
 <span class="sd">        - Y (int): Number of desired source nodes.</span>
 
-<span class="sd">        - I (list): list of diffused nodes.</span>
+<span class="sd">        - I (list): List of diffused nodes.</span>
 
-<span class="sd">        - target (numpy.ndarray): Target vector.</span>
+<span class="sd">        - target (torch.Tensor): Target vector.</span>
 
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - K (list): List of potential source nodes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">K</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+
+        <span class="n">K</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">target_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># Create a set for quick lookup</span>
+
         <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
-            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">G</span><span class="p">[</span><span class="n">n1</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">target</span><span class="p">[</span><span class="n">n2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="n">Y</span><span class="p">:</span>
-                    <span class="n">K</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n1</span><span class="p">)</span>
-                    <span class="k">break</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n1</span><span class="p">)</span> <span class="k">if</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">target_set</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="n">Y</span><span class="p">:</span>
+                <span class="n">K</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n1</span><span class="p">)</span>
+
         <span class="n">K</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">K</span> <span class="o">+</span> <span class="n">I</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">K</span></div>
 
@@ -580,23 +473,23 @@
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - K (list): List of potential source nodes.</span>
-
+<span class="sd">        </span>
 <span class="sd">        - G_bar (networkx.Graph): Subgraph containing potential source nodes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_K_list</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-        <span class="n">G_prime</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
-        <span class="n">G_prime</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">G_prime</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="n">G_prime</span><span class="p">):</span>
-            <span class="n">G_bar</span> <span class="o">=</span> <span class="n">G_prime</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">component</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">G_prime</span><span class="p">)</span>
-            <span class="n">R</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">component</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="k">if</span> <span class="n">nx</span><span class="o">.</span><span class="n">has_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                    <span class="n">path</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shortest_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="p">)</span>
-                    <span class="n">nx</span><span class="o">.</span><span class="n">add_path</span><span class="p">(</span><span class="n">G_prime</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-            <span class="n">G_bar</span> <span class="o">=</span> <span class="n">G_prime</span>
-        <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">G_bar</span></div>
+        <span class="n">G_prime</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># Make sure to use a copy</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="n">G_prime</span><span class="p">):</span>
+            <span class="c1"># Connect components with shortest paths</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">G_prime</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">source</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>  <span class="c1"># Pick a node from the first component</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">component</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">nx</span><span class="o">.</span><span class="n">has_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+                        <span class="n">path</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shortest_path</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+                        <span class="n">G_prime</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>  <span class="c1"># Add path edges</span>
+
+        <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">G_prime</span></div>
 
 
 <div class="viewcode-block" id="OJC.predict">
@@ -613,37 +506,35 @@
 
 <span class="sd">        - I (list): List of diffused nodes.</span>
 
-<span class="sd">        - target (numpy.ndarray): Target vector.</span>
+<span class="sd">        - target (torch.Tensor): Target vector.</span>
 
 <span class="sd">        - num_source (int): Maximal number of source nodes.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">        - x (numpy.ndarray): A binary vector representing identified potential source nodes.</span>
+<span class="sd">        - x (torch.Tensor): A binary vector representing identified potential source nodes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">K</span><span class="p">,</span> <span class="n">G_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Candidate</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
         <span class="n">ecc</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">K</span><span class="p">:</span>
-            <span class="n">long_path</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">I</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">nx</span><span class="o">.</span><span class="n">has_path</span><span class="p">(</span><span class="n">G_bar</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-                    <span class="n">path</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shortest_path_length</span><span class="p">(</span><span class="n">G_bar</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">path</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">if</span> <span class="n">path</span> <span class="o">&gt;</span> <span class="n">long_path</span><span class="p">:</span>
-                    <span class="n">long_path</span> <span class="o">=</span> <span class="n">path</span>
-            <span class="n">ecc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">long_path</span><span class="p">)</span>
-        <span class="n">ecc_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ecc</span><span class="p">)</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">ecc_arr</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">[:</span><span class="n">num_source</span><span class="p">]</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="c1"># Compute eccentricity in one pass</span>
+            <span class="n">eccentricity</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">shortest_path_length</span><span class="p">(</span><span class="n">G_bar</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="n">nx</span><span class="o">.</span><span class="n">has_path</span><span class="p">(</span><span class="n">G_bar</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">I</span>
+            <span class="p">)</span>
+            <span class="n">ecc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eccentricity</span><span class="p">)</span>
+
+        <span class="n">ecc_arr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">ecc</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">ecc_arr</span><span class="p">)[</span><span class="o">-</span><span class="n">num_source</span><span class="p">:]</span>  <span class="c1"># Get the top num_source indices</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">x</span></div>
 
 
 <div class="viewcode-block" id="OJC.train">
 <a class="viewcode-back" href="../../GraphSL.html#GraphSL.Prescribed.OJC.train">[docs]</a>
-    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">Y_list</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">Y_list</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the OJC algorithm.</span>
 
@@ -651,10 +542,9 @@
 
 <span class="sd">        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
 
-<span class="sd">        - train_dataset (torch.utils.data.dataset.Subset): The train dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</span>
+<span class="sd">        - train_dataset (torch.utils.data.dataset.Subset): The train dataset.</span>
 
 <span class="sd">        - Y_list (list): List of numbers of source nodes to try.</span>
-
 
 <span class="sd">        Returns:</span>
 
@@ -663,66 +553,45 @@
 <span class="sd">        - opt_auc (float): Optimal Area Under the Curve (AUC) value.</span>
 
 <span class="sd">        - train_f1 (float): Training F1 score value.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        import os</span>
-
-<span class="sd">        curr_dir = os.getcwd()</span>
-
-<span class="sd">        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</span>
-
-<span class="sd">        from GraphSL.Prescribed import OJC</span>
-
-<span class="sd">        data_name = &#39;karate&#39;</span>
-
-<span class="sd">        graph = load_dataset(data_name, data_dir=curr_dir)</span>
-
-<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
-
-<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
-
-<span class="sd">        ojc = OJC()</span>
-
-<span class="sd">        Y, auc, f1 =ojc.train(adj, train_dataset)</span>
-
-<span class="sd">        print(&quot;OJC:&quot;)</span>
-
-<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Y should be no more than number of nodes</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="k">return</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">num_node</span>
-        <span class="n">Y_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">Y_list</span><span class="p">))</span>
-        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_scipy_sparse_array</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
-        <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+        <span class="n">Y_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">Y</span> <span class="k">for</span> <span class="n">Y</span> <span class="ow">in</span> <span class="n">Y_list</span> <span class="k">if</span> <span class="n">Y</span> <span class="o">&lt;=</span> <span class="n">num_node</span><span class="p">]</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_scipy_sparse_array</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>  <span class="c1"># Correct method for conversion</span>
+
         <span class="n">opt_auc</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">opt_Y</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="k">for</span> <span class="n">Y</span> <span class="ow">in</span> <span class="n">Y_list</span><span class="p">:</span>
-            <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">auc_scores</span> <span class="o">=</span> <span class="p">[]</span>
+
             <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
-                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">num_source</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">influ_vec</span><span class="p">[</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
-                <span class="n">I</span> <span class="o">=</span> <span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">,</span> <span class="n">num_source</span><span class="p">)</span>
-                <span class="n">train_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-            <span class="n">train_auc</span> <span class="o">=</span> <span class="n">train_auc</span> <span class="o">/</span> <span class="n">train_num</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Y = </span><span class="si">{</span><span class="n">Y</span><span class="si">}</span><span class="s2">, train_auc = </span><span class="si">{</span><span class="n">train_auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">train_auc</span> <span class="o">&gt;</span> <span class="n">opt_auc</span><span class="p">:</span>
-                <span class="n">opt_auc</span> <span class="o">=</span> <span class="n">train_auc</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+
+                <span class="n">num_source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">I</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">,</span> <span class="n">num_source</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">auc_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+
+            <span class="n">avg_auc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">auc_scores</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Y = </span><span class="si">{</span><span class="n">Y</span><span class="si">}</span><span class="s2">, train_auc = </span><span class="si">{</span><span class="n">avg_auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">avg_auc</span> <span class="o">&gt;</span> <span class="n">opt_auc</span><span class="p">:</span>
+                <span class="n">opt_auc</span> <span class="o">=</span> <span class="n">avg_auc</span>
                 <span class="n">opt_Y</span> <span class="o">=</span> <span class="n">Y</span>
 
-        <span class="n">train_f1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">f1_scores</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">train_dataset</span><span class="p">:</span>
-            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">num_source</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">influ_vec</span><span class="p">[</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
-            <span class="n">I</span> <span class="o">=</span> <span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">opt_Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">,</span> <span class="n">num_source</span><span class="p">)</span>
-            <span class="n">train_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">train_f1</span> <span class="o">=</span> <span class="n">train_f1</span> <span class="o">/</span> <span class="n">train_num</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
+            <span class="n">num_source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">I</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">opt_Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">,</span> <span class="n">num_source</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">f1_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">train_f1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">f1_scores</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">opt_Y</span><span class="p">,</span> <span class="n">opt_auc</span><span class="p">,</span> <span class="n">train_f1</span></div>
 
 
@@ -736,70 +605,35 @@
 
 <span class="sd">        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.</span>
 
-<span class="sd">        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).</span>
+<span class="sd">        - test_dataset (torch.utils.data.dataset.Subset): The test dataset.</span>
 
 <span class="sd">        - Y (int): Number of source nodes.</span>
 
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        import os</span>
-
-<span class="sd">        curr_dir = os.getcwd()</span>
-
-<span class="sd">        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</span>
-
-<span class="sd">        from GraphSL.Prescribed import OJC</span>
-
-<span class="sd">        data_name = &#39;karate&#39;</span>
-
-<span class="sd">        graph = load_dataset(data_name, data_dir=curr_dir)</span>
-
-<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
-
-<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
-
-<span class="sd">        ojc = OJC()</span>
-
-<span class="sd">        Y, auc, f1 =ojc.train(adj, train_dataset)</span>
-
-<span class="sd">        print(&quot;OJC:&quot;)</span>
-
-<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
-
-<span class="sd">        metric=ojc.test(adj, test_dataset, Y)</span>
-
-<span class="sd">        print(f&quot;test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_scipy_sparse_array</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_scipy_sparse_array</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>  <span class="c1"># Correct method for conversion</span>
         <span class="n">test_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
-        <span class="n">test_acc</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_pr</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_re</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_f1</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">test_auc</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">test_dataset</span><span class="p">:</span>
-            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">num_source</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">influ_vec</span><span class="p">[</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span>
-            <span class="n">I</span> <span class="o">=</span> <span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">,</span> <span class="n">num_source</span><span class="p">)</span>
-            <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;acc&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;pr&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;re&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
-        <span class="n">test_acc</span> <span class="o">=</span> <span class="n">test_acc</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_pr</span> <span class="o">=</span> <span class="n">test_pr</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_re</span> <span class="o">=</span> <span class="n">test_re</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_f1</span> <span class="o">=</span> <span class="n">test_f1</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_auc</span> <span class="o">=</span> <span class="n">test_auc</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">metric</span> <span class="o">=</span> <span class="n">Metric</span><span class="p">(</span><span class="n">test_acc</span><span class="p">,</span> <span class="n">test_pr</span><span class="p">,</span> <span class="n">test_re</span><span class="p">,</span> <span class="n">test_f1</span><span class="p">,</span> <span class="n">test_auc</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">metric</span></div>
+        <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">test_dataset</span><span class="p">:</span>
+            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">influ_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="n">num_source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">I</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">influ_vec</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">influ_vec</span><span class="p">,</span> <span class="n">num_source</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;acc&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;pr&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;re&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;f1&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;auc&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">/=</span> <span class="n">test_num</span>
+
+        <span class="k">return</span> <span class="n">Metric</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;acc&#39;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;pr&#39;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;re&#39;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;f1&#39;</span><span class="p">],</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;auc&#39;</span><span class="p">])</span></div>
 </div>
 
 </pre></div>

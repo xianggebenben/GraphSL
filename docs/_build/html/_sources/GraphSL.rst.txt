@@ -20,14 +20,6 @@ GraphSL.utils module
    :undoc-members:
    :show-inheritance:
 
-GraphSL.Evaluation module
--------------------------
-
-.. automodule:: GraphSL.Evaluation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 GraphSL.Prescribed module
 -------------------------
 

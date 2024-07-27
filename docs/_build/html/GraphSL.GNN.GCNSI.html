@@ -54,7 +54,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.utils">GraphSL.utils module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.Evaluation">GraphSL.Evaluation module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.Prescribed">GraphSL.Prescribed module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL">Module contents</a></li>
 </ul>
@@ -110,30 +109,15 @@
 <p>Args:</p>
 <ul class="simple">
 <li><p>adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.</p></li>
-<li><p>test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>test_dataset (torch.utils.data.dataset.Subset): Test dataset containing simulations and graph nodes.</p></li>
 <li><p>gcnsi_model (GCNSI_model): Trained GCNSI model.</p></li>
 <li><p>thres (float): Threshold value.</p></li>
-<li><p>alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).</p></li>
+<li><p>alpha (float): Fraction of label information from neighbors.</p></li>
 </ul>
 <p>Returns:</p>
 <ul class="simple">
 <li><p>metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.</p></li>
 </ul>
-<p>Example:</p>
-<p>import os</p>
-<p>curr_dir = os.getcwd()</p>
-<p>from data.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from GNN.GCNSI.main import GCNSI</p>
-<p>data_name = ‘karate’</p>
-<p>graph = load_dataset(data_name, data_dir=curr_dir)</p>
-<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
-<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
-<p>gcnsi = GCNSI()</p>
-<p>gcnsi_model, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)</p>
-<p>print(“GCNSI:”)</p>
-<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
-<p>metric = gcnsi.test(adj, test_dataset, gcnsi_model, thres)</p>
-<p>print(f”test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}”)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -143,7 +127,7 @@
 <p>Args:</p>
 <ul class="simple">
 <li><p>adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.</p></li>
-<li><p>train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
+<li><p>train_dataset (torch.utils.data.dataset.Subset): The training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</p></li>
 <li><p>alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try.</p></li>
 <li><p>num_thres (int): Number of threshold values to try.</p></li>
 <li><p>lr (float): Learning rate.</p></li>
@@ -159,19 +143,6 @@
 <li><p>opt_f1 (float): Optimal F1 score.</p></li>
 <li><p>opt_pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</p></li>
 </ul>
-<p>Example:</p>
-<p>import os</p>
-<p>curr_dir = os.getcwd()</p>
-<p>from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</p>
-<p>from GraphSL.GNN.GCNSI.main import GCNSI</p>
-<p>data_name = ‘karate’</p>
-<p>graph = load_dataset(data_name, data_dir=curr_dir)</p>
-<p>dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=’IC’, sim_num=100, seed_ratio=0.1)</p>
-<p>adj, train_dataset, test_dataset =split_dataset(dataset)</p>
-<p>gcnsi = GCNSI()</p>
-<p>gcnsi_model, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)</p>
-<p>print(“GCNSI:”)</p>
-<p>print(f”train auc: {auc:.3f}, train f1: {f1:.3f}”)</p>
 </dd></dl>
 
 </dd></dl>

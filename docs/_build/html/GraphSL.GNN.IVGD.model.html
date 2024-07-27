@@ -54,7 +54,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.utils">GraphSL.utils module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.Evaluation">GraphSL.Evaluation module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL.Prescribed">GraphSL.Prescribed module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="GraphSL.html#module-GraphSL">Module contents</a></li>
 </ul>
@@ -96,36 +95,11 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="module-GraphSL.GNN.IVGD.model.MLP">
-<span id="graphsl-gnn-ivgd-model-mlp-module"></span><h2>GraphSL.GNN.IVGD.model.MLP module<a class="headerlink" href="#module-GraphSL.GNN.IVGD.model.MLP" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="GraphSL.GNN.IVGD.model.MLP.MLPTransform">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphSL.GNN.IVGD.model.MLP.</span></span><span class="sig-name descname"><span class="pre">MLPTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hiddenunits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_power_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/GNN/IVGD/model/MLP.html#MLPTransform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.GNN.IVGD.model.MLP.MLPTransform" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="GraphSL.GNN.IVGD.model.MLP.MLPTransform.compute_weight">
-<span class="sig-name descname"><span class="pre">compute_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/GNN/IVGD/model/MLP.html#MLPTransform.compute_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.GNN.IVGD.model.MLP.MLPTransform.compute_weight" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="GraphSL.GNN.IVGD.model.MLP.MLPTransform.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GraphSL/GNN/IVGD/model/MLP.html#MLPTransform.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#GraphSL.GNN.IVGD.model.MLP.MLPTransform.forward" title="Link to this definition"></a></dt>
-<dd><p>Define the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
+<section id="graphsl-gnn-ivgd-model-mlp-module">
+<h2>GraphSL.GNN.IVGD.model.MLP module<a class="headerlink" href="#graphsl-gnn-ivgd-model-mlp-module" title="Link to this heading"></a></h2>
 </section>
-<section id="module-GraphSL.GNN.IVGD.model">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-GraphSL.GNN.IVGD.model" title="Link to this heading"></a></h2>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 </section>
 </section>
 

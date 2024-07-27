@@ -73,12 +73,11 @@
   <h1>Source code for GraphSL.GNN.GCNSI.main</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csgraph</span><span class="p">,</span> <span class="n">coo_matrix</span>
-<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">GraphSL.GNN.GCNSI.model</span> <span class="kn">import</span> <span class="n">GCNSI_model</span>
 <span class="kn">from</span> <span class="nn">GraphSL.Prescribed</span> <span class="kn">import</span> <span class="n">LPSI</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span>
-<span class="kn">from</span> <span class="nn">GraphSL.Evaluation</span> <span class="kn">import</span> <span class="n">Metric</span>
+<span class="kn">from</span> <span class="nn">GraphSL.utils</span> <span class="kn">import</span> <span class="n">Metric</span>
 
 
 <div class="viewcode-block" id="GCNSI">
@@ -94,6 +93,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the GCNSI module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GCNSI.train">
 <a class="viewcode-back" href="../../../../GraphSL.GNN.GCNSI.html#GraphSL.GNN.GCNSI.main.GCNSI.train">[docs]</a>
@@ -113,7 +113,7 @@
 
 <span class="sd">        - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.</span>
 
-<span class="sd">        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</span>
+<span class="sd">        - train_dataset (torch.utils.data.dataset.Subset): The training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</span>
 
 <span class="sd">        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1) to try.</span>
 
@@ -126,7 +126,7 @@
 <span class="sd">        - print_epoch (int): Number of epochs every time to print loss.</span>
 
 <span class="sd">        - random_seed (int): Random seed.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - gcnsi_model (GCNSI_model): GCNSI model.</span>
@@ -138,82 +138,55 @@
 <span class="sd">        - opt_f1 (float): Optimal F1 score.</span>
 
 <span class="sd">        - opt_pred (numpy.ndarray): Predicted seed vector of the training set, every column is the prediction of every simulation. It is used to adjust thres_list.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        import os</span>
-
-<span class="sd">        curr_dir = os.getcwd()</span>
-
-<span class="sd">        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset</span>
-
-<span class="sd">        from GraphSL.GNN.GCNSI.main import GCNSI</span>
-
-<span class="sd">        data_name = &#39;karate&#39;</span>
-
-<span class="sd">        graph = load_dataset(data_name, data_dir=curr_dir)</span>
-
-<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
-
-<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
-
-<span class="sd">        gcnsi = GCNSI()</span>
-
-<span class="sd">        gcnsi_model, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)</span>
-
-<span class="sd">        print(&quot;GCNSI:&quot;)</span>
-
-<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Compute Laplacian matrix</span>
-        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">csgraph</span><span class="o">.</span><span class="n">laplacian</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coo_matrix</span><span class="o">.</span><span class="n">todense</span><span class="p">(</span><span class="n">S</span><span class="p">))</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">coo_matrix</span><span class="o">.</span><span class="n">todense</span><span class="p">(</span><span class="n">S</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">train_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
         <span class="c1"># Convert adjacency matrix to edge index tensor</span>
         <span class="n">coo</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">row</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
-        <span class="n">col</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
-        <span class="n">edge_index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-        <span class="c1"># Iterate over alpha values</span>
-        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
-        <span class="n">gcnsi_model</span> <span class="o">=</span> <span class="n">GCNSI_model</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">gcnsi_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">)</span>
-        <span class="n">num_seed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="n">weight</span> <span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,(</span><span class="n">num_node</span><span class="o">-</span><span class="n">num_seed</span><span class="p">)</span><span class="o">/</span><span class="n">num_seed</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-        <span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
-        <span class="c1"># Augmented features by LPSI</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">row</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">edge_index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
+        <span class="c1"># Initialize model and optimizer</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+        <span class="n">gcnsi_model</span> <span class="o">=</span> <span class="n">GCNSI_model</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">gcnsi_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">)</span>
+        <span class="n">num_seed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">num_node</span> <span class="o">-</span> <span class="n">num_seed</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_seed</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="c1"># Augmented features by LPSI</span>
         <span class="n">lpsi</span> <span class="o">=</span> <span class="n">LPSI</span><span class="p">()</span>  <span class="c1"># Initializing LPSI module</span>
-        <span class="n">lpsi_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">train_num</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">lpsi_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">train_num</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
-            <span class="n">diff_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">V3</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">)</span>
-            <span class="n">V4</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">)</span>
+            <span class="n">diff_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">V3</span> <span class="o">=</span> <span class="n">diff_vec</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+            <span class="n">V4</span> <span class="o">=</span> <span class="n">diff_vec</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
             <span class="n">V3</span><span class="p">[</span><span class="n">diff_vec</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
             <span class="n">V4</span><span class="p">[</span><span class="n">diff_vec</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
-            <span class="n">d1</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">)</span>
-            <span class="n">d1</span> <span class="o">=</span> <span class="n">d1</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">d2</span> <span class="o">=</span> <span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">diff_vec</span><span class="p">)</span>
-            <span class="n">d2</span> <span class="o">=</span> <span class="n">d2</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">d3</span> <span class="o">=</span> <span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">V3</span><span class="p">)</span>
-            <span class="n">d3</span> <span class="o">=</span> <span class="n">d3</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">d4</span> <span class="o">=</span> <span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">V4</span><span class="p">)</span>
-            <span class="n">d4</span> <span class="o">=</span> <span class="n">d4</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">,</span> <span class="n">d3</span><span class="p">,</span> <span class="n">d4</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">d1</span> <span class="o">=</span> <span class="n">diff_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">d2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">diff_vec</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">d3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">V3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">d4</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">V4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">,</span> <span class="n">d3</span><span class="p">,</span> <span class="n">d4</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
         <span class="c1"># Training loop</span>
-        <span class="n">lpsi_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;train GCNSI:&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epoch</span><span class="p">):</span>
+            <span class="n">gcnsi_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
             <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
             <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
-                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-                <span class="n">seed_vec_onehot</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_vec</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">diff_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">pred</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">edge_index</span><span class="p">)</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">seed_vec_onehot</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">seed_vec</span><span class="p">,</span> <span class="n">seed_vec</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">edge_index</span><span class="p">)</span>
                 <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">seed_vec_onehot</span><span class="p">)</span>
                 <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span>
                 <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
@@ -221,38 +194,37 @@
             <span class="n">average_loss</span> <span class="o">=</span> <span class="n">total_loss</span> <span class="o">/</span> <span class="n">train_num</span>
             <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">print_epoch</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Epoch [</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_epoch</span><span class="si">}</span><span class="s2">], loss = </span><span class="si">{</span><span class="n">average_loss</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="c1"># Compute AUC score on training data</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
-            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">seed_vec</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">edge_index</span><span class="p">)</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-            <span class="n">train_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
-        <span class="n">train_auc</span> <span class="o">=</span> <span class="n">train_auc</span> <span class="o">/</span> <span class="n">train_num</span>
+        <span class="n">train_auc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">gcnsi_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">edge_index</span><span class="p">)</span>
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">train_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">pred</span><span class="p">)</span>
+        <span class="n">train_auc</span> <span class="o">/=</span> <span class="n">train_num</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;train_auc = </span><span class="si">{</span><span class="n">train_auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Compute optimal F1 score and threshold</span>
         <span class="n">opt_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_node</span><span class="p">,</span> <span class="n">train_num</span><span class="p">))</span>
         <span class="n">seed_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_node</span><span class="p">,</span> <span class="n">train_num</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">):</span>
-            <span class="n">seed_all</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">diff_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">edge_index</span><span class="p">)</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">seed_all</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">edge_index</span><span class="p">)</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
             <span class="n">opt_pred</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred</span>
-        
+
         <span class="n">opt_f1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">pred_min</span> <span class="o">=</span> <span class="n">opt_pred</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="n">pred_max</span> <span class="o">=</span> <span class="n">opt_pred</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">thres_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">pred_min</span><span class="p">,</span> <span class="n">pred_max</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_thres</span><span class="o">+</span><span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="c1"># Find optimal threshold and F1 score</span>
+        <span class="n">thres_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">pred_min</span><span class="p">,</span> <span class="n">pred_max</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_thres</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">thres</span> <span class="ow">in</span> <span class="n">thres_list</span><span class="p">:</span>
             <span class="n">train_f1</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_num</span><span class="p">):</span>
                 <span class="n">train_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_all</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">opt_pred</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">train_f1</span> <span class="o">=</span> <span class="n">train_f1</span> <span class="o">/</span> <span class="n">train_num</span>
+            <span class="n">train_f1</span> <span class="o">/=</span> <span class="n">train_num</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;thres = </span><span class="si">{</span><span class="n">thres</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, train_f1 = </span><span class="si">{</span><span class="n">train_f1</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">train_f1</span> <span class="o">&gt;</span> <span class="n">opt_f1</span><span class="p">:</span>
                 <span class="n">opt_f1</span> <span class="o">=</span> <span class="n">train_f1</span>
@@ -271,106 +243,79 @@
 
 <span class="sd">        - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.</span>
 
-<span class="sd">        - test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).</span>
+<span class="sd">        - test_dataset (torch.utils.data.dataset.Subset): Test dataset containing simulations and graph nodes.</span>
 
 <span class="sd">        - gcnsi_model (GCNSI_model): Trained GCNSI model.</span>
 
 <span class="sd">        - thres (float): Threshold value.</span>
 
-<span class="sd">        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).</span>
-
+<span class="sd">        - alpha (float): Fraction of label information from neighbors.</span>
 
 <span class="sd">        Returns:</span>
 
 <span class="sd">        - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC score.</span>
-
-<span class="sd">        Example:</span>
-
-<span class="sd">        import os</span>
-
-<span class="sd">        curr_dir = os.getcwd()</span>
-
-<span class="sd">        from data.utils import load_dataset, diffusion_generation, split_dataset</span>
-
-<span class="sd">        from GNN.GCNSI.main import GCNSI</span>
-
-<span class="sd">        data_name = &#39;karate&#39;</span>
-
-<span class="sd">        graph = load_dataset(data_name, data_dir=curr_dir)</span>
-
-<span class="sd">        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type=&#39;IC&#39;, sim_num=100, seed_ratio=0.1)</span>
-
-<span class="sd">        adj, train_dataset, test_dataset =split_dataset(dataset)</span>
-
-<span class="sd">        gcnsi = GCNSI()</span>
-
-<span class="sd">        gcnsi_model, thres, auc, f1, pred =gcnsi.train(adj, train_dataset)</span>
-
-<span class="sd">        print(&quot;GCNSI:&quot;)</span>
-
-<span class="sd">        print(f&quot;train auc: {auc:.3f}, train f1: {f1:.3f}&quot;)</span>
-
-<span class="sd">        metric = gcnsi.test(adj, test_dataset, gcnsi_model, thres)</span>
-
-<span class="sd">        print(f&quot;test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
-        <span class="n">gcnsi_model</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">gcnsi_model</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
         <span class="c1"># Compute Laplacian matrix</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">csgraph</span><span class="o">.</span><span class="n">laplacian</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coo_matrix</span><span class="o">.</span><span class="n">todense</span><span class="p">(</span><span class="n">S</span><span class="p">))</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">coo_matrix</span><span class="o">.</span><span class="n">todense</span><span class="p">(</span><span class="n">S</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">num_node</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">test_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
+
         <span class="c1"># Convert adjacency matrix to edge index tensor</span>
         <span class="n">coo</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">row</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
-        <span class="n">col</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
-        <span class="n">edge_index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">row</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">edge_index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">lpsi</span> <span class="o">=</span> <span class="n">LPSI</span><span class="p">()</span>  <span class="c1"># Initializing LPSI module</span>
-        <span class="n">lpsi_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">test_num</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="c1"># Augment features by LPSI</span>
+        <span class="n">lpsi</span> <span class="o">=</span> <span class="n">LPSI</span><span class="p">()</span>
+        <span class="n">lpsi_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">test_num</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">):</span>
-            <span class="n">diff_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">V3</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">)</span>
-            <span class="n">V4</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">)</span>
+            <span class="n">diff_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">V3</span> <span class="o">=</span> <span class="n">diff_vec</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+            <span class="n">V4</span> <span class="o">=</span> <span class="n">diff_vec</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
             <span class="n">V3</span><span class="p">[</span><span class="n">diff_vec</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
             <span class="n">V4</span><span class="p">[</span><span class="n">diff_vec</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
-            <span class="n">d1</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">diff_vec</span><span class="p">)</span>
-            <span class="n">d1</span> <span class="o">=</span> <span class="n">d1</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">d2</span> <span class="o">=</span> <span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">diff_vec</span><span class="p">)</span>
-            <span class="n">d2</span> <span class="o">=</span> <span class="n">d2</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">d3</span> <span class="o">=</span> <span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">V3</span><span class="p">)</span>
-            <span class="n">d3</span> <span class="o">=</span> <span class="n">d3</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">d4</span> <span class="o">=</span> <span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">V4</span><span class="p">)</span>
-            <span class="n">d4</span> <span class="o">=</span> <span class="n">d4</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">,</span> <span class="n">d3</span><span class="p">,</span> <span class="n">d4</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        
-        <span class="n">lpsi_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">,</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="n">d1</span> <span class="o">=</span> <span class="n">diff_vec</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">d2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">diff_vec</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">d3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">V3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">d4</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">lpsi</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">num_node</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">V4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">,</span> <span class="n">d3</span><span class="p">,</span> <span class="n">d4</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">gcnsi_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="n">lpsi_input</span> <span class="o">=</span> <span class="n">lpsi_input</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># Evaluate on test data</span>
         <span class="n">test_acc</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">test_pr</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">test_re</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">test_f1</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">test_auc</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="c1"># Evaluate on test data</span>
-        <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">test_dataset</span><span class="p">:</span>
-            <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">diff_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">edge_index</span><span class="p">)</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">pred</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-            <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
-            <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span>
-                                       <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
 
-        <span class="n">test_acc</span> <span class="o">=</span> <span class="n">test_acc</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_pr</span> <span class="o">=</span> <span class="n">test_pr</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_re</span> <span class="o">=</span> <span class="n">test_re</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_f1</span> <span class="o">=</span> <span class="n">test_f1</span> <span class="o">/</span> <span class="n">test_num</span>
-        <span class="n">test_auc</span> <span class="o">=</span> <span class="n">test_auc</span> <span class="o">/</span> <span class="n">test_num</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">influ_mat</span> <span class="ow">in</span> <span class="n">test_dataset</span><span class="p">:</span>
+                <span class="n">seed_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">diff_vec</span> <span class="o">=</span> <span class="n">influ_mat</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">gcnsi_model</span><span class="p">(</span><span class="n">lpsi_input</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">edge_index</span><span class="p">)</span>
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+                <span class="n">test_acc</span> <span class="o">+=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">)</span>
+                <span class="n">test_pr</span> <span class="o">+=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">test_re</span> <span class="o">+=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">test_f1</span> <span class="o">+=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span> <span class="o">&gt;=</span> <span class="n">thres</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">test_auc</span> <span class="o">+=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">seed_vec</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
+
+        <span class="n">test_acc</span> <span class="o">/=</span> <span class="n">test_num</span>
+        <span class="n">test_pr</span> <span class="o">/=</span> <span class="n">test_num</span>
+        <span class="n">test_re</span> <span class="o">/=</span> <span class="n">test_num</span>
+        <span class="n">test_f1</span> <span class="o">/=</span> <span class="n">test_num</span>
+        <span class="n">test_auc</span> <span class="o">/=</span> <span class="n">test_num</span>
+
         <span class="n">metric</span> <span class="o">=</span> <span class="n">Metric</span><span class="p">(</span><span class="n">test_acc</span><span class="p">,</span> <span class="n">test_pr</span><span class="p">,</span> <span class="n">test_re</span><span class="p">,</span> <span class="n">test_f1</span><span class="p">,</span> <span class="n">test_auc</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metric</span></div>
 </div>
