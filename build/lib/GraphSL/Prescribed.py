@@ -3,21 +3,22 @@ import networkx as nx
 import copy
 import torch
 from sklearn.metrics import roc_auc_score, f1_score, accuracy_score, precision_score, recall_score
-from scipy.sparse import csgraph, coo_matrix
-from GraphSL.Evaluation import Metric
-
+from GraphSL.utils import Metric
+from scipy.sparse.csgraph import laplacian as csgraph_laplacian
 
 class LPSI:
     """
     Implement the Label Propagation based Source Identification (LPSI) algorithm.
 
-    Wang, Zheng, et al. "Multiple source detection without knowing the underlying propagation model." Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 31. No. 1. 2017.
+    Wang, Zheng, et al. "Multiple source detection without knowing the underlying propagation model." 
+    Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 31. No. 1. 2017.
     """
 
     def __init__(self):
         """
         Initialize the LPSI module.
         """
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def predict(self, laplacian, num_node, alpha, diff_vec):
         """
@@ -25,118 +26,93 @@ class LPSI:
 
         Args:
 
-        - laplacian (numpy.ndarray): The Laplacian matrix of the graph.
+            - laplacian (torch.Tensor): The Laplacian matrix of the graph.
 
-        - num_node (int): Number of nodes in the graph.
+            - num_node (int): Number of nodes in the graph.
 
-        - alpha (float): the fraction of label information that a node gets from its neighbors (between 0 and 1).
+            - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).
 
-        - diff_vec (numpy.ndarray): The diffusion vector.
+            - diff_vec (torch.Tensor): The diffusion vector.
 
         Returns:
 
-        - x (numpy.ndarray): Prediction of source nodes.
+            - x (torch.Tensor): Prediction of source nodes.
         """
-        x = (1 - alpha) * np.matmul(np.linalg.pinv(np.eye(N=num_node) -
-                                                   alpha * laplacian, hermitian=True), diff_vec)
+        I = torch.eye(num_node, device=self.device)
+        inv_matrix = torch.linalg.inv(I - alpha * laplacian)
+        x = (1 - alpha) * inv_matrix @ diff_vec
         return x
 
-    def train(
-        self, adj, train_dataset, alpha_list=[
-            0.001, 0.01, 0.1], num_thres=10):
+    def train(self, adj, train_dataset, alpha_list=[0.001, 0.01, 0.1], num_thres=10):
         """
-         Train the LPSI algorithm.
+        Train the LPSI algorithm.
 
         Args:
 
-        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+            - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
+            - train_dataset (torch.utils.data.dataset.Subset): The training dataset.
 
-        - alpha_list (list): List of the fraction of label information that a node gets from its neighbors (between 0 and 1) to try.
+            - alpha_list (list): List of alpha values to try.
 
-        - num_thres (list): Number of threshold values to try.
+            - num_thres (int): Number of threshold values to try.
 
         Returns:
 
-        - opt_alpha (float): Optimal fraction of label information that a node gets from its neighbors, between 0 and 1.
+            - opt_alpha (float): Optimal fraction of label information that a node gets from its neighbors.
 
-        - opt_thres (float): Optimal threshold value.
+            - opt_thres (float): Optimal threshold value.
 
-        - opt_auc (float): Optimal Area Under the Curve (AUC) value.
+            - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
-        - opt_f1 (float): Optimal F1 score value.
+            - opt_f1 (float): Optimal F1 score value.
 
-        - opt_pred (numpy.ndarray): Prediction of training seed vector given opt_alpha, every column is the prediction of every simulation. It is used to adjust thres_list.
-
-        Example:
-
-        import os
-
-        curr_dir = os.getcwd()
-
-        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
-
-        from GraphSL.Prescribed import LPSI
-
-        data_name = 'karate'
-
-        graph = load_dataset(data_name,data_dir=curr_dir)
-
-        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
-
-        adj, train_dataset, test_dataset =split_dataset(dataset)
-
-        lpsi = LPSI()
-
-        alpha, thres, auc, f1, pred =lpsi.train(adj, train_dataset)
-
-        print("LPSI:")
-
-        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
+            - opt_pred (torch.Tensor): Prediction of training seed vector given opt_alpha.
         """
-        laplacian = csgraph.laplacian(adj, normed=True)
-        laplacian = np.array(coo_matrix.todense(laplacian))
+        laplacian = csgraph_laplacian(adj, normed=True).toarray()
+        laplacian = torch.tensor(laplacian, dtype=torch.float32, device=self.device)
         num_node = adj.shape[0]
         train_num = len(train_dataset)
+
+        # Initialize optimal values
         opt_auc = 0
         opt_alpha = 0
+        opt_pred = torch.zeros((num_node, train_num), device=self.device)
+
+        # Evaluate performance for different alphas
         for alpha in alpha_list:
-            train_auc = 0
-            for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
+            auc_scores = []
+            for i, influ_mat in enumerate(train_dataset):
+                seed_vec = torch.tensor(influ_mat[:, 0], dtype=torch.float32, device=self.device)
+                influ_vec = torch.tensor(influ_mat[:, -1], dtype=torch.float32, device=self.device)
                 x = self.predict(laplacian, num_node, alpha, influ_vec)
-                train_auc += roc_auc_score(seed_vec, x)
-            train_auc = train_auc / train_num
-            print(f"alpha = {alpha}, train_auc = {train_auc:.3f}")
-            if train_auc > opt_auc:
-                opt_auc = train_auc
+                auc_scores.append(roc_auc_score(seed_vec.cpu().numpy(), x.cpu().detach().numpy()))
+            avg_auc = np.mean(auc_scores)
+            print(f"alpha = {alpha}, train_auc = {avg_auc:.3f}")
+
+            if avg_auc > opt_auc:
+                opt_auc = avg_auc
                 opt_alpha = alpha
 
-        opt_pred = np.zeros((num_node, train_num))
-        seed_all = np.zeros((num_node, train_num))
+        # Compute predictions for optimal alpha
         for i, influ_mat in enumerate(train_dataset):
-            seed_all[:, i] = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
-            opt_pred[:, i] = self.predict(
-                laplacian, num_node, opt_alpha, influ_vec)
+            seed_all = torch.tensor(influ_mat[:, 0], dtype=torch.float32, device=self.device)
+            influ_vec = torch.tensor(influ_mat[:, -1], dtype=torch.float32, device=self.device)
+            opt_pred[:, i] = self.predict(laplacian, num_node, opt_alpha, influ_vec)
 
-        opt_f1 = -1
-        opt_thres = -1
-        pred_min = opt_pred.min()
-        pred_max = opt_pred.max()
-        thres_list = np.linspace(pred_min, pred_max, num=num_thres+2)[1:-1].tolist()
-        for thres in thres_list:
-            train_f1 = 0
-            for i in range(train_num):
-                train_f1 += f1_score(seed_all[:, i],
-                                     opt_pred[:, i] >= thres, zero_division=1)
-            train_f1 = train_f1 / train_num
-            print(f"thres = {thres:.3f}, train_f1 = {train_f1:.3f}")
-            if train_f1 > opt_f1:
-                opt_f1 = train_f1
-                opt_thres = thres
+        # Determine the optimal threshold
+        pred_min, pred_max = opt_pred.min(), opt_pred.max()
+        thresholds = np.linspace(pred_min.item(), pred_max.item(), num=num_thres+2)[1:-1]
+        f1_scores = []
+
+        for thres in thresholds:
+            predictions = (opt_pred >= thres).cpu().numpy()
+            f1_scores.append(np.mean([f1_score(seed_all.cpu().numpy(), predictions[:, i], zero_division=1) for i, influ_mat in enumerate(train_dataset)]))
+            print(f"thres = {thres:.3f}, train_f1 = {f1_scores[-1]:.3f}")
+
+        opt_f1 = max(f1_scores)
+        opt_thres = thresholds[f1_scores.index(opt_f1)]
+
         return opt_alpha, opt_thres, opt_auc, opt_f1, opt_pred
 
     def test(self, adj, test_dataset, alpha, thres):
@@ -145,74 +121,41 @@ class LPSI:
 
         Args:
 
-        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
+            - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
+            - test_dataset (torch.utils.data.dataset.Subset): The test dataset.
 
-        - alpha (float): The fraction of label information that a node gets from its neighbors (between 0 and 1).
+            - alpha (float): The fraction of label information that a node gets from its neighbors.
 
-        - thres (float): Threshold value.
+            - thres (float): Threshold value.
 
         Returns:
 
-        - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
-
-        Example:
-
-        import os
-
-        curr_dir = os.getcwd()
-
-        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
-
-        from GraphSL.Prescribed import LPSI
-
-        data_name = 'karate'
-
-        graph = load_dataset(data_name, data_dir=curr_dir)
-
-        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
-
-        adj, train_dataset, test_dataset = split_dataset(dataset)
-
-        lpsi = LPSI()
-
-        alpha, thres, auc, f1, pred = lpsi.train(adj, train_dataset)
-
-        print("LPSI:")
-
-        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
-
-        metric=lpsi.test(adj, test_dataset, alpha, thres)
-
-        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
+            - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
         """
-        laplacian = csgraph.laplacian(adj, normed=True)
-        laplacian = np.array(coo_matrix.todense(laplacian))
+        laplacian = csgraph_laplacian(adj, normed=True).toarray()
+        laplacian = torch.tensor(laplacian, dtype=torch.float32, device=self.device)
         num_node = adj.shape[0]
         test_num = len(test_dataset)
-        test_acc = 0
-        test_pr = 0
-        test_re = 0
-        test_f1 = 0
-        test_auc = 0
-        for influ_mat in test_dataset:
-            seed_vec = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
-            x = self.predict(laplacian, num_node, alpha, influ_vec)
-            test_acc += accuracy_score(seed_vec, x >= thres)
-            test_pr += precision_score(seed_vec, x >= thres, zero_division=1)
-            test_re += recall_score(seed_vec, x >= thres, zero_division=1)
-            test_f1 += f1_score(seed_vec, x >= thres, zero_division=1)
-            test_auc += roc_auc_score(seed_vec, x)
 
-        test_acc = test_acc / test_num
-        test_pr = test_pr / test_num
-        test_re = test_re / test_num
-        test_f1 = test_f1 / test_num
-        test_auc = test_auc / test_num
-        metric = Metric(test_acc, test_pr, test_re, test_f1, test_auc)
-        return metric
+        metrics = np.zeros(5)  # [accuracy, precision, recall, f1, auc]
+
+        # Compute metrics
+        for influ_mat in test_dataset:
+            seed_vec = torch.tensor(influ_mat[:, 0], dtype=torch.float32, device=self.device)
+            influ_vec = torch.tensor(influ_mat[:, -1], dtype=torch.float32, device=self.device)
+            x = self.predict(laplacian, num_node, alpha, influ_vec)
+            predictions = (x >= thres).cpu().numpy()
+            metrics += np.array([
+                accuracy_score(seed_vec.cpu().numpy(), predictions),
+                precision_score(seed_vec.cpu().numpy(), predictions, zero_division=1),
+                recall_score(seed_vec.cpu().numpy(), predictions, zero_division=1),
+                f1_score(seed_vec.cpu().numpy(), predictions, zero_division=1),
+                roc_auc_score(seed_vec.cpu().numpy(), x.cpu().detach().numpy())
+            ])
+
+        metrics /= test_num
+        return Metric(*metrics)
 
 
 class NetSleuth:
@@ -226,6 +169,8 @@ class NetSleuth:
         """
         Initialize the NetSleuth.
         """
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
     def predict(self, G, k, diff_vec):
         """
@@ -242,30 +187,41 @@ class NetSleuth:
         Returns:
 
         - seed_vec (torch.Tensor): A binary tensor representing identified source nodes.
-
         """
-        g = copy.deepcopy(G)  # Creating a deep copy of the input graph
-        g.remove_nodes_from([n for n in g if n not in np.where(
-            diff_vec == 1)[0]])  # Removing non-relevant nodes
-        # Computing the Laplacian matrix of the modified graph
-        lap = nx.laplacian_matrix(g).toarray()
+        # Create a copy of the graph and filter nodes
+        g = G.subgraph([n for n in G.nodes if diff_vec[n] == 1]).copy()
+        if len(g.nodes) == 0:
+            return torch.zeros(len(diff_vec), dtype=torch.float32)
 
+        # Compute the Laplacian matrix
+        lap = nx.laplacian_matrix(g).toarray()
+        lap = torch.tensor(lap, dtype=torch.float32).to(self.device)
+
+        # Initialize the seed list
         seed = []
-        while len(seed) < k:
-            value, vector = np.linalg.eig(lap)
-            index = np.argmax(vector[np.argmin(value)])
+        while len(seed) < k and len(g.nodes) > 0:
+            # Compute eigenvalues and eigenvectors
+            values, vectors = torch.linalg.eig(lap)
+            values = values.real  # Use only real part of eigenvalues
+            vectors = vectors.real  # Use only real part of eigenvectors
+
+            # Find the index of the maximum eigenvalue
+            index = torch.argmax(values)
             seed_index = list(g.nodes)[index]
             seed.append(seed_index)
-            g.remove_node(seed_index)
-            if len(g.nodes) == 0:
-                break
-            lap = nx.laplacian_matrix(g).toarray()
 
-        seed_vec = torch.zeros(diff_vec.shape)
+            # Remove the selected node and update the Laplacian matrix
+            g.remove_node(seed_index)
+            if len(g.nodes) > 0:
+                lap = nx.laplacian_matrix(g).toarray()
+                lap = torch.tensor(lap, dtype=torch.float32).to(self.device)
+
+        # Create the seed vector
+        seed_vec = torch.zeros(len(diff_vec), dtype=torch.float32).to(self.device)
         seed_vec[seed] = 1
         return seed_vec
 
-    def train(self, adj, train_dataset, k_list=[5, 10, 50]):
+    def train(self, adj, train_dataset, k_list=[2, 5, 10]):
         """
         Train the NetSleuth algorithm.
 
@@ -273,7 +229,7 @@ class NetSleuth:
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - train_dataset (torch.utils.data.dataset.Subset): The training dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
+        - train_dataset (torch.utils.data.dataset.Subset): The training dataset.
 
         - k_list (list): List of the numbers of source nodes to try.
 
@@ -284,63 +240,36 @@ class NetSleuth:
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
         - train_f1 (float): Training F1 score value.
-
-        Example:
-
-        import os
-
-        curr_dir = os.getcwd()
-
-        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
-
-        from GraphSL.Prescribed import NetSleuth
-
-        data_name = 'karate'
-
-        graph = load_dataset(data_name, data_dir=curr_dir)
-
-        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
-
-        adj, train_dataset, test_dataset =split_dataset(dataset)
-
-        netSleuth = NetSleuth()
-
-        k, auc, f1=netSleuth.train(adj, train_dataset)
-
-        print("NetSleuth:")
-
-        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
-        # Y should be no more than number of nodes
         num_node = adj.shape[0]
-        def condition(k): return k <= num_node
-        k_list = list(filter(condition, k_list))
+        k_list = [k for k in k_list if k <= num_node]
 
-        G = nx.from_numpy_array(adj)
+        G = nx.from_numpy_array(adj.toarray())
         opt_auc = 0
         opt_k = 0
         train_num = len(train_dataset)
+
         for k in k_list:
-            train_auc = 0
+            auc_scores = []
             for influ_mat in train_dataset:
                 seed_vec = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
+                influ_vec = torch.tensor(influ_mat[:, -1], dtype=torch.float32)
                 x = self.predict(G, k, influ_vec)
-                train_auc += roc_auc_score(seed_vec, x)
-            train_auc = train_auc / train_num
-            print(f"k = {k}, train_auc = {train_auc:.3f}")
+                auc_scores.append(roc_auc_score(seed_vec, x.cpu().numpy()))
+            avg_auc = np.mean(auc_scores)
+            print(f"k = {k}, train_auc = {avg_auc:.3f}")
 
-            if train_auc > opt_auc:
-                opt_auc = train_auc
+            if avg_auc > opt_auc:
+                opt_auc = avg_auc
                 opt_k = k
 
-        train_f1 = 0
+        f1_scores = []
         for influ_mat in train_dataset:
             seed_vec = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
+            influ_vec = torch.tensor(influ_mat[:, -1], dtype=torch.float32)
             x = self.predict(G, opt_k, influ_vec)
-            train_f1 += f1_score(seed_vec, x, zero_division=1)
-        train_f1 = train_f1 / train_num
+            f1_scores.append(f1_score(seed_vec, x.cpu().numpy(), zero_division=1))
+        train_f1 = np.mean(f1_scores)
 
         return opt_k, opt_auc, train_f1
 
@@ -352,70 +281,32 @@ class NetSleuth:
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
+        - test_dataset (torch.utils.data.dataset.Subset): The test dataset.
 
         - k (int): Number of source nodes.
-
 
         Returns:
 
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
-
-        Example:
-
-        import os
-
-        curr_dir = os.getcwd()
-
-        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
-
-        from GraphSL.Prescribed import NetSleuth
-
-        data_name = 'karate'
-
-        graph = load_dataset(data_name, data_dir=curr_dir)
-
-        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
-
-        adj, train_dataset, test_dataset =split_dataset(dataset)
-
-        netSleuth = NetSleuth()
-
-        k, auc, f1=netSleuth.train(adj, train_dataset)
-
-        print("NetSleuth:")
-
-        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
-
-        metric = netSleuth.test(adj, test_dataset, k)
-
-        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
-        G = nx.from_numpy_array(adj)
+        G = nx.from_numpy_array(adj.toarray())
         test_num = len(test_dataset)
-        test_acc = 0
-        test_pr = 0
-        test_re = 0
-        test_f1 = 0
-        test_auc = 0
+        metrics = {'acc': 0, 'pr': 0, 're': 0, 'f1': 0, 'auc': 0}
+
         for influ_mat in test_dataset:
             seed_vec = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
+            influ_vec = torch.tensor(influ_mat[:, -1], dtype=torch.float32)
             x = self.predict(G, k, influ_vec)
-            test_acc += accuracy_score(seed_vec, x)
-            test_pr += precision_score(seed_vec, x, zero_division=1)
-            test_re += recall_score(seed_vec, x, zero_division=1)
-            test_f1 += f1_score(seed_vec, x, zero_division=1)
-            test_auc += roc_auc_score(seed_vec, x)
+            metrics['acc'] += accuracy_score(seed_vec, x.cpu().numpy())
+            metrics['pr'] += precision_score(seed_vec, x.cpu().numpy(), zero_division=1)
+            metrics['re'] += recall_score(seed_vec, x.cpu().numpy(), zero_division=1)
+            metrics['f1'] += f1_score(seed_vec, x.cpu().numpy(), zero_division=1)
+            metrics['auc'] += roc_auc_score(seed_vec, x.cpu().numpy())
 
-        test_acc = test_acc / test_num
-        test_pr = test_pr / test_num
-        test_re = test_re / test_num
-        test_f1 = test_f1 / test_num
-        test_auc = test_auc / test_num
-        metric = Metric(test_acc, test_pr, test_re, test_f1, test_auc)
-        return metric
+        for key in metrics:
+            metrics[key] /= test_num
 
+        return Metric(metrics['acc'], metrics['pr'], metrics['re'], metrics['f1'], metrics['auc'])
 
 class OJC:
     """
@@ -428,10 +319,11 @@ class OJC:
         """
         Initialize the OJC module.
         """
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def get_K_list(self, G, Y, I, target):
         """
-         Get the list of potential source nodes.
+        Get the list of potential source nodes.
 
         Args:
 
@@ -439,23 +331,24 @@ class OJC:
 
         - Y (int): Number of desired source nodes.
 
-        - I (list): list of diffused nodes.
+        - I (list): List of diffused nodes.
 
-        - target (numpy.ndarray): Target vector.
+        - target (torch.Tensor): Target vector.
 
         Returns:
 
         - K (list): List of potential source nodes.
         """
-        K = list()
+
+
+        K = []
+        target_set = set(torch.where(target == 1)[0])  # Create a set for quick lookup
+
         for n1 in G.nodes():
-            count = 0
-            for n2 in G[n1]:
-                if target[n2] == 1:
-                    count += 1
-                if count == Y:
-                    K.append(n1)
-                    break
+            count = sum(1 for n2 in G.neighbors(n1) if n2 in target_set)
+            if count == Y:
+                K.append(n1)
+
         K = list(set(K + I))
         return K
 
@@ -476,23 +369,23 @@ class OJC:
         Returns:
 
         - K (list): List of potential source nodes.
-
+        
         - G_bar (networkx.Graph): Subgraph containing potential source nodes.
         """
         K = self.get_K_list(G, Y, I, target)
-        G_prime = G.subgraph(K)
-        G_prime = nx.Graph(G_prime)
-        if nx.is_connected(G_prime):
-            G_bar = G_prime
-        else:
-            component = nx.connected_components(G_prime)
-            R = [list(c)[0] for c in component]
-            for n in R[1:]:
-                if nx.has_path(G, n, R[0]):
-                    path = nx.shortest_path(G, R[0], n)
-                    nx.add_path(G_prime, path)
-            G_bar = G_prime
-        return K, G_bar
+        G_prime = G.subgraph(K).copy()  # Make sure to use a copy
+
+        if not nx.is_connected(G_prime):
+            # Connect components with shortest paths
+            components = list(nx.connected_components(G_prime))
+            for component in components[1:]:
+                source = next(iter(components[0]))  # Pick a node from the first component
+                for node in component:
+                    if nx.has_path(G, source, node):
+                        path = nx.shortest_path(G, source, node)
+                        G_prime.add_edges_from(zip(path[:-1], path[1:]))  # Add path edges
+
+        return K, G_prime
 
     def predict(self, G, Y, I, target, num_source):
         """
@@ -506,34 +399,32 @@ class OJC:
 
         - I (list): List of diffused nodes.
 
-        - target (numpy.ndarray): Target vector.
+        - target (torch.Tensor): Target vector.
 
         - num_source (int): Maximal number of source nodes.
 
         Returns:
 
-        - x (numpy.ndarray): A binary vector representing identified potential source nodes.
+        - x (torch.Tensor): A binary vector representing identified potential source nodes.
         """
         K, G_bar = self.Candidate(G, Y, I, target)
         ecc = []
+
         for n in K:
-            long_path = 0
-            for i in I:
-                if nx.has_path(G_bar, n, i):
-                    path = nx.shortest_path_length(G_bar, n, i)
-                else:
-                    path = 0
-                if path > long_path:
-                    long_path = path
-            ecc.append(long_path)
-        ecc_arr = np.array(ecc)
-        index = np.argsort(ecc_arr).tolist()
-        index = index[:num_source]
-        x = np.zeros(target.shape)
-        x[index] = 1
+            # Compute eccentricity in one pass
+            eccentricity = max(
+                (nx.shortest_path_length(G_bar, n, i) if nx.has_path(G_bar, n, i) else 0)
+                for i in I
+            )
+            ecc.append(eccentricity)
+
+        ecc_arr = torch.Tensor(ecc).to(self.device)
+        indices = torch.argsort(ecc_arr)[-num_source:]  # Get the top num_source indices
+        x = torch.zeros_like(target, dtype=torch.float32).to(self.device)
+        x[indices] = 1
         return x
 
-    def train(self, adj, train_dataset, Y_list=[5, 10, 50]):
+    def train(self, adj, train_dataset, Y_list=[2, 5, 10]):
         """
         Train the OJC algorithm.
 
@@ -541,10 +432,9 @@ class OJC:
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - train_dataset (torch.utils.data.dataset.Subset): The train dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
+        - train_dataset (torch.utils.data.dataset.Subset): The train dataset.
 
         - Y_list (list): List of numbers of source nodes to try.
-
 
         Returns:
 
@@ -553,66 +443,45 @@ class OJC:
         - opt_auc (float): Optimal Area Under the Curve (AUC) value.
 
         - train_f1 (float): Training F1 score value.
-
-        Example:
-
-        import os
-
-        curr_dir = os.getcwd()
-
-        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
-
-        from GraphSL.Prescribed import OJC
-
-        data_name = 'karate'
-
-        graph = load_dataset(data_name, data_dir=curr_dir)
-
-        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
-
-        adj, train_dataset, test_dataset =split_dataset(dataset)
-
-        ojc = OJC()
-
-        Y, auc, f1 =ojc.train(adj, train_dataset)
-
-        print("OJC:")
-
-        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
-        # Y should be no more than number of nodes
         num_node = adj.shape[0]
-        def condition(k): return k <= num_node
-        Y_list = list(filter(condition, Y_list))
-        G = nx.from_scipy_sparse_array(adj)
-        train_num = len(train_dataset)
+        Y_list = [Y for Y in Y_list if Y <= num_node]
+        G = nx.from_scipy_sparse_array(adj)  # Correct method for conversion
+
         opt_auc = 0
         opt_Y = 0
+
         for Y in Y_list:
-            train_auc = 0
+            auc_scores = []
+
             for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0]
-                influ_vec = influ_mat[:, -1]
-                num_source = len(influ_vec[influ_vec == 1])
-                I = (influ_vec == 1).nonzero().squeeze(-1).tolist()
-                x = self.predict(G, Y, I, influ_vec, num_source)
-                train_auc += roc_auc_score(seed_vec, x)
-            train_auc = train_auc / train_num
-            print(f"Y = {Y}, train_auc = {train_auc:.3f}")
-            if train_auc > opt_auc:
-                opt_auc = train_auc
+                seed_vec = influ_mat[:, 0].cpu().numpy()
+                influ_vec = influ_mat[:, -1].to(self.device)
+
+
+                num_source = torch.sum(influ_vec == 1)
+                I = torch.where(influ_vec == 1)[0].tolist()
+                x = self.predict(G, Y, I, influ_vec, num_source).cpu().numpy()
+                auc_scores.append(roc_auc_score(seed_vec, x))
+
+            avg_auc = np.mean(auc_scores)
+            print(f"Y = {Y}, train_auc = {avg_auc:.3f}")
+
+            if avg_auc > opt_auc:
+                opt_auc = avg_auc
                 opt_Y = Y
 
-        train_f1 = 0
+        f1_scores = []
         for influ_mat in train_dataset:
-            seed_vec = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
-            num_source = len(influ_vec[influ_vec == 1])
-            I = (influ_vec == 1).nonzero()[0].tolist()
-            x = self.predict(G, opt_Y, I, influ_vec, num_source)
-            train_f1 += f1_score(seed_vec, x, zero_division=1)
-        train_f1 = train_f1 / train_num
+            seed_vec = influ_mat[:, 0].cpu().numpy()
+            influ_vec = influ_mat[:, -1].to(self.device)
 
+            num_source = torch.sum(influ_vec == 1)
+            I = torch.where(influ_vec == 1)[0].tolist()
+            x = self.predict(G, opt_Y, I, influ_vec, num_source).cpu().numpy()
+            f1_scores.append(f1_score(seed_vec, x, zero_division=1))
+
+        train_f1 = np.mean(f1_scores)
         return opt_Y, opt_auc, train_f1
 
     def test(self, adj, test_dataset, Y):
@@ -623,67 +492,32 @@ class OJC:
 
         - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
-        - test_dataset (torch.utils.data.dataset.Subset): The test dataset (number of simulations * number of graph nodes * 2(the first column is seed vector and the second column is diffusion vector)).
+        - test_dataset (torch.utils.data.dataset.Subset): The test dataset.
 
         - Y (int): Number of source nodes.
 
         Returns:
 
         - metric (Metric): Evaluation metric containing accuracy, precision, recall, F1 score, and AUC.
-
-        Example:
-
-        import os
-
-        curr_dir = os.getcwd()
-
-        from GraphSL.utils import load_dataset, diffusion_generation, split_dataset
-
-        from GraphSL.Prescribed import OJC
-
-        data_name = 'karate'
-
-        graph = load_dataset(data_name, data_dir=curr_dir)
-
-        dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
-
-        adj, train_dataset, test_dataset =split_dataset(dataset)
-
-        ojc = OJC()
-
-        Y, auc, f1 =ojc.train(adj, train_dataset)
-
-        print("OJC:")
-
-        print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
-
-        metric=ojc.test(adj, test_dataset, Y)
-
-        print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
-        G = nx.from_scipy_sparse_array(adj)
+        G = nx.from_scipy_sparse_array(adj)  # Correct method for conversion
         test_num = len(test_dataset)
-        test_acc = 0
-        test_pr = 0
-        test_re = 0
-        test_f1 = 0
-        test_auc = 0
-        for influ_mat in test_dataset:
-            seed_vec = influ_mat[:, 0]
-            influ_vec = influ_mat[:, -1]
-            num_source = len(influ_vec[influ_vec == 1])
-            I = (influ_vec == 1).nonzero()[0].tolist()
-            x = self.predict(G, Y, I, influ_vec, num_source)
-            test_acc += accuracy_score(seed_vec, x)
-            test_pr += precision_score(seed_vec, x, zero_division=1)
-            test_re += recall_score(seed_vec, x, zero_division=1)
-            test_f1 += f1_score(seed_vec, x, zero_division=1)
-            test_auc += roc_auc_score(seed_vec, x)
+        metrics = {'acc': 0, 'pr': 0, 're': 0, 'f1': 0, 'auc': 0}
 
-        test_acc = test_acc / test_num
-        test_pr = test_pr / test_num
-        test_re = test_re / test_num
-        test_f1 = test_f1 / test_num
-        test_auc = test_auc / test_num
-        metric = Metric(test_acc, test_pr, test_re, test_f1, test_auc)
-        return metric
+        for influ_mat in test_dataset:
+            seed_vec = influ_mat[:, 0].cpu().numpy()
+            influ_vec = influ_mat[:, -1].to(self.device)
+
+            num_source = torch.sum(influ_vec == 1)
+            I = torch.where(influ_vec == 1)[0].tolist()
+            x = self.predict(G, Y, I, influ_vec, num_source).cpu().numpy()
+            metrics['acc'] += accuracy_score(seed_vec, x)
+            metrics['pr'] += precision_score(seed_vec, x, zero_division=1)
+            metrics['re'] += recall_score(seed_vec, x, zero_division=1)
+            metrics['f1'] += f1_score(seed_vec, x, zero_division=1)
+            metrics['auc'] += roc_auc_score(seed_vec, x)
+
+        for key in metrics:
+            metrics[key] /= test_num
+
+        return Metric(metrics['acc'], metrics['pr'], metrics['re'], metrics['f1'], metrics['auc'])

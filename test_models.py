@@ -67,7 +67,7 @@ def test_ivgd():
     ivgd_model, thres, auc, f1, pred = ivgd.train(adj, train_dataset, diffusion_model)
     assert auc >=0
     assert f1 >=0
-    metric = ivgd.test(test_dataset, diffusion_model, ivgd_model, thres)
+    metric = ivgd.test(adj,test_dataset, diffusion_model, ivgd_model, thres)
     assert metric.acc >= 0
     assert metric.pr >= 0
     assert metric.re >= 0

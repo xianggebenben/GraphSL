@@ -2,41 +2,39 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import numpy as np
-from GraphSL.GNN.SLVAE.model import VAE, GNN, DiffusionPropagate
+from GraphSL.GNN.SLVAE.model import VAE, GNN
 from torch.optim import Adam
 from sklearn.metrics import roc_auc_score, f1_score, accuracy_score, precision_score, recall_score
-from GraphSL.Evaluation import Metric
+from GraphSL.utils import Metric
 
 
 class SLVAE_model(nn.Module):
     """
-    Source Localization Variational Autoencoder (SLVAE) model combining VAE, GNN, and propagation modules.
+    Source Localization Variational Autoencoder (SLVAE) model combining VAE and GNN.
 
     Attributes:
     - vae (nn.Module): Variational Autoencoder module.
 
     - gnn (nn.Module): Graph Neural Network module.
 
-    - propagate (nn.Module): Propagation module.
-
     - reg_params (list): List of parameters requiring gradients.
     """
 
-    def __init__(self, vae: nn.Module, gnn: nn.Module, propagate: nn.Module):
+    def __init__(self, vae: nn.Module, gnn: nn.Module):
         """
         Initialize the SLVAE_model.
 
         Args:
+        
         - vae (nn.Module): Variational Autoencoder module.
 
         - gnn (nn.Module): Graph Neural Network module.
 
-        - propagate (nn.Module): Propagation module.
         """
         super(SLVAE_model, self).__init__()
-        self.vae = vae
-        self.gnn = gnn
-        self.propagate = propagate
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.vae = vae.to(self.device)
+        self.gnn = gnn.to(self.device)
         self.reg_params = list(
             filter(
                 lambda x: x.requires_grad,
@@ -71,13 +69,11 @@ class SLVAE_model(nn.Module):
             seed_hat.clamp(0, 1)
             # Pass seed_hat through GNN and perform propagation
             predictions = self.gnn(seed_hat)
-            predictions = self.propagate(predictions)
         else:
             # Ensure values of seed_vec are within range [0, 1]
             seed_vec.clamp(0, 1)
             # Pass seed_vec through GNN and perform propagation
             predictions = self.gnn(seed_vec)
-            predictions = self.propagate(predictions)
 
         predictions = torch.transpose(predictions, 0, 1)
 
@@ -131,17 +127,17 @@ class SLVAE_model(nn.Module):
         - total_loss (torch.Tensor): Total loss tensor.
         """
         epsilon =1e-8
-        device = y_true.device
-        BN = nn.BatchNorm1d(1, affine=False).to(device)
-        y_hat = y_hat.to(device)
+        BN = nn.BatchNorm1d(1, affine=False).to(self.device)
+        y_hat = y_hat.to(self.device)
+        y_true = y_true.to(self.device)
         forward_loss = F.mse_loss(y_hat, y_true)
         log_pmf = []
         for pred in train_pred:
-            log_lh = torch.zeros(1).to(device)
+            log_lh = torch.zeros(1).to(self.device)
             for i, x_i in enumerate(x_hat[0]):
                 temp = x_i * \
                     torch.log(pred[i]+epsilon) + (1 - x_i) * torch.log(1 - pred[i]+epsilon).to(torch.double)
-                temp = temp.to(device)
+                temp = temp.to(self.device)
                 log_lh += temp
             log_pmf.append(log_lh)
 
@@ -240,7 +236,7 @@ class SLVAE:
 
         print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
         """
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         num_node = adj.shape[0]
         adj_coo = adj.tocoo()
         values = adj_coo.data
@@ -254,11 +250,10 @@ class SLVAE:
             i, v, torch.Size(shape)).to_dense()
         train_num = len(train_dataset)
         torch.manual_seed(random_seed)
-        vae = VAE().to(device)
-        gnn = GNN(adj_matrix=adj_matrix).to(device)
-        propagate = DiffusionPropagate(adj_matrix, niter=2)
+        vae = VAE().to(self.device)
+        gnn = GNN(adj_matrix=adj_matrix).to(self.device)
 
-        slvae_model = SLVAE_model(vae, gnn, propagate).to(device)
+        slvae_model = SLVAE_model(vae, gnn).to(self.device)
 
         optimizer = Adam(slvae_model.parameters(), lr=lr)
 
@@ -268,8 +263,8 @@ class SLVAE:
         for epoch in range(num_epoch):
             overall_loss = 0
             for influ_mat in train_dataset:
-                seed_vec = influ_mat[:, 0].to(device)
-                influ_vec = influ_mat[:, -1].to(device)
+                seed_vec = influ_mat[:, 0].to(self.device)
+                influ_vec = influ_mat[:, -1].to(self.device)
                 influ_vec = influ_vec.unsqueeze(-1).float()
                 seed_vec = seed_vec.unsqueeze(-1).float()
                 optimizer.zero_grad()
@@ -298,7 +293,7 @@ class SLVAE:
             seed_vec = influ_mat[:, 0].unsqueeze(-1).float()
             seed_vae_train[i, :] = slvae_model.vae(seed_vec)[0].squeeze(-1)
         seed_infer = []
-        seed_vae_mean = torch.mean(seed_vae_train, 0).unsqueeze(-1).to(device)
+        seed_vae_mean = torch.mean(seed_vae_train, 0).unsqueeze(-1).to(self.device)
         for i in range(train_num):
             seed_vec_hat, _, _, influ_vec_hat = slvae_model(
                 seed_vae_mean, False)
@@ -432,15 +427,15 @@ class SLVAE:
 
         print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        slvae_model = slvae_model.to(device)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        slvae_model = slvae_model.to(self.device)
         test_num = len(test_dataset)
         slvae_model.eval()
         for param in slvae_model.parameters():
             param.requires_grad = False
 
         seed_infer = []
-        seed_mean = torch.mean(seed_vae_train, 0).unsqueeze(-1).to(device)
+        seed_mean = torch.mean(seed_vae_train, 0).unsqueeze(-1).to(self.device)
         for i in range(test_num):
             seed_vec_hat, _, _, influ_vec_hat = slvae_model(seed_mean, False)
             seed_infer.append(seed_vec_hat)

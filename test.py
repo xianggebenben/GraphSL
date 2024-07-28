@@ -8,14 +8,14 @@ curr_dir = os.getcwd()
 # download datasets
 download_dataset(curr_dir)
 # load datasets ('karate', 'dolphins', 'jazz', 'netscience', 'cora_ml', 'power_grid')
-data_name = 'power_grid'
+data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)
 # generate diffusion
-dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
+dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.2)
 # split into training and test sets
 adj, train_dataset, test_dataset = split_dataset(dataset)
 
-""" # LPSI
+# LPSI
 print("LPSI:")
 lpsi = LPSI()
 
@@ -60,8 +60,8 @@ gcnsi_model, thres, auc, f1, pred = gcnsi.train(adj, train_dataset)
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
 # visualize training predictions
-#pred = (pred >= thres)
-#visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="GCNSI_source_prediction")
+pred = (pred >= thres)
+visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="GCNSI_source_prediction")
 
 
 # test GCNSI
@@ -73,20 +73,20 @@ print("IVGD:")
 ivgd = IVGD()
 
 # train IVGD diffusion
-diffusion_model = ivgd.train_diffusion(adj, train_dataset) 
+diffusion_model = ivgd.train_diffusion(adj, train_dataset)
 
 # train IVGD
 ivgd_model, thres, auc, f1, pred = ivgd.train(
-    adj, train_dataset, diffusion_model,num_epoch=200)
-print(f"train auc: {auc:.3f}, train f1: {f1:.3f}") 
+    adj, train_dataset, diffusion_model)
+print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
 # visualize training predictions
-#pred = (pred >= thres)
-#visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="IVGD_source_prediction")
+pred = (pred >= thres)
+visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="IVGD_source_prediction")
 
 # test IVGD
 metric = ivgd.test(adj, test_dataset, diffusion_model, ivgd_model, thres)
-print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}") """
+print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
 
 # SLVAE
 print("SLVAE:")
@@ -98,8 +98,8 @@ slvae_model, seed_vae_train, thres, auc, f1, pred = slave.train(
 print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
 # visualize training predictions
-#pred = (pred >= thres)
-#visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="SLVAE_source_prediction")
+pred = (pred >= thres)
+visualize_source_prediction(adj,pred[:,0],train_dataset[0][:,0].numpy(),save_dir=curr_dir,save_name="SLVAE_source_prediction")
 
 # test SLVAE
 metric = slave.infer(test_dataset, slvae_model, seed_vae_train, thres)

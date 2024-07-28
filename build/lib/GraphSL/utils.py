@@ -129,8 +129,6 @@ def diffusion_generation(
 
     - repeat_step (int): Number of repetitions for each simulation.
 
-    - seed_ratio (float): Ratio of seed nodes, should be between 0 and 0.3.
-
     - infect_prob (float): Infection probability,  used in SIS, SIR or SI.
 
     - recover_prob (float): Recovery probability, used in SIS or SIR.
@@ -165,9 +163,8 @@ def diffusion_generation(
 
     degree_list = list(G.degree())
     degree_list.sort(key=lambda x: x[1], reverse=True)
-    top_nodes = [x[0] for x in degree_list[:int(len(degree_list) * 0.3)]]
-
-    assert seed_ratio<=0.3 and seed_ratio>=0, "seed_ratio should be between 0 and 0.3"
+    num_more_node =int(len(degree_list) * 0.05)
+    top_nodes = [x[0] for x in degree_list[:num_more_node+seed_num]]
 
     for i in range(sim_num):
         seed_vector = generate_seed_vector(top_nodes, seed_num, G, random_seed+i)
@@ -175,23 +172,23 @@ def diffusion_generation(
         config = mc.Configuration()
         for k in range(repeat_step):
             if diff_type == 'LT':
-                model = ep.ThresholdModel(G,random_seed)
+                model = ep.ThresholdModel(G,random_seed+k)
                 for n in G.nodes():
                     config.add_node_configuration("threshold", n, threshold)
             elif diff_type == 'IC':
-                model = ep.IndependentCascadesModel(G,random_seed)
+                model = ep.IndependentCascadesModel(G,random_seed+k)
                 for e in G.edges():
                     config.add_edge_configuration("threshold", e, threshold)
             elif diff_type == 'SIS':
-                model = ep.SISModel(G,random_seed)
+                model = ep.SISModel(G,random_seed+k)
                 config.add_model_parameter('beta', infect_prob)
                 config.add_model_parameter('lambda', recover_prob)
             elif diff_type == 'SIR':
-                model = ep.SIRModel(G,random_seed)
+                model = ep.SIRModel(G,random_seed+k)
                 config.add_model_parameter('beta', infect_prob)
                 config.add_model_parameter('gamma', recover_prob)
             elif diff_type == 'SI':
-                model = ep.SIModel(G,random_seed)
+                model = ep.SIModel(G,random_seed+k)
                 config.add_model_parameter('beta', infect_prob)
             else:
                 raise ValueError('Only IC, LT, SI, SIR and SIS are supported.')
@@ -365,3 +362,26 @@ def visualize_source_prediction(adj: csr_matrix, predictions: np.ndarray, labels
     plt.savefig(file_path)
     plt.close()
     print(f"Figure saved to {file_path}")
+
+class Metric:
+
+    def __init__(self, acc, pr, re, f1, auc):
+        """
+        Constructor method to initialize the Metric object.
+
+        Args:
+            acc (float): Accuracy metric value.
+
+            pr (float): Precision metric value.
+
+            re (float): Recall metric value.
+
+            f1 (float): F1-score metric value.
+
+            auc (float): Area Under the Curve metric value.
+        """
+        self.acc = acc
+        self.pr = pr
+        self.re = re
+        self.f1 = f1
+        self.auc = auc

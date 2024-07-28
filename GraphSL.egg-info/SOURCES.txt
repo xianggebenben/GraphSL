@@ -2,7 +2,6 @@ LICENSE
 README.md
 setup.cfg
 setup.py
-GraphSL/Evaluation.py
 GraphSL/Prescribed.py
 GraphSL/__init__.py
 GraphSL/utils.py
@@ -17,14 +16,9 @@ GraphSL/GNN/GCNSI/main.py
 GraphSL/GNN/GCNSI/model.py
 GraphSL/GNN/IVGD/__init__.py
 GraphSL/GNN/IVGD/correction.py
-GraphSL/GNN/IVGD/earlystopping.py
-GraphSL/GNN/IVGD/i_deepis.py
+GraphSL/GNN/IVGD/diffusion_model.py
 GraphSL/GNN/IVGD/main.py
-GraphSL/GNN/IVGD/preprocessing.py
-GraphSL/GNN/IVGD/training.py
 GraphSL/GNN/IVGD/validity_net.py
-GraphSL/GNN/IVGD/model/MLP.py
-GraphSL/GNN/IVGD/model/__init__.py
 GraphSL/GNN/SLVAE/__init__.py
 GraphSL/GNN/SLVAE/main.py
 GraphSL/GNN/SLVAE/model.py

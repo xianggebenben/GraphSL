@@ -3,12 +3,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 from GraphSL.GNN.IVGD.correction import correction
-from GraphSL.GNN.IVGD.i_deepis import i_DeepIS, DiffusionPropagate
-from GraphSL.GNN.IVGD.training import FeatureCons, get_idx_new_seeds
-from GraphSL.GNN.IVGD.model.MLP import MLPTransform
-from GraphSL.GNN.IVGD.training import train_model
+from GraphSL.GNN.IVGD.diffusion_model import I_GCN
 from sklearn.metrics import roc_auc_score, f1_score, accuracy_score, precision_score, recall_score
-from GraphSL.Evaluation import Metric
+from GraphSL.utils import Metric
 import torch.optim as optim
 import warnings
 warnings.filterwarnings("ignore")
@@ -32,6 +29,7 @@ class IVGD_model(torch.nn.Module):
         - rho (float): Value of rho parameter.
         """
         super(IVGD_model, self).__init__()
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.alpha1 = alpha
         self.alpha2 = alpha
         self.alpha3 = alpha
@@ -64,9 +62,9 @@ class IVGD_model(torch.nn.Module):
 
         - x (torch.Tensor): Output tensor after forward pass.
         """
-        self.net1.to(x.device)
-        self.net2.to(x.device)
-        self.net3.to(x.device)
+        self.net1.to(self.device)
+        self.net2.to(self.device)
+        self.net3.to(self.device)
         sum = torch.sum(label)
         label = torch.cat((1 - label, label), dim=1)
         x = torch.cat((1 - x, x), dim=1)
@@ -99,7 +97,9 @@ class IVGD:
         Initializes the IVGD model.
         """
 
-    def train_diffusion(self, adj, train_dataset, random_seed=0):
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    def train_diffusion(self, adj, train_dataset, lr = 1e-4, weight_decay = 1e-4, num_epoch = 50, print_epoch = 10, random_seed=0):
         """
         Train the diffusion model.
 
@@ -108,6 +108,14 @@ class IVGD:
         - adj (scipy.sparse.csr_matrix): Adjacency matrix of the graph.
 
         - train_dataset (torch.utils.data.dataset.Subset): the training dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
+
+        - lr (float): Learning rate.
+
+        - weight_decay (float): Weight decay.
+
+        - epoch_num (int): Number of epochs.
+
+        - print_epoch (int): Number of epochs every time to print loss.
 
         - random_seed (int): Random seed.
         
@@ -138,55 +146,41 @@ class IVGD:
         diffusion_model = ivgd.train_diffusion(adj, train_dataset)
 
         """
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        num_node = adj.shape[0]
-        adj_coo = adj.tocoo()
-        values = adj_coo.data
-        indices = np.vstack((adj_coo.row, adj_coo.col))
-
-        i = torch.LongTensor(indices)
-        v = torch.FloatTensor(values)
-        shape = adj.shape
-
-        prob_matrix = torch.sparse.FloatTensor(
-            i, v, torch.Size(shape)).to_dense()
-        prob_matrix = prob_matrix + torch.eye(n=prob_matrix.shape[0])
-        prob_matrix = prob_matrix / prob_matrix.sum(dim=1, keepdims=True)
-        ndim = 5
-        niter = 2
         torch.manual_seed(random_seed)
-        propagate_model = DiffusionPropagate(prob_matrix, niter=niter)
-        fea_constructor = FeatureCons(ndim=ndim)
-        fea_constructor.prob_matrix = prob_matrix
-        args_dict = {
-            'learning_rate': 1e-3,
-            'λ': 0,
-            'γ': 0,
-            'idx_split_args': {
-                'ntraining': int(
-                    num_node / 2),
-                'nstopping': int(
-                    num_node / 6),
-                'nval': int(
-                    num_node / 3)},
-            'test': False,
-            'device': device,
-            'print_interval': 10}
-        gnn_model = MLPTransform(
-            input_dim=ndim, hiddenunits=[
-                ndim, ndim], num_classes=1, device=device)
-        diffusion_model = i_DeepIS(
-            gnn_model=gnn_model,
-            propagate=propagate_model)
+        
         print("train IVGD diffusion model:")
-        diffusion_model, result = train_model(
-            diffusion_model, fea_constructor, prob_matrix, train_dataset, **args_dict)
-        print(f"train mean error:{result['train']['mean error']:.3f}")
-        print(
-            f"early_stopping mean error:{result['early_stopping']['mean error']:.3f}")
-        print(f"validation mean error:{result['valtest']['mean error']:.3f}")
-        print(f"run time:{result['runtime']:.3f} seconds")
-        print(f"run time per epoch:{result['runtime_perepoch']:.3f} seconds")
+
+        diffusion_model = I_GCN()
+
+        optimizer = optim.Adam(diffusion_model.parameters(), lr=lr, weight_decay=weight_decay)
+        loss_function = nn.MSELoss()
+
+        diffusion_model.train()
+
+        for epoch in range(num_epoch):
+            train_loss = 0
+
+            for influ_mat in train_dataset:
+                seed_vector = influ_mat[:, 0].unsqueeze(-1).to(self.device)
+                diff_vector = influ_mat[:, 1].unsqueeze(-1).to(self.device)
+
+                optimizer.zero_grad()
+
+                output = diffusion_model(adj,seed_vector)+seed_vector
+                loss = loss_function(output, diff_vector)
+
+                loss.backward()
+                optimizer.step()
+
+            train_loss += loss.item()
+
+            train_loss = train_loss / len(train_dataset)
+
+            if epoch % print_epoch ==0:
+
+                print(f'Epoch [{epoch}/{num_epoch}], Loss: {train_loss:.3f}')
+
+        
         return diffusion_model
 
     def train(
@@ -197,7 +191,7 @@ class IVGD:
             num_thres=10,
             lr=1e-4,
             weight_decay=1e-4,
-            num_epoch=100,
+            num_epoch=200,
             print_epoch=10,
             random_seed=0):
         """
@@ -264,10 +258,9 @@ class IVGD:
         print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
         """
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         num_node = adj.shape[0]
         num_seed = torch.sum(train_dataset[0][:,0]).item()
-        weight =torch.tensor([1,(num_node-num_seed)/num_seed]).to(device)
+        weight =torch.tensor([1,(num_node-num_seed)/num_seed]).to(self.device)
         criterion = nn.CrossEntropyLoss(weight=weight)
         # train_num = len(train_dataset)
         alpha = 0.01
@@ -275,7 +268,7 @@ class IVGD:
         rho = 1e-3
         lamda = 1e-3
         torch.manual_seed(random_seed)
-        ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho).to(device)
+        ivgd = IVGD_model(alpha=alpha, tau=tau, rho=rho).to(self.device)
         optimizer = optim.Adam(
             ivgd.parameters(),
             lr=lr,
@@ -288,12 +281,11 @@ class IVGD:
         print("train IVGD:")
 
         for influ_mat in train_dataset:
-            seed_vec = influ_mat[:, 0].to(device)
-            influ_vec = influ_mat[:, -1].to(device)
+            seed_vec = influ_mat[:, 0].unsqueeze(-1).to(self.device)
+            influ_vec = influ_mat[:, -1].unsqueeze(-1).to(self.device)
             # Get predictions
-            seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
-            seed_preds_unsqueeze = seed_preds.unsqueeze(-1).detach()
-            seed_preds_list.append(seed_preds_unsqueeze)
+            seed_preds = diffusion_model.backward(adj,influ_vec).detach()
+            seed_preds_list.append(seed_preds)
         
 
         for epoch in range(num_epoch):
@@ -302,14 +294,14 @@ class IVGD:
                 optimizer.zero_grad()
                 
                 # Ensure that influ_mat is on the correct device
-                influ_mat = influ_mat.to(device)
+                influ_mat = influ_mat.to(self.device)
                 
                 # Extract and prepare seed_vec
-                seed_vec = influ_mat[:, 0].to(device)
+                seed_vec = influ_mat[:, 0].to(self.device)
                 seed_vec_unsqueeze = seed_vec.unsqueeze(-1).float()
                 
                 # Ensure seed_preds_list[i] is detached if it's from a previous computation
-                seed_preds_unsqueeze = seed_preds_list[i].detach().to(device)
+                seed_preds_unsqueeze = seed_preds_list[i].detach().to(self.device)
                 seed_correction = ivgd(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
                 
                 # Prepare one-hot encoding
@@ -338,7 +330,7 @@ class IVGD:
         train_auc = 0
         for i, influ_mat in enumerate(train_dataset):
             seed_vec = influ_mat[:, 0]
-            seed_preds_unsqueeze = seed_preds_list[i].to(device)
+            seed_preds_unsqueeze = seed_preds_list[i].to(self.device)
             seed_vec = seed_vec.unsqueeze(-1).float()
             seed_correction = ivgd(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
             seed_correction = F.softmax(seed_correction, dim=1)
@@ -353,7 +345,7 @@ class IVGD:
         seed_all = np.zeros((num_node, train_num))
         for i, influ_mat in enumerate(train_dataset):
             seed_all[:, i] = influ_mat[:, 0]
-            seed_preds_unsqueeze = seed_preds_list[i].to(device)
+            seed_preds_unsqueeze = seed_preds_list[i].to(self.device)
             seed_correction = ivgd(seed_preds_unsqueeze, seed_preds_unsqueeze, lamda)
             seed_correction = F.softmax(seed_correction, dim=1)
             seed_correction = seed_correction[:, 1].unsqueeze(-1)
@@ -380,11 +372,13 @@ class IVGD:
 
         return ivgd, opt_thres, train_auc, opt_f1, pred
 
-    def test(self, test_dataset, diffusion_model, IVGD_model, thres):
+    def test(self, adj, test_dataset, diffusion_model, IVGD_model, thres):
         """
         Test the IVGD model on the given test dataset.
 
         Args:
+
+        - adj (scipy.sparse.csr_matrix): The adjacency matrix of the graph.
 
         - test_dataset (torch.utils.data.dataset.Subset): the test dataset (number of simulations * number of graph nodes * 2 (the first column is seed vector and the second column is diffusion vector)).
 
@@ -426,12 +420,11 @@ class IVGD:
 
         print(f"train auc: {auc:.3f}, train f1: {f1:.3f}")
 
-        metric = ivgd.test(test_dataset, diffusion_model, ivgd_model, thres)
+        metric = ivgd.test(adj, test_dataset, diffusion_model, ivgd_model, thres)
 
         print(f"test acc: {metric.acc:.3f}, test pr: {metric.pr:.3f}, test re: {metric.re:.3f}, test f1: {metric.f1:.3f}, test auc: {metric.auc:.3f}")
         """
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        IVGD_model = IVGD_model.to(device)
+        IVGD_model = IVGD_model.to(self.device)
 
         test_num = len(test_dataset)
         test_acc = 0
@@ -446,18 +439,17 @@ class IVGD:
 
         for influ_mat in test_dataset:
 
-            influ_vec = influ_mat[:, -1].to(device)
+            influ_vec = influ_mat[:, -1].unsqueeze(-1).to(self.device)
 
             # Get predictions
-            seed_preds = get_idx_new_seeds(diffusion_model, influ_vec)
-            seed_preds_unsqueeze = seed_preds.unsqueeze(-1).detach()
-            seed_preds_list.append(seed_preds_unsqueeze)
+            seed_preds = diffusion_model.backward(adj,influ_vec)
+            seed_preds_list.append(seed_preds)
 
         # Loop through each test dataset
         for i, influ_mat in enumerate(test_dataset):
             seed_vec = influ_mat[:, 0]
             # Get seed predictions from the diffusion model
-            seed_preds_unsqueeze = seed_preds_list[i].to(device)
+            seed_preds_unsqueeze = seed_preds_list[i].to(self.device)
             seed_vec = seed_vec.float().detach().cpu().numpy()
 
             # Obtain seed correction predictions from the IVGD model

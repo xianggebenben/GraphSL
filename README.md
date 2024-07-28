@@ -215,3 +215,5 @@ Version 0.12 adds the datasets downloader.
 Version 0.13 adds the visualization of source predictions.
 
 Version 0.14 uses the num_thres (i.e. number of thresholds to try) instead of specifying the thres_list (i.e. threshold list) for LPSI, GCNSI, IVGD and SLVAE. Moreover, GCNSI, IVGD and SLVAE are improved to run on CUDA if applicable.
+
+Version 0.15 makes all methods run on CUDA if applicable, replaces the diffusion model of IVGD and the encoder of SLVAE, and revises the generation of diffusion. 
