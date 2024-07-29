@@ -11,7 +11,7 @@ download_dataset(curr_dir)
 data_name = 'karate'
 graph = load_dataset(data_name, data_dir=curr_dir)
 # generate diffusion
-dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.2)
+dataset = diffusion_generation(graph=graph, infect_prob=0.3, diff_type='IC', sim_num=100, seed_ratio=0.1)
 # split into training and test sets
 adj, train_dataset, test_dataset = split_dataset(dataset)
 
