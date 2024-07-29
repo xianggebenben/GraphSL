@@ -2,6 +2,7 @@
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![PyPI version](https://badge.fury.io/py/graphsl.svg)](https://badge.fury.io/py/graphsl)
 [![Downloads](https://pepy.tech/badge/graphsl)](https://pepy.tech/project/graphsl)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13117958.svg)
 
 
 # GraphSL: Graph Source Localization Library
