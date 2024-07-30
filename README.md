@@ -3,6 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/graphsl.svg)](https://badge.fury.io/py/graphsl)
 [![Downloads](https://pepy.tech/badge/graphsl)](https://pepy.tech/project/graphsl)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13117958.svg)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06796/status.svg)](https://doi.org/10.21105/joss.06796)
 
 
 # GraphSL: Graph Source Localization Library
