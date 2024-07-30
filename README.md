@@ -194,7 +194,8 @@ Official documentation, including a detailed [API reference](https://graphsl.rea
 # Citation
 If you use this package in your research, please consider citing our work as follows:
 ```bibtex
-@article{Wang2024, doi = {10.21105/joss.06796},
+@article{Wang2024,
+doi = {10.21105/joss.06796},
 url = {https://doi.org/10.21105/joss.06796},
 year = {2024}, publisher = {The Open Journal},
 volume = {9},
