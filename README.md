@@ -194,12 +194,15 @@ Official documentation, including a detailed [API reference](https://graphsl.rea
 # Citation
 If you use this package in your research, please consider citing our work as follows:
 ```bibtex
-@article{wang2024joss,
-  year = {2024},
-  author = {Wang Junxiang, Zhao Liang},
-  title = {GraphSL: A Open-Source Library for Graph Source Localization Approaches and Benchmark Datasets},
-  journal = {preprint, 	arXiv:2405.03724}
-}
+@article{Wang2024, doi = {10.21105/joss.06796},
+url = {https://doi.org/10.21105/joss.06796},
+year = {2024}, publisher = {The Open Journal},
+volume = {9},
+number = {99},
+pages = {6796},
+author = {Junxiang Wang and Liang Zhao},
+title = {GraphSL: An Open-Source Library for Graph Source Localization Approaches and Benchmark Datasets},
+journal = {Journal of Open Source Software} }
 ```
 # Contact
 We welcome your contributions! If you’d like to contribute your datasets or algorithms, please submit a pull request consisting of an atomic commit and a brief message describing your contribution.
