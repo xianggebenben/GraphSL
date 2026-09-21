@@ -1,3 +1,5 @@
+
+
 [![Documentation Status](https://readthedocs.org/projects/graphsl/badge/?version=latest)](https://graphsl.readthedocs.io/en/latest/?badge=latest)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![PyPI version](https://badge.fury.io/py/graphsl.svg)](https://badge.fury.io/py/graphsl)
@@ -208,7 +210,7 @@ journal = {Journal of Open Source Software} }
 # Contact
 We welcome your contributions! If you’d like to contribute your datasets or algorithms, please submit a pull request consisting of an atomic commit and a brief message describing your contribution.
 
-For a new dataset, please upload it to the [data](https://github.com/xianggebenben/GraphSL/tree/main/data) folder. The file should be a dictionary object saved by [pickle](https://docs.python.org/3/library/pickle.html). It contains a key "adj_mat" with the value of a graph adjacency matrix (sprase numpy array with the [CSR](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html) format).
+For a new dataset, please upload it to the [data](https://github.com/xianggebenben/GraphSL/tree/main/data) folder. The file should be a dictionary object saved by [pickle](https://docs.python.org/3/library/pickle.html). It contains a key "adj_mat" with the value of a graph adjacency matrix (sparse numpy array with the [CSR](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html) format).
 
 For a new algorithm, please determine whether it belongs to prescribed methods or GNN-based methods: if it belongs to the prescribed methods,  add your algorithm as a new class in the [GraphSL/Prescribed.py](https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/Prescribed.py). Otherwise, please upload it as a folder under the [GraphSL/GNN](https://github.com/xianggebenben/GraphSL/tree/main/GraphSL/GNN) folder. Typically, the algorithm should include a "train" function and a "test" function, and the "test" function should return a [Metric](https://github.com/xianggebenben/GraphSL/blob/main/GraphSL/utils.py) object.
 
@@ -223,4 +225,4 @@ Version 0.13 adds the visualization of source predictions.
 
 Version 0.14 uses the num_thres (i.e. number of thresholds to try) instead of specifying the thres_list (i.e. threshold list) for LPSI, GCNSI, IVGD and SLVAE. Moreover, GCNSI, IVGD and SLVAE are improved to run on CUDA if applicable.
 
-Version 0.15 makes all methods run on CUDA if applicable, replaces the diffusion model of IVGD and the encoder of SLVAE, and revises the generation of diffusion. 
+Version 0.15 makes all methods run on CUDA if applicable, replaces the diffusion model of IVGD and the encoder of SLVAE, and revises the generation of diffusion.
